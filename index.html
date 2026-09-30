@@ -1,0 +1,1564 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Справочник кредитного аналитика</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Раскладка: учебник-справочник. Слева закреплённое оглавление с поиском и прогрессом, справа одна открытая глава. Мотив: бухгалтерская книга (дебет/кредит, коды строк). */
+:root{
+  --bg:#f2f5f5; --surface:#ffffff; --surface2:#e7eeed; --ink:#14201f; --muted:#546563; --line:#d3dedc;
+  --accent:#0b6e5d; --accent-ink:#ffffff; --accent-soft:#dbefe9;
+  --debit:#1d4f91; --debit-soft:#e1eaf7;
+  --good:#2b7a30; --warn:#9a620a; --bad:#b3261e;
+  --good-soft:#e2f1e3; --warn-soft:#f7ebd5; --bad-soft:#f9e0de;
+  --f-display:"Literata", Georgia, "Times New Roman", serif;
+  --f-body:"Golos Text", "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1514; --surface:#151f1e; --surface2:#1b2826; --ink:#e1ebe9; --muted:#98aba8; --line:#2a3937;
+  --accent:#4cc0a6; --accent-ink:#06201b; --accent-soft:#17342e;
+  --debit:#93b7ec; --debit-soft:#1a2740;
+  --good:#71c476; --warn:#e2a74a; --bad:#f27d73;
+  --good-soft:#18301b; --warn-soft:#33270f; --bad-soft:#3b1c1a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e1514; --surface:#151f1e; --surface2:#1b2826; --ink:#e1ebe9; --muted:#98aba8; --line:#2a3937;
+  --accent:#4cc0a6; --accent-ink:#06201b; --accent-soft:#17342e;
+  --debit:#93b7ec; --debit-soft:#1a2740;
+  --good:#71c476; --warn:#e2a74a; --bad:#f27d73;
+  --good-soft:#18301b; --warn-soft:#33270f; --bad-soft:#3b1c1a; color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+.app{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100%}
+aside{background:var(--surface2);border-right:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow:auto;padding:22px 16px 30px;display:flex;flex-direction:column;gap:16px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.25;cursor:pointer}
+.brand small{display:block;font-family:var(--f-body);font-weight:400;font-size:12.5px;color:var(--muted);margin-top:4px;letter-spacing:.02em}
+.search{position:relative}
+.search input{width:100%;font:inherit;font-size:15px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.search input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.prog{font-size:13px;color:var(--muted)}
+.prog .bar{height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+nav{display:flex;flex-direction:column;gap:2px}
+nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;font-size:15px;color:var(--ink)}
+nav button:hover{background:var(--surface)}
+nav button:focus-visible{outline:2px solid var(--accent)}
+nav button.on{background:var(--accent);color:var(--accent-ink)}
+nav button .ck{margin-left:auto;font-size:12px;opacity:.9}
+nav .code{font-family:var(--f-mono);font-size:11px;min-width:26px;opacity:.7}
+
+main{padding-block:34px 90px;padding-inline:clamp(16px,4.5vw,60px);min-width:0}
+.page{max-width:900px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2}
+h1{font-size:clamp(28px,4vw,38px);margin:6px 0 10px;font-weight:700}
+h2{font-size:24px;margin:40px 0 12px;font-weight:600;padding-top:14px;border-top:1px solid var(--line)}
+h3{font-size:19px;margin:0 0 8px;font-weight:600}
+p{margin:0 0 12px}
+.lead{font-size:18px;color:var(--muted);max-width:68ch}
+.pagebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 8px}
+.btn{font:inherit;font-size:14px;padding:7px 14px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.done{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+.blk.flash{animation:fl 1.6s}
+@keyframes fl{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+.blk p:last-child,.blk ul:last-child,.blk ol:last-child{margin-bottom:0}
+ul,ol{margin:0 0 12px;padding-left:22px}
+li{margin:4px 0}
+b,strong{font-weight:600}
+.muted{color:var(--muted)}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:15px}
+.note.warn{border-color:var(--warn);background:var(--warn-soft)}
+.note.bad{border-color:var(--bad);background:var(--bad-soft)}
+.term{font-weight:600;color:var(--accent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.grid2 > *{min-width:0}
+.tw{overflow-x:auto;margin:10px 0;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--surface)}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface2);font-weight:600;font-size:13px;letter-spacing:.02em}
+tr:last-child td{border-bottom:0}
+td.num,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:20px;background:var(--surface2);border:1px solid var(--line);white-space:nowrap}
+.pill.a{background:var(--debit-soft);color:var(--debit);border-color:transparent}
+.pill.p{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.pill.ap{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+
+/* Карточки разделов на старте */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:18px 0}
+.card{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.card:hover{border-color:var(--accent)}
+.card:focus-visible{outline:2px solid var(--accent)}
+.card b{font-family:var(--f-display);font-size:17px}
+.card span{font-size:14px;color:var(--muted);line-height:1.45}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:10px 0 10px 46px;border-bottom:1px dashed var(--line)}
+.steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:600;display:grid;place-items:center;font-size:14px}
+
+/* Формулы */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.chip{font:inherit;font-size:13.5px;padding:5px 12px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fcard h3 .en{display:block;font-family:var(--f-body);font-size:13px;font-weight:400;color:var(--muted);margin-top:3px}
+.fx{font-family:var(--f-mono);font-size:14.5px;background:var(--surface2);border-radius:8px;padding:14px 16px;margin:10px 0 12px;overflow-x:auto;display:flex;align-items:center;flex-wrap:wrap;gap:8px;line-height:1.5}
+.fx .lhs{font-weight:600;color:var(--accent)}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid var(--ink);padding:0 6px 3px}
+.frac>span:last-child{padding:3px 6px 0}
+.fmeta{display:grid;grid-template-columns:140px minmax(0,1fr);gap:6px 14px;font-size:15px}
+.fmeta dt{color:var(--muted);font-size:13px;padding-top:2px}
+.fmeta dd{margin:0}
+.gh{font-family:var(--f-display);font-size:21px;margin:30px 0 4px}
+
+/* Схемы */
+.cycle{display:grid;gap:8px;margin:14px 0;font-size:13.5px}
+.cycle .row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:10px;align-items:center}
+.cycle .track{position:relative;height:28px;background:var(--surface2);border-radius:5px}
+.cycle .seg{position:absolute;top:0;bottom:0;border-radius:5px;display:flex;align-items:center;padding:0 8px;color:#fff;font-size:12.5px;white-space:nowrap;overflow:hidden}
+.seg.s1{background:var(--debit)} .seg.s2{background:var(--accent)} .seg.s3{background:var(--warn)} .seg.s4{background:var(--bad)}
+:root .seg{color:var(--bg)}
+svg text{font-family:var(--f-body)}
+.diag{width:100%;height:auto;max-width:680px;display:block;margin:10px auto}
+.diag .box{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
+.diag .t1{fill:var(--ink);font-size:16px;font-weight:600}
+.diag .t2{fill:var(--muted);font-size:12.5px}
+.diag .ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+.diag .lbl{fill:var(--ink);font-size:12.5px}
+.diag .lblbg{fill:var(--bg)}
+.diag .ah{fill:var(--muted)}
+
+/* Калькуляторы */
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px 14px;margin:10px 0}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+.form input,.form select,textarea{font:inherit;font-family:var(--f-mono);font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);width:100%}
+.form input:focus,.form select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0}
+.res{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:14px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);border-left:4px solid var(--line)}
+.kpi .k{font-size:12.5px;color:var(--muted);line-height:1.35}
+.kpi .v{font-family:var(--f-mono);font-size:19px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .h{font-size:12px;margin-top:2px}
+.kpi.good{border-left-color:var(--good)} .kpi.good .h{color:var(--good)}
+.kpi.warn{border-left-color:var(--warn)} .kpi.warn .h{color:var(--warn)}
+.kpi.bad{border-left-color:var(--bad)} .kpi.bad .h{color:var(--bad)}
+.bars{display:flex;align-items:stretch;gap:4px;height:170px;margin-top:14px;padding:0 4px;border-bottom:1px solid var(--line);position:relative}
+.bars .col{flex:1;position:relative;min-width:0}
+.bars .col i{position:absolute;left:10%;right:10%;border-radius:3px}
+.bars .col i.pos{background:var(--good)} .bars .col i.neg{background:var(--bad)}
+.bars .col span{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+.bars .zero{position:absolute;left:0;right:0;border-top:1px dashed var(--muted)}
+.subtle{font-size:13px;color:var(--muted)}
+
+/* Вопросы */
+details.qa{background:var(--surface);border:1px solid var(--line);border-radius:9px;margin:8px 0}
+details.qa summary{cursor:pointer;padding:12px 16px;font-weight:500;list-style:none;display:flex;gap:10px}
+details.qa summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);font-weight:600}
+details.qa[open] summary::before{content:"−"}
+details.qa .ans{padding:0 16px 14px 36px;color:var(--ink)}
+.trainer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;margin:14px 0}
+.trainer .q{font-family:var(--f-display);font-size:21px;line-height:1.35;margin:8px 0 14px}
+.trainer .a{border-top:1px solid var(--line);padding-top:12px;margin-top:6px}
+.trainer .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+mark{background:var(--warn-soft);color:inherit;padding:0 2px;border-radius:2px}
+.sr{display:flex;flex-direction:column;gap:8px}
+.sr button{all:unset;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
+.sr button:hover,.sr button:focus-visible{border-color:var(--accent)}
+.sr .where{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.sr .tt{font-weight:600}
+.sr .sn{font-size:14px;color:var(--muted)}
+.accbar{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.accbar input,.accbar select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink)}
+.accbar input{flex:1;min-width:180px}
+tr.sec td{background:var(--accent-soft);font-weight:600;color:var(--accent);font-size:13.5px}
+td.code{font-family:var(--f-mono);font-weight:500;white-space:nowrap}
+.dk{font-family:var(--f-mono);white-space:nowrap}
+.dk b{color:var(--debit)} .dk i{font-style:normal;color:var(--accent);font-weight:600}
+
+@media (max-width:880px){
+  .app{grid-template-columns:1fr}
+  aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:16px}
+  nav{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  nav button{white-space:nowrap;flex:none}
+  nav button .ck{margin-left:4px}
+  main{padding-block:22px 70px}
+  .fmeta{grid-template-columns:1fr} .fmeta dt{padding-top:6px}
+  .cycle .row{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+<aside>
+  <div class="brand" id="brand" tabindex="0">Справочник кредитного аналитика<small>подготовка к собеседованию</small></div>
+  <div class="search"><input id="q" type="search" placeholder="Поиск: EBITDA, гарантия, счёт 62…" aria-label="Поиск по справочнику"></div>
+  <div class="prog"><span id="progt">Изучено 0 из 0</span><div class="bar"><i id="progb"></i></div></div>
+  <nav id="nav" aria-label="Разделы"></nav>
+</aside>
+
+<main>
+<div id="results" class="page" hidden>
+  <div class="eyebrow">Поиск</div>
+  <h1 id="rtitle">Результаты</h1>
+  <div class="sr" id="rlist"></div>
+</div>
+
+<!-- ===================== СТАРТ ===================== -->
+<section class="page" id="home" data-nav="Старт" data-code="00">
+  <div class="eyebrow">Подготовка к собеседованию · кредитные риски и корпоративные финансы</div>
+  <h1>Справочник кредитного аналитика</h1>
+  <p class="lead">Всё в одном месте: финансовый анализ, банковские гарантии и законы, по которым они выдаются, оборотное и инвестиционное кредитование, формулы с нормативами, кредитный риск и план счетов. Везде простым языком и с пояснением, как на это смотрит банк.</p>
+  <div class="cards" id="homecards"></div>
+
+  <h2>Маршрут подготовки на 5 дней</h2>
+  <ol class="steps">
+    <li><b>Финансовый анализ и формулы.</b> Структура отчётности, коды строк, ликвидность, устойчивость, рентабельность. Затем прогнать свою или учебную отчётность через калькулятор коэффициентов.</li>
+    <li><b>Оборотное кредитование.</b> Финансовый цикл, оборачиваемость, как банк считает лимит. Калькулятор оборотного лимита.</li>
+    <li><b>Инвестиционное кредитование.</b> Чистая приведённая стоимость (NPV), внутренняя норма доходности (IRR), коэффициент покрытия долга (DSCR), проектное финансирование. Калькуляторы проекта и графика погашения.</li>
+    <li><b>Банковские гарантии и законы.</b> Участники, виды, процесс выдачи, Гражданский кодекс, законы о закупках, нормативы Банка России.</li>
+    <li><b>Кредитный риск, план счетов, тренировка.</b> Ожидаемые потери, категории качества, залоги. Пройти тренажёр вопросов до конца дважды.</li>
+  </ol>
+
+  <h2>Как пользоваться</h2>
+  <div class="grid2">
+    <div class="blk"><h3>Поиск</h3><p>Строка поиска слева ищет по всем разделам сразу: по формулам, законам, счетам и вопросам. Нажмите на результат, и откроется нужное место.</p></div>
+    <div class="blk"><h3>Отметка «Изучено»</h3><p>Вверху каждого раздела есть кнопка. Прогресс сохраняется в этом браузере и виден слева.</p></div>
+    <div class="blk"><h3>Калькуляторы</h3><p>Заполнены примером условной компании. Меняйте цифры и смотрите, как меняются показатели и их оценка: зелёный — хорошо, жёлтый — внимание, красный — плохо.</p></div>
+    <div class="blk"><h3>Тренажёр</h3><p>В разделе «Вопросы собеседования» карточки выпадают по одной: сначала ответьте вслух, потом откройте эталон.</p></div>
+  </div>
+  <div class="note warn">Нормативы и пороги в справочнике — это рыночные ориентиры, а не закон. У каждого банка своя методика. Законы и положения Банка России меняются: перед собеседованием сверьте актуальные редакции в КонсультантПлюс или Гарант.</div>
+</section>
+
+<!-- ===================== ФИНАНСОВЫЙ АНАЛИЗ ===================== -->
+<section class="page" id="fa" data-nav="Финансовый анализ" data-code="01" hidden>
+  <div class="eyebrow">Раздел 1</div>
+  <h1>Финансовый анализ</h1>
+  <p class="lead">Цель анализа для банка одна: понять, сможет ли компания вернуть долг деньгами, которые она зарабатывает, и что банк получит, если не сможет.</p>
+
+  <div class="blk"><h3>Кто и зачем анализирует отчётность</h3>
+    <ul>
+      <li><b>Банк (кредитор)</b> — хватит ли денежного потока на проценты и основной долг, насколько устойчив бизнес в плохом сценарии, что стоит залог.</li>
+      <li><b>Инвестор</b> — сколько стоит бизнес и какую доходность он даст на вложенный капитал.</li>
+      <li><b>Руководство</b> — где теряется эффективность, хватает ли денег на развитие.</li>
+      <li><b>Контрагенты</b> — надёжен ли партнёр, можно ли давать отсрочку платежа.</li>
+    </ul>
+  </div>
+
+  <div class="blk"><h3>Источники информации</h3>
+    <ul>
+      <li><b>Бухгалтерский баланс</b> — что у компании есть (активы) и за чей счёт это куплено (капитал и обязательства). Снимок на дату.</li>
+      <li><b>Отчёт о финансовых результатах</b> — выручка, расходы и прибыль за период.</li>
+      <li><b>Отчёт о движении денежных средств</b> — откуда пришли и куда ушли реальные деньги: текущая, инвестиционная и финансовая деятельность.</li>
+      <li><b>Отчёт об изменениях капитала</b> и <b>пояснения к отчётности</b> — амортизация, расшифровки, связанные стороны, условные обязательства.</li>
+      <li><b>Аудиторское заключение</b> — есть ли оговорки. Заключение с оговоркой или отказ от мнения — серьёзный сигнал.</li>
+      <li><b>Расшифровки по счетам</b> (оборотно-сальдовые ведомости по счетам 60, 62, 58, 66, 67, 76) — кто главные покупатели и поставщики, кому выданы займы, у кого взяты кредиты.</li>
+      <li><b>Выписки по банковским счетам</b> — подтверждают, что выручка реальная: обороты на счетах должны сходиться с выручкой.</li>
+      <li><b>Налоговые декларации</b> и справка об отсутствии задолженности перед бюджетом.</li>
+      <li><b>Государственный информационный ресурс бухгалтерской отчётности</b> Федеральной налоговой службы (bo.nalog.ru) — официальная отчётность, которую сдала компания. Сверяют с тем, что компания принесла в банк.</li>
+    </ul>
+  </div>
+
+  <h2>Структура отчётности и коды строк</h2>
+  <p>Банки считают коэффициенты по кодам строк российской отчётности. Коды стоит знать наизусть: на собеседовании часто просят «посчитать по строкам».</p>
+  <div class="grid2">
+    <div class="tw"><table>
+      <tr><th>Код</th><th>Бухгалтерский баланс — актив</th></tr>
+      <tr><td class="num">1110</td><td>Нематериальные активы</td></tr>
+      <tr><td class="num">1150</td><td>Основные средства</td></tr>
+      <tr><td class="num">1170</td><td>Долгосрочные финансовые вложения</td></tr>
+      <tr><td class="num">1180</td><td>Отложенные налоговые активы</td></tr>
+      <tr><td class="num"><b>1100</b></td><td><b>Итого внеоборотные активы</b></td></tr>
+      <tr><td class="num">1210</td><td>Запасы</td></tr>
+      <tr><td class="num">1220</td><td>Налог на добавленную стоимость по приобретённым ценностям</td></tr>
+      <tr><td class="num">1230</td><td>Дебиторская задолженность</td></tr>
+      <tr><td class="num">1240</td><td>Краткосрочные финансовые вложения</td></tr>
+      <tr><td class="num">1250</td><td>Денежные средства и денежные эквиваленты</td></tr>
+      <tr><td class="num"><b>1200</b></td><td><b>Итого оборотные активы</b></td></tr>
+      <tr><td class="num"><b>1600</b></td><td><b>Баланс (всего активов)</b></td></tr>
+    </table></div>
+    <div class="tw"><table>
+      <tr><th>Код</th><th>Бухгалтерский баланс — пассив</th></tr>
+      <tr><td class="num">1310</td><td>Уставный капитал</td></tr>
+      <tr><td class="num">1340</td><td>Переоценка внеоборотных активов</td></tr>
+      <tr><td class="num">1370</td><td>Нераспределённая прибыль (непокрытый убыток)</td></tr>
+      <tr><td class="num"><b>1300</b></td><td><b>Итого капитал и резервы</b></td></tr>
+      <tr><td class="num">1410</td><td>Долгосрочные заёмные средства</td></tr>
+      <tr><td class="num"><b>1400</b></td><td><b>Итого долгосрочные обязательства</b></td></tr>
+      <tr><td class="num">1510</td><td>Краткосрочные заёмные средства</td></tr>
+      <tr><td class="num">1520</td><td>Кредиторская задолженность</td></tr>
+      <tr><td class="num">1530</td><td>Доходы будущих периодов</td></tr>
+      <tr><td class="num">1540</td><td>Оценочные обязательства</td></tr>
+      <tr><td class="num"><b>1500</b></td><td><b>Итого краткосрочные обязательства</b></td></tr>
+      <tr><td class="num"><b>1700</b></td><td><b>Баланс (всего пассивов)</b></td></tr>
+    </table></div>
+    <div class="tw"><table>
+      <tr><th>Код</th><th>Отчёт о финансовых результатах</th></tr>
+      <tr><td class="num">2110</td><td>Выручка</td></tr>
+      <tr><td class="num">2120</td><td>Себестоимость продаж</td></tr>
+      <tr><td class="num">2100</td><td>Валовая прибыль</td></tr>
+      <tr><td class="num">2210</td><td>Коммерческие расходы</td></tr>
+      <tr><td class="num">2220</td><td>Управленческие расходы</td></tr>
+      <tr><td class="num"><b>2200</b></td><td><b>Прибыль от продаж</b></td></tr>
+      <tr><td class="num">2320</td><td>Проценты к получению</td></tr>
+      <tr><td class="num">2330</td><td>Проценты к уплате</td></tr>
+      <tr><td class="num">2340 / 2350</td><td>Прочие доходы / прочие расходы</td></tr>
+      <tr><td class="num"><b>2300</b></td><td><b>Прибыль до налогообложения</b></td></tr>
+      <tr><td class="num">2410</td><td>Налог на прибыль</td></tr>
+      <tr><td class="num"><b>2400</b></td><td><b>Чистая прибыль</b></td></tr>
+    </table></div>
+    <div class="tw"><table>
+      <tr><th>Код</th><th>Отчёт о движении денежных средств</th></tr>
+      <tr><td class="num">4100</td><td>Сальдо денежных потоков от текущих операций</td></tr>
+      <tr><td class="num">4221</td><td>Платежи на приобретение и создание внеоборотных активов (капитальные вложения)</td></tr>
+      <tr><td class="num">4200</td><td>Сальдо денежных потоков от инвестиционных операций</td></tr>
+      <tr><td class="num">4300</td><td>Сальдо денежных потоков от финансовых операций (кредиты, дивиденды)</td></tr>
+      <tr><td class="num">4400</td><td>Сальдо денежных потоков за период</td></tr>
+      <tr><td class="num">4500</td><td>Остаток денежных средств на конец периода</td></tr>
+    </table></div>
+  </div>
+  <div class="note">Амортизации в отчёте о финансовых результатах нет. Её берут из пояснений к отчётности (движение основных средств и нематериальных активов) или из оборотов по счетам 02 и 05.</div>
+
+  <h2>Шесть методов анализа</h2>
+  <div class="grid2">
+    <div class="blk"><h3>Горизонтальный</h3><p>Сравнение с прошлыми периодами: на сколько рублей и процентов изменилась статья. <span class="muted">Пример: выручка выросла на 12%, а дебиторская задолженность на 45% — покупатели стали платить хуже.</span></p></div>
+    <div class="blk"><h3>Вертикальный</h3><p>Доля каждой статьи в итоге: какой процент активов занимают запасы, какой процент выручки съедает себестоимость. <span class="muted">Показывает структуру и помогает сравнивать компании разного размера.</span></p></div>
+    <div class="blk"><h3>Трендовый</h3><p>Динамика за 3–5 лет: куда движется показатель. Одна точка ничего не говорит, тренд говорит многое.</p></div>
+    <div class="blk"><h3>Коэффициентный</h3><p>Отношения статей друг к другу: ликвидность, устойчивость, рентабельность, оборачиваемость, долговая нагрузка. Основной инструмент банка.</p></div>
+    <div class="blk"><h3>Сравнительный</h3><p>Сравнение с конкурентами и среднеотраслевыми значениями. Текущая ликвидность 1,0 плохо для машиностроения, но нормально для розничной сети.</p></div>
+    <div class="blk"><h3>Факторный</h3><p>Разложение изменения показателя на причины. Например, по формуле Дюпона: рентабельность капитала упала из-за маржи, оборачиваемости или из-за снижения долговой нагрузки.</p></div>
+  </div>
+
+  <h2>Алгоритм анализа компании: как отвечать на собеседовании</h2>
+  <div class="blk"><h3>Восемь шагов кредитного аналитика</h3>
+    <ol class="steps">
+      <li><b>Понять бизнес.</b> Что продаёт, кому, как зарабатывает. Отрасль, сезонность, доля рынка, зависимость от крупных покупателей и поставщиков, собственники и группа компаний.</li>
+      <li><b>Проверить качество данных.</b> Аудит, сверка с отчётностью в налоговой, сверка выручки с оборотами на банковских счетах.</li>
+      <li><b>Структура и динамика баланса.</b> Вертикальный и горизонтальный анализ за 2–3 года и последний отчётный квартал.</li>
+      <li><b>Прибыль и маржинальность.</b> Выручка, валовая маржа, EBITDA, чистая прибыль. Отделить разовые доходы и расходы от регулярных.</li>
+      <li><b>Коэффициенты.</b> Ликвидность, финансовая устойчивость, оборачиваемость, рентабельность.</li>
+      <li><b>Денежные потоки и долг.</b> Операционный денежный поток, капитальные вложения, свободный денежный поток. Долг к EBITDA, покрытие процентов, график погашения существующих кредитов.</li>
+      <li><b>Корректировки (нормализация).</b> Убрать из активов то, что не превратится в деньги, и добавить скрытые обязательства. Подробно ниже.</li>
+      <li><b>Вывод.</b> Финансовое положение хорошее, среднее или плохое. Какой долг компания может обслуживать, какие риски и какие ковенанты нужны.</li>
+    </ol>
+  </div>
+
+  <div class="blk"><h3>Корректировки баланса, которые делает банк</h3>
+    <p>Банк смотрит на баланс скептически и «очищает» его от того, что не принесёт денег.</p>
+    <ul>
+      <li><b>Дебиторская задолженность:</b> исключить просроченную более 3–12 месяцев, безнадёжную и задолженность связанных компаний, если она не погашается.</li>
+      <li><b>Запасы:</b> исключить неликвидные и залежалые позиции.</li>
+      <li><b>Финансовые вложения и выданные займы:</b> если это деньги, выведенные в компании собственника, их считают потерянными и уменьшают на них капитал.</li>
+      <li><b>Незавершённое строительство и авансы поставщикам</b> на капитальные вложения, которые годами не двигаются.</li>
+      <li><b>Внебалансовые обязательства:</b> выданные поручительства и гарантии за третьих лиц (забалансовый счёт 009), лизинг, судебные иски. Их добавляют к долгу по оценке банка.</li>
+      <li><b>Группа компаний:</b> если бизнес разделён на несколько юридических лиц, отчётность консолидируют и убирают внутригрупповые обороты и долги.</li>
+    </ul>
+  </div>
+
+  <div class="blk"><h3>Красные флаги в отчётности</h3>
+    <ul>
+      <li>Дебиторская задолженность растёт быстрее выручки.</li>
+      <li>Прибыль есть, а операционный денежный поток годами отрицательный или намного меньше EBITDA.</li>
+      <li>Отрицательные чистые активы или чистые активы меньше уставного капитала.</li>
+      <li>Крупные займы, выданные связанным лицам. Рост «прочих» дебиторов и кредиторов (счёт 76).</li>
+      <li>Резкий рост нематериальных активов или незавершённого строительства: расходы могли «капитализировать», чтобы показать прибыль.</li>
+      <li>Прибыль сделана прочими доходами (продажа имущества, курсовые разницы, списание долгов), а прибыль от продаж — ноль или убыток.</li>
+      <li>Короткие кредиты постоянно пролонгируются или рефинансируются новыми.</li>
+      <li>Выручка по отчётности заметно больше оборотов по банковским счетам.</li>
+      <li>Частая смена аудитора, руководителя, адреса. Налоговая задолженность, крупные судебные споры.</li>
+    </ul>
+  </div>
+
+  <div class="blk"><h3>Российские стандарты бухгалтерского учёта и Международные стандарты финансовой отчётности</h3>
+    <div class="tw"><table>
+      <tr><th>Вопрос</th><th>Российские стандарты</th><th>Международные стандарты</th></tr>
+      <tr><td>Для кого</td><td>Исторически для налоговых органов и собственников</td><td>Для инвесторов и кредиторов</td></tr>
+      <tr><td>Главный принцип</td><td>Форма документа, правила учёта</td><td>Экономическое содержание важнее юридической формы</td></tr>
+      <tr><td>Группа компаний</td><td>Отчётность каждого юридического лица отдельно</td><td>Консолидированная отчётность группы</td></tr>
+      <tr><td>Оценка активов</td><td>Чаще по исторической стоимости</td><td>Шире используется справедливая стоимость, тесты на обесценение</td></tr>
+      <tr><td>Аренда</td><td>С 2022 года по ФСБУ 25/2018 — близко к международным</td><td>Право пользования активом и обязательство по аренде на балансе</td></tr>
+    </table></div>
+    <p class="muted">С отчётности за 2025 год действует новый стандарт о составе и формах отчётности — ФСБУ 4/2023. Коды основных строк сохранились.</p>
+  </div>
+
+  <div class="blk"><h3>Как читать связь прибыли и денег</h3>
+    <p>Прибыль считается «по начислению»: выручка признана в момент отгрузки, даже если покупатель ещё не заплатил. Деньги — это то, что реально пришло на счёт. Между ними стоят:</p>
+    <ul>
+      <li><b>Оборотный капитал:</b> рост запасов и дебиторской задолженности забирает деньги, рост кредиторской задолженности даёт деньги.</li>
+      <li><b>Капитальные вложения:</b> покупка оборудования уменьшает деньги сразу, а в расходы попадает постепенно через амортизацию.</li>
+      <li><b>Амортизация:</b> расход без оттока денег, поэтому денежный поток обычно больше чистой прибыли.</li>
+    </ul>
+    <div class="fx"><span class="lhs">Операционный денежный поток</span> ≈ Чистая прибыль + Амортизация − Прирост (Запасы + Дебиторская задолженность − Кредиторская задолженность)</div>
+  </div>
+</section>
+
+<!-- ===================== ФОРМУЛЫ ===================== -->
+<section class="page" id="formulas" data-nav="Показатели и формулы" data-code="02" hidden>
+  <div class="eyebrow">Раздел 2</div>
+  <h1>Показатели и формулы</h1>
+  <p class="lead">Каждая карточка: формула с кодами строк, объяснение простыми словами, ориентир нормы и то, как показатель использует банк. Выберите группу или смотрите все подряд.</p>
+  <div class="blk"><h3>Как считать среднюю величину в формулах</h3>
+    <p>Прибыль и выручка накапливаются за весь период, а баланс — это снимок на одну дату. Если делить прибыль за год на активы на 31 декабря, результат исказится, когда активы за год сильно выросли или упали. Поэтому балансовый показатель усредняют.</p>
+    <div class="fx"><span class="lhs">Средняя величина</span> = <span class="frac"><span>Значение на начало периода + Значение на конец периода</span><span>2</span></span></div>
+    <ul>
+      <li><b>Где взять начало периода.</b> Это конец предыдущего года: в балансе соседний столбец «На 31 декабря предыдущего года».</li>
+      <li><b>Более точный способ — средняя хронологическая</b> по квартальным или месячным балансам. Для четырёх кварталов: (половина значения на начало года + значения на конец первого, второго и третьего кварталов + половина значения на конец года) ÷ 4. Нужна при сезонном бизнесе: у него остатки на конец года не показательны.</li>
+      <li><b>Неполный год.</b> Если отчётность за 9 месяцев, то в формулах оборачиваемости вместо 365 ставят число дней периода (90, 181, 273). Для рентабельности активов и капитала прибыль приводят к году: берут прибыль за последние 12 месяцев (9 месяцев текущего года + весь прошлый год − 9 месяцев прошлого года).</li>
+      <li><b>Упрощение.</b> Часть банков считает по значениям на конец периода — так быстрее и осторожнее при растущем долге. На собеседовании стоит назвать, какой способ вы используете.</li>
+    </ul>
+    <div class="tw"><table>
+      <tr><th>Пример, тыс. руб.</th><th>На начало года</th><th>На конец года</th><th>Средняя</th><th>Расчёт</th></tr>
+      <tr><td>Активы (1600)</td><td class="num">260 000</td><td class="num">300 000</td><td class="num">280 000</td><td>Рентабельность активов = 21 000 ÷ 280 000 = 7,5% (по концу года было бы 7,0%)</td></tr>
+      <tr><td>Собственный капитал (1300)</td><td class="num">92 000</td><td class="num">110 000</td><td class="num">101 000</td><td>Рентабельность капитала = 21 000 ÷ 101 000 = 20,8% (по концу года — 19,1%)</td></tr>
+      <tr><td>Дебиторская задолженность (1230)</td><td class="num">70 000</td><td class="num">80 000</td><td class="num">75 000</td><td>Срок оплаты = 75 000 ÷ 420 000 × 365 = 65 дней (по концу года — 70)</td></tr>
+      <tr><td>Запасы (1210)</td><td class="num">50 000</td><td class="num">60 000</td><td class="num">55 000</td><td>Срок хранения = 55 000 ÷ 330 000 × 365 = 61 день (по концу года — 66)</td></tr>
+    </table></div>
+    <p class="muted">Калькулятор коэффициентов в этом справочнике для простоты считает по значениям на конец периода.</p>
+  </div>
+  <div class="chips" id="fchips"></div>
+  <div id="flist"></div>
+</section>
+
+<!-- ===================== АМОРТИЗАЦИЯ ===================== -->
+<section class="page" id="amort" data-nav="Амортизация" data-code="03" hidden>
+  <div class="eyebrow">Раздел</div>
+  <h1>Амортизация</h1>
+  <p class="lead">Амортизация — постепенный перенос стоимости основных средств и нематериальных активов на расходы в течение срока их службы. Деньги ушли при покупке, а расход признаётся частями каждый месяц.</p>
+
+  <div class="blk"><h3>Простыми словами</h3>
+    <p>Компания купила станок за 12 миллионов рублей на 10 лет. Списать все 12 миллионов в расходы в год покупки было бы неверно: станок будет приносить выручку 10 лет. Поэтому каждый год в расходы попадает 1,2 миллиона (100 тысяч в месяц), а стоимость станка в балансе на столько же уменьшается.</p>
+    <div class="fx"><span class="lhs">Годовая амортизация (линейный способ)</span> = <span class="frac"><span>Первоначальная стоимость − Ликвидационная стоимость</span><span>Срок полезного использования, лет</span></span></div>
+    <ul>
+      <li><b>Способы для основных средств</b> (ФСБУ 6/2020): линейный, уменьшаемого остатка, пропорционально объёму выпущенной продукции.</li>
+      <li><b>Нематериальные активы</b> (ФСБУ 14/2022) амортизируются так же, по своему сроку использования.</li>
+      <li><b>Не амортизируются:</b> земля, объекты на консервации (если так установлено), активы с неопределённым сроком использования.</li>
+      <li><b>Налоговый учёт</b> считает амортизацию по своим правилам: амортизационные группы, линейный и нелинейный методы, амортизационная премия. Из-за разницы с бухгалтерским учётом возникают отложенные налоги (счета 09 и 77).</li>
+    </ul>
+  </div>
+
+  <h2>Где амортизация в отчётности</h2>
+  <div class="tw"><table>
+    <tr><th style="width:26%">Форма</th><th>Как отражена</th></tr>
+    <tr><td><b>Бухгалтерский баланс</b></td><td>Отдельной строки нет. Основные средства (1150) и нематериальные активы (1110) показаны по остаточной стоимости: первоначальная стоимость (счета 01, 04) минус накопленная амортизация (счета 02, 05). Чем больше накоплено амортизации, тем меньше эти строки.</td></tr>
+    <tr><td><b>Отчёт о финансовых результатах</b></td><td>Отдельной строки нет. Амортизация «растворена» в расходах: производственного оборудования — в себестоимости продаж (2120), торгового и складского — в коммерческих расходах (2210), офиса — в управленческих расходах (2220), имущества вне основной деятельности — в прочих расходах (2350).</td></tr>
+    <tr><td><b>Отчёт о движении денежных средств</b></td><td>Амортизации нет совсем: это расход без выплаты денег. Деньги видны в момент покупки актива — строка 4221 (платежи на приобретение внеоборотных активов). В отчётности по международным стандартам при косвенном методе амортизацию прибавляют к прибыли отдельной строкой.</td></tr>
+    <tr><td><b>Отчёт об изменениях капитала</b></td><td>Напрямую не отражается. Влияет через чистую прибыль, которая увеличивает нераспределённую прибыль.</td></tr>
+    <tr><td><b>Пояснения к балансу и отчёту о финансовых результатах</b></td><td><b>Главный источник цифры.</b> Раздел «Основные средства»: первоначальная стоимость и накопленная амортизация на начало и конец года, начислено за период. Аналогичный раздел по нематериальным активам. Раздел «Затраты на производство»: расходы по элементам, строка «Амортизация» (код 5640) — её и берут для расчёта EBITDA.</td></tr>
+    <tr><td><b>Если пояснений нет</b> (малые предприятия)</td><td>Запрашивают оборотно-сальдовую ведомость по счетам 02 и 05: оборот по кредиту за период — это начисленная амортизация. Дополнительно можно сверить с приложением № 2 к листу 02 декларации по налогу на прибыль (там налоговая амортизация).</td></tr>
+  </table></div>
+  <div class="note">Часть начисленной амортизации может «застрять» в балансе: если продукция произведена, но не продана, амортизация оборудования сидит в стоимости незавершённого производства и готовой продукции (строка 1210) и попадёт в расходы только при продаже.</div>
+
+  <h2>Основные проводки</h2>
+  <div class="tw"><table>
+    <tr><th>Операция</th><th>Дебет — Кредит</th><th>Куда попадает в отчёте</th></tr>
+    <tr><td>Амортизация производственного оборудования</td><td class="dk"><b>Дт 20 (23, 25)</b> — <i>Кт 02</i></td><td>Себестоимость продаж (2120) — после продажи продукции</td></tr>
+    <tr><td>Амортизация офиса и управленческого имущества</td><td class="dk"><b>Дт 26</b> — <i>Кт 02</i></td><td>Управленческие расходы (2220)</td></tr>
+    <tr><td>Амортизация торгового и складского имущества</td><td class="dk"><b>Дт 44</b> — <i>Кт 02</i></td><td>Коммерческие расходы (2210)</td></tr>
+    <tr><td>Амортизация имущества, сданного в аренду (аренда — не основная деятельность)</td><td class="dk"><b>Дт 91.02</b> — <i>Кт 02</i></td><td>Прочие расходы (2350)</td></tr>
+    <tr><td>Амортизация техники, занятой на строительстве собственного объекта</td><td class="dk"><b>Дт 08</b> — <i>Кт 02</i></td><td>В расходы не попадает: увеличивает стоимость нового объекта</td></tr>
+    <tr><td>Амортизация нематериальных активов</td><td class="dk"><b>Дт 20 (26, 44)</b> — <i>Кт 05</i></td><td>2120, 2220 или 2210</td></tr>
+    <tr><td>Продажа или списание объекта: списана накопленная амортизация</td><td class="dk"><b>Дт 02</b> — <i>Кт 01</i></td><td>—</td></tr>
+    <tr><td>Продажа или списание объекта: списана остаточная стоимость</td><td class="dk"><b>Дт 91.02</b> — <i>Кт 01</i></td><td>Прочие расходы (2350)</td></tr>
+  </table></div>
+
+  <h2>Связь с прибылью и деньгами</h2>
+  <div class="blk"><h3>Пример: от выручки до денежного потока</h3>
+    <div class="tw"><table>
+      <tr><th>Показатель, млн руб.</th><th>Сумма</th><th>Комментарий</th></tr>
+      <tr><td>Выручка</td><td class="num">100</td><td></td></tr>
+      <tr><td>Расходы, оплаченные деньгами</td><td class="num">−70</td><td>Сырьё, зарплата, аренда</td></tr>
+      <tr><td><b>EBITDA</b></td><td class="num"><b>30</b></td><td>Результат до амортизации</td></tr>
+      <tr><td>Амортизация</td><td class="num">−10</td><td>Расход без выплаты денег</td></tr>
+      <tr><td><b>Операционная прибыль (EBIT)</b></td><td class="num"><b>20</b></td><td></td></tr>
+      <tr><td>Налог на прибыль 25%</td><td class="num">−5</td><td>Без амортизации налог был бы 7,5</td></tr>
+      <tr><td><b>Чистая прибыль</b></td><td class="num"><b>15</b></td><td></td></tr>
+      <tr><td><b>Денежный поток = Чистая прибыль + Амортизация</b></td><td class="num"><b>25</b></td><td>Амортизацию возвращаем: деньги за неё не платили</td></tr>
+    </table></div>
+  </div>
+  <div class="grid2">
+    <div class="blk"><h3>Уменьшает прибыль, но не деньги</h3><p>Чем больше амортизация, тем меньше прибыль. На деньги она не влияет. Поэтому у компаний с дорогим оборудованием операционный денежный поток заметно больше чистой прибыли.</p></div>
+    <div class="blk"><h3>Налоговый щит</h3><p>Амортизация уменьшает налогооблагаемую прибыль. Экономия на налоге = Амортизация × ставка налога. В примере: 10 × 25% = 2,5 миллиона.</p></div>
+    <div class="blk"><h3>EBITDA не зависит от амортизации</h3><p>Две одинаковые компании с разными сроками службы и способами амортизации покажут разную прибыль, но одинаковую EBITDA. Поэтому банки сравнивают компании по ней.</p></div>
+    <div class="blk"><h3>Амортизация и капитальные вложения</h3><p>Амортизация показывает, сколько имущества «износилось» за год. Если капитальные вложения годами меньше амортизации, компания проедает свои активы. Если больше — растёт.</p></div>
+    <div class="blk"><h3>Степень износа</h3><p>Коэффициент износа = Накопленная амортизация ÷ Первоначальная стоимость. Выше 60–70% — оборудование старое, скоро понадобятся крупные вложения, а залог стоит мало.</p></div>
+    <div class="blk"><h3>Чем можно приукрасить отчётность</h3><p>Увеличить срок полезного использования — амортизация упадёт, прибыль вырастет. Записать текущие расходы (ремонт, зарплату) в стоимость актива — они уйдут из расходов в амортизацию, и EBITDA завысится.</p></div>
+  </div>
+  <div class="note warn"><b>Аренда и лизинг.</b> По ФСБУ 25/2018 арендатор вместо арендных платежей показывает амортизацию права пользования активом и проценты. Оба расхода находятся «ниже» EBITDA, поэтому она растёт без изменений в бизнесе. Банки это корректируют: вычитают арендные платежи из EBITDA или добавляют обязательства по аренде к долгу.</div>
+</section>
+
+<!-- ===================== ГАРАНТИИ ===================== -->
+<section class="page" id="bg" data-nav="Банковские гарантии" data-code="03" hidden>
+  <div class="eyebrow">Раздел 3</div>
+  <h1>Банковские гарантии</h1>
+  <p class="lead">Банковская гарантия — письменное обязательство банка заплатить деньги получателю гарантии, если клиент банка не выполнит свои обязательства. Банк как бы говорит: «Если он не заплатит или не сделает, заплачу я».</p>
+
+  <div class="blk"><h3>Пример простыми словами</h3>
+    <p>Строительная компания выиграла государственный контракт на 50 миллионов рублей. Заказчик требует обеспечение исполнения контракта 10% — 5 миллионов. Можно перечислить заказчику 5 миллионов живыми деньгами и заморозить их на весь срок контракта. А можно заплатить банку комиссию, например 2–4% годовых от суммы гарантии, и получить гарантию на 5 миллионов. Если компания сорвёт контракт, заказчик потребует деньги с банка, а банк потом взыщет их с компании.</p>
+    <p class="muted">Для компании гарантия — способ не отвлекать деньги из оборота. Для банка — комиссионный доход без выдачи денег, пока нет требования о выплате.</p>
+  </div>
+
+  <h2>Участники</h2>
+  <svg class="diag" viewBox="0 0 680 330" role="img" aria-label="Схема: принципал, гарант и бенефициар">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+    <rect class="box" x="250" y="14" width="180" height="70" rx="10"/>
+    <text class="t1" x="340" y="44" text-anchor="middle">Гарант</text>
+    <text class="t2" x="340" y="66" text-anchor="middle">банк, выдаёт гарантию</text>
+    <rect class="box" x="24" y="232" width="200" height="74" rx="10"/>
+    <text class="t1" x="124" y="264" text-anchor="middle">Принципал</text>
+    <text class="t2" x="124" y="286" text-anchor="middle">клиент банка, должник</text>
+    <rect class="box" x="456" y="232" width="200" height="74" rx="10"/>
+    <text class="t1" x="556" y="264" text-anchor="middle">Бенефициар</text>
+    <text class="t2" x="556" y="286" text-anchor="middle">получатель гарантии</text>
+    <path class="ln" d="M150,230 L285,88" marker-end="url(#ar)"/>
+    <path class="ln" d="M300,88 L170,230" marker-end="url(#ar)"/>
+    <path class="ln" d="M395,88 L525,230" marker-end="url(#ar)"/>
+    <path class="ln" d="M228,280 L452,280" marker-end="url(#ar)" marker-start="url(#ar)"/>
+    <rect class="lblbg" x="92" y="130" width="126" height="40" rx="4"/>
+    <text class="lbl" x="155" y="146" text-anchor="middle">заявка, комиссия,</text>
+    <text class="lbl" x="155" y="163" text-anchor="middle">возмещение выплаты</text>
+    <rect class="lblbg" x="462" y="130" width="140" height="40" rx="4"/>
+    <text class="lbl" x="532" y="146" text-anchor="middle">гарантия: обязуется</text>
+    <text class="lbl" x="532" y="163" text-anchor="middle">заплатить по требованию</text>
+    <rect class="lblbg" x="262" y="292" width="156" height="22" rx="4"/>
+    <text class="lbl" x="340" y="308" text-anchor="middle">основной договор, контракт</text>
+  </svg>
+  <div class="grid2">
+    <div class="blk"><h3>Принципал</h3><p>Компания, которая просит банк выдать гарантию. Это она должна исполнить контракт, заплатить налог или таможенную пошлину.</p></div>
+    <div class="blk"><h3>Гарант</h3><p>Банк или иная кредитная организация. Обязуется заплатить бенефициару по его письменному требованию.</p></div>
+    <div class="blk"><h3>Бенефициар</h3><p>Тот, кого защищает гарантия: государственный заказчик, покупатель, налоговая или таможенная служба.</p></div>
+  </div>
+
+  <h2>Ключевые свойства</h2>
+  <div class="blk"><ul>
+    <li><b>Независимость.</b> Обязательство банка не зависит от основного договора. Банк платит по требованию, если документы соответствуют условиям гарантии, и не разбирается, кто прав в споре принципала и бенефициара (статья 370 Гражданского кодекса).</li>
+    <li><b>Безотзывность.</b> Банк не может отозвать или изменить гарантию, если в ней не сказано иное (статья 371).</li>
+    <li><b>Письменная форма</b> — на бумаге или в электронном виде.</li>
+    <li><b>Обязательные условия:</b> дата выдачи, принципал, бенефициар, гарант, основное обязательство, сумма (или порядок её определения), срок действия, обстоятельства для выплаты.</li>
+    <li><b>Вступает в силу</b> с момента отправки бенефициару, если в гарантии не указано иное (статья 373).</li>
+    <li><b>Право требования</b> по гарантии нельзя передать другому лицу, если в гарантии не сказано иное (статья 372).</li>
+    <li><b>Срок рассмотрения требования банком</b> — 5 дней со дня, следующего за днём получения; в гарантии можно установить до 30 дней (статья 375).</li>
+    <li><b>Регресс.</b> После выплаты банк вправе потребовать возмещения от принципала (статья 379).</li>
+  </ul></div>
+
+  <h2>Виды гарантий</h2>
+  <div class="tw"><table>
+    <tr><th>Вид</th><th>Что обеспечивает</th><th>Когда нужна</th></tr>
+    <tr><td><b>Обеспечение заявки (тендерная)</b></td><td>Что победитель закупки подпишет контракт и не откажется</td><td>Участие в торгах</td></tr>
+    <tr><td><b>Обеспечение исполнения контракта</b></td><td>Что поставщик выполнит работы в срок и с нужным качеством</td><td>Подписание контракта</td></tr>
+    <tr><td><b>Возврат аванса</b></td><td>Что аванс вернут, если работы не выполнят</td><td>Контракт с авансом</td></tr>
+    <tr><td><b>Гарантийные обязательства</b></td><td>Устранение дефектов в гарантийный период</td><td>После сдачи работ</td></tr>
+    <tr><td><b>Платёжная</b></td><td>Что покупатель оплатит поставленный товар</td><td>Поставки с отсрочкой платежа</td></tr>
+    <tr><td><b>Налоговая</b></td><td>Возврат налога на добавленную стоимость, если его возместили ошибочно; уплату акцизов</td><td>Заявительный порядок возмещения налога</td></tr>
+    <tr><td><b>Таможенная</b></td><td>Уплату таможенных пошлин и налогов</td><td>Импорт, таможенные процедуры</td></tr>
+    <tr><td><b>Коммерческая</b></td><td>Любые обязательства по договорам между компаниями</td><td>Аренда, поставки, подряд</td></tr>
+  </table></div>
+
+  <h2>Процесс выдачи</h2>
+  <div class="blk"><ol class="steps">
+    <li><b>Заявка.</b> Анкета, реквизиты закупки или контракта, требуемая сумма и срок.</li>
+    <li><b>Документы.</b> Учредительные документы, бухгалтерская отчётность за последний год и квартал, налоговые декларации, сведения об опыте исполнения аналогичных контрактов, проект контракта.</li>
+    <li><b>Проверка (андеррайтинг).</b> Финансовое положение, стоп-факторы, служба безопасности, проверка по закону о противодействии легализации доходов.</li>
+    <li><b>Решение и лимит.</b> Небольшие тендерные гарантии часто выдают по упрощённой скоринговой модели, крупные — через кредитный комитет, иногда с обеспечением.</li>
+    <li><b>Согласование текста (макета)</b> с бенефициаром: заказчики отклоняют гарантии с ошибками в формулировках.</li>
+    <li><b>Оплата комиссии и выпуск.</b> Для закупок по закону № 44-ФЗ гарантию включают в реестр независимых гарантий в Единой информационной системе в сфере закупок.</li>
+    <li><b>Мониторинг</b> исполнения контракта и финансового положения принципала до окончания срока гарантии.</li>
+  </ol></div>
+
+  <h2>Как банк оценивает клиента</h2>
+  <div class="grid2">
+    <div class="blk"><h3>Что анализируют</h3><ul>
+      <li>Финансовое положение: выручка, прибыль, чистые активы, долговая нагрузка.</li>
+      <li>Соотношение суммы гарантии с выручкой и объёмом уже выданных гарантий.</li>
+      <li>Опыт исполнения аналогичных контрактов (в реестре контрактов закупок).</li>
+      <li>Портфель действующих контрактов: хватит ли ресурсов выполнить всё сразу.</li>
+      <li>Для гарантии возврата аванса — куда пойдёт аванс и не «проедят» ли его.</li>
+    </ul></div>
+    <div class="blk"><h3>Типичные стоп-факторы</h3><ul>
+      <li>Убыток или отрицательные чистые активы.</li>
+      <li>Налоговая задолженность, приостановление операций по счетам.</li>
+      <li>Компания в реестре недобросовестных поставщиков.</li>
+      <li>Признаки процедуры банкротства, крупные проигранные суды.</li>
+      <li>Отметка налоговой о недостоверности сведений в реестре юридических лиц.</li>
+      <li>Нет опыта в отрасли при крупном контракте.</li>
+    </ul></div>
+  </div>
+  <div class="blk"><h3>Экономика гарантии для банка</h3>
+    <ul>
+      <li><b>Доход</b> — комиссия, обычно считается в процентах годовых от суммы гарантии. Тендерные гарантии дешевле, гарантии возврата аванса дороже, так как риск выше.</li>
+      <li><b>Риск</b> — условное обязательство кредитного характера. Если бенефициар потребует выплату, у банка появляется требование к принципалу, которое может оказаться невозвратным.</li>
+      <li><b>Резервы и капитал.</b> Банк формирует резерв на возможные потери по гарантиям (Положение Банка России № 611-П) и учитывает их в нормативах достаточности капитала и концентрации риска.</li>
+      <li><b>Преимущество</b> — не требует фондирования: банк не выдаёт деньги, пока нет требования.</li>
+    </ul>
+  </div>
+
+  <h2>Если бенефициар требует выплату</h2>
+  <div class="blk"><ol class="steps">
+    <li>Бенефициар направляет банку письменное требование с документами, указанными в гарантии.</li>
+    <li>Банк сразу уведомляет принципала и передаёт ему копии требования.</li>
+    <li>Банк проверяет только соответствие требования условиям гарантии, по внешним признакам, в течение 5 дней (до 30, если так указано в гарантии).</li>
+    <li>Если всё соответствует — платит. Отказать можно, если требование или документы не соответствуют условиям, подано после окончания срока (статья 376).</li>
+    <li>Банк взыскивает выплаченную сумму с принципала по договору о выдаче гарантии (регресс), часто с неустойкой. У принципала возникает долг перед банком, а у госзаказчика — основание внести компанию в реестр недобросовестных поставщиков.</li>
+  </ol></div>
+
+  <h2>Сравнение с похожими инструментами</h2>
+  <div class="tw"><table>
+    <tr><th></th><th>Банковская гарантия</th><th>Поручительство</th><th>Аккредитив</th><th>Залог денег (депозит)</th></tr>
+    <tr><td><b>Связь с основным договором</b></td><td>Независима</td><td>Зависит: если основное обязательство недействительно, поручительство тоже</td><td>Независим</td><td>Зависит</td></tr>
+    <tr><td><b>Кто может выдать</b></td><td>Банк (независимую гарантию — и коммерческая организация)</td><td>Любое лицо</td><td>Банк</td><td>Сам должник</td></tr>
+    <tr><td><b>Когда платят</b></td><td>По требованию бенефициара и документам</td><td>При неисполнении обязательства должником</td><td>При предоставлении документов об исполнении (например, об отгрузке)</td><td>При нарушении — обращение взыскания</td></tr>
+    <tr><td><b>Отвлекает деньги компании</b></td><td>Нет, только комиссия</td><td>Нет</td><td>Покрытый — да, непокрытый — нет</td><td>Да, полностью</td></tr>
+  </table></div>
+
+  <div class="note bad"><b>Риск для банка и бенефициара — поддельные гарантии.</b> Поэтому гарантии по закону № 44-ФЗ проверяют в реестре Единой информационной системы, а коммерческие — запросом в банк-гарант.</div>
+</section>
+
+<!-- ===================== ЗАКОНЫ ===================== -->
+<section class="page" id="law" data-nav="Законы и нормативы" data-code="04" hidden>
+  <div class="eyebrow">Раздел 4</div>
+  <h1>Законы и нормативные акты</h1>
+  <p class="lead">Какие законы регулируют гарантии, кредиты и работу банка с кредитным риском. Для каждого акта: что регулирует, какие статьи знать и зачем это на собеседовании.</p>
+  <div class="note warn">Проценты и сроки из законов о закупках меняются почти каждый год. Перед собеседованием сверьте действующую редакцию.</div>
+
+  <h2>Гражданское право</h2>
+  <div class="tw"><table>
+    <tr><th style="width:26%">Акт</th><th>Что регулирует и ключевые статьи</th></tr>
+    <tr><td><b>Гражданский кодекс Российской Федерации, часть первая, глава 23, параграф 6 «Независимая гарантия»</b></td><td>Основа банковских гарантий. С 1 июня 2015 года банковская гарантия — разновидность независимой гарантии, выданной банком или иной кредитной организацией. Статья 368 — понятие; 370 — независимость; 371 — безотзывность; 372 — непередаваемость права требования; 373 — вступление в силу; 374 — требование бенефициара; 375 — обязанности гаранта и срок рассмотрения; 376 — отказ в выплате; 377 — пределы обязательства; 378 — прекращение; 379 — возмещение гаранту (регресс).</td></tr>
+    <tr><td><b>Гражданский кодекс: параграф 5 «Поручительство»</b></td><td>Статьи 361–367. Поручитель отвечает солидарно с должником, если иное не предусмотрено. Поручительство собственников — стандартное обеспечение кредита.</td></tr>
+    <tr><td><b>Гражданский кодекс: параграф 3 «Залог»</b></td><td>Статьи 334–358.20. Залог движимого имущества, товаров в обороте, прав по договору банковского счёта. Реестр уведомлений о залоге движимого имущества ведёт нотариат.</td></tr>
+    <tr><td><b>Гражданский кодекс, часть вторая, глава 42 «Заём и кредит»</b></td><td>Статьи 807–818 (заём), 819–821.1 (кредитный договор: банк обязуется предоставить деньги, заёмщик — вернуть и уплатить проценты).</td></tr>
+    <tr><td><b>Гражданский кодекс: глава 43 «Финансирование под уступку денежного требования»</b></td><td>Статьи 824–833. Факторинг — инструмент оборотного финансирования под дебиторскую задолженность.</td></tr>
+    <tr><td><b>Гражданский кодекс: глава 46, параграф 3 «Расчёты по аккредитиву»</b></td><td>Статьи 867–873. Аккредитив в торговом финансировании и как альтернатива платёжной гарантии.</td></tr>
+  </table></div>
+
+  <h2>Банковская деятельность и регулирование Банка России</h2>
+  <div class="tw"><table>
+    <tr><th style="width:26%">Акт</th><th>Что регулирует</th></tr>
+    <tr><td><b>Федеральный закон от 02.12.1990 № 395-1 «О банках и банковской деятельности»</b></td><td>Статья 5: выдача банковских гарантий и размещение привлечённых средств (кредитование) — банковские операции, для которых нужна лицензия.</td></tr>
+    <tr><td><b>Положение Банка России № 590-П</b> «О порядке формирования кредитными организациями резервов на возможные потери по ссудам»</td><td>Оценка кредитного риска по каждой ссуде: финансовое положение заёмщика плюс качество обслуживания долга дают категорию качества от I до V и размер резерва. Главный документ для кредитного аналитика.</td></tr>
+    <tr><td><b>Положение Банка России № 611-П</b> «О порядке формирования кредитными организациями резервов на возможные потери»</td><td>Резервы по прочим активам и условным обязательствам кредитного характера, в том числе по выданным гарантиям и неиспользованным кредитным линиям.</td></tr>
+    <tr><td><b>Инструкция Банка России № 199-И</b> «Об обязательных нормативах и надбавках к нормативам достаточности капитала банков с универсальной лицензией»</td><td>Нормативы достаточности капитала, ликвидности, концентрации риска. Таблица ниже.</td></tr>
+    <tr><td><b>Положение Банка России № 483-П</b> «О порядке расчёта величины кредитного риска на основе внутренних рейтингов»</td><td>Подход на основе внутренних рейтингов: крупные банки сами оценивают вероятность дефолта и уровень потерь. Отсюда термины из раздела «Кредитный риск».</td></tr>
+    <tr><td><b>Федеральный закон № 115-ФЗ</b> «О противодействии легализации (отмыванию) доходов, полученных преступным путём, и финансированию терроризма»</td><td>Проверка клиента и его операций. Подозрительные операции — стоп-фактор для кредита и гарантии.</td></tr>
+  </table></div>
+  <div class="blk"><h3>Обязательные нормативы банка (Инструкция № 199-И)</h3>
+    <div class="tw"><table>
+      <tr><th>Норматив</th><th>Что показывает</th><th>Значение</th></tr>
+      <tr><td class="num">Н1.1</td><td>Достаточность базового капитала</td><td class="num">не менее 4,5%</td></tr>
+      <tr><td class="num">Н1.2</td><td>Достаточность основного капитала</td><td class="num">не менее 6%</td></tr>
+      <tr><td class="num">Н1.0</td><td>Достаточность собственных средств (капитала)</td><td class="num">не менее 8%</td></tr>
+      <tr><td class="num">Н2</td><td>Мгновенная ликвидность</td><td class="num">не менее 15%</td></tr>
+      <tr><td class="num">Н3</td><td>Текущая ликвидность</td><td class="num">не менее 50%</td></tr>
+      <tr><td class="num">Н4</td><td>Долгосрочная ликвидность</td><td class="num">не более 120%</td></tr>
+      <tr><td class="num"><b>Н6</b></td><td><b>Максимальный размер риска на одного заёмщика или группу связанных заёмщиков</b> — к капиталу банка. Сюда входят и кредиты, и гарантии</td><td class="num"><b>не более 25%</b></td></tr>
+      <tr><td class="num">Н7</td><td>Максимальный размер крупных кредитных рисков (крупный риск — свыше 5% капитала)</td><td class="num">не более 800%</td></tr>
+      <tr><td class="num">Н25</td><td>Максимальный размер риска на связанное с банком лицо</td><td class="num">не более 20%</td></tr>
+    </table></div>
+    <p class="muted">К нормативам достаточности капитала добавляются надбавки (буферы), поэтому фактические требования выше минимальных.</p>
+  </div>
+
+  <h2>Государственные и корпоративные закупки</h2>
+  <div class="tw"><table>
+    <tr><th style="width:26%">Акт</th><th>Что регулирует</th></tr>
+    <tr><td><b>Федеральный закон от 05.04.2013 № 44-ФЗ</b> «О контрактной системе в сфере закупок товаров, работ, услуг для обеспечения государственных и муниципальных нужд»</td><td>Статья 44 — обеспечение заявок; статья 45 — требования к независимым гарантиям и реестр гарантий в Единой информационной системе; статья 96 — обеспечение исполнения контракта и гарантийных обязательств; статья 37 — антидемпинговые меры. Ориентиры: обеспечение заявки обычно 0,5–1% начальной (максимальной) цены контракта; обеспечение исполнения — от 0,5 до 30%; гарантийных обязательств — не более 10%; при снижении цены на 25% и более обеспечение исполнения увеличивается в 1,5 раза.</td></tr>
+    <tr><td><b>Постановление Правительства Российской Федерации от 12.04.2018 № 440</b></td><td>Требования к банкам, которые вправе выдавать гарантии по закону № 44-ФЗ (размер собственных средств, кредитный рейтинг). Перечень таких банков ведёт Министерство финансов.</td></tr>
+    <tr><td><b>Постановление Правительства Российской Федерации от 08.11.2013 № 1005</b> «О независимых гарантиях, используемых для целей Федерального закона "О контрактной системе…"»</td><td>Дополнительные требования к тексту гарантии, форма требования об уплате, порядок ведения реестра гарантий.</td></tr>
+    <tr><td><b>Федеральный закон от 18.07.2011 № 223-ФЗ</b> «О закупках товаров, работ, услуг отдельными видами юридических лиц»</td><td>Закупки государственных компаний, естественных монополий, организаций с государственным участием. Требования к обеспечению устанавливает положение о закупке заказчика. Для закупок у малого и среднего предпринимательства закон ограничивает размер обеспечения (статья 3.4): обеспечение заявки — не более 2% начальной цены.</td></tr>
+    <tr><td><b>Постановление Правительства Российской Федерации от 01.07.2016 № 615</b></td><td>Привлечение подрядчиков для капитального ремонта многоквартирных домов (по Жилищному кодексу) — отдельный рынок гарантий.</td></tr>
+  </table></div>
+
+  <h2>Налоги и таможня</h2>
+  <div class="tw"><table>
+    <tr><th style="width:26%">Акт</th><th>Что регулирует</th></tr>
+    <tr><td><b>Налоговый кодекс, статья 74.1</b></td><td>Банковская гарантия как способ обеспечения исполнения обязанности по уплате налогов. Банк должен входить в перечень Министерства финансов.</td></tr>
+    <tr><td><b>Налоговый кодекс, статья 176.1</b></td><td>Заявительный порядок возмещения налога на добавленную стоимость: компания получает деньги до окончания налоговой проверки, если предоставит банковскую гарантию.</td></tr>
+    <tr><td><b>Таможенный кодекс Евразийского экономического союза</b> (статьи 61–63 и далее) и <b>Федеральный закон от 03.08.2018 № 289-ФЗ</b> «О таможенном регулировании в Российской Федерации»</td><td>Способы обеспечения уплаты таможенных пошлин и налогов, в том числе банковская гарантия. Реестр банков, гарантии которых принимаются, ведёт Федеральная таможенная служба.</td></tr>
+  </table></div>
+
+  <h2>Что ещё полезно знать кредитному аналитику</h2>
+  <div class="tw"><table>
+    <tr><th style="width:26%">Акт</th><th>Зачем знать</th></tr>
+    <tr><td><b>Федеральный закон № 127-ФЗ «О несостоятельности (банкротстве)»</b></td><td>Очерёдность требований кредиторов, оспаривание сделок должника, судьба залога при банкротстве. Определяет, сколько банк реально вернёт (уровень потерь при дефолте).</td></tr>
+    <tr><td><b>Федеральный закон № 14-ФЗ «Об обществах с ограниченной ответственностью»</b> и <b>№ 208-ФЗ «Об акционерных обществах»</b></td><td>Правила о чистых активах: если они меньше уставного капитала, общество обязано уменьшить капитал или ликвидироваться. Одобрение крупных сделок, включая залог и поручительство.</td></tr>
+    <tr><td><b>Федеральный закон № 214-ФЗ «Об участии в долевом строительстве…»</b></td><td>Проектное финансирование жилищного строительства через счета эскроу: деньги дольщиков хранятся в банке до ввода дома.</td></tr>
+    <tr><td><b>Федеральный закон № 102-ФЗ «Об ипотеке (залоге недвижимости)»</b></td><td>Залог недвижимости — основной вид обеспечения инвестиционных кредитов.</td></tr>
+    <tr><td><b>Федеральный закон № 402-ФЗ «О бухгалтерском учёте»</b>, федеральные стандарты бухгалтерского учёта</td><td>Правила формирования отчётности, которую анализирует банк.</td></tr>
+    <tr><td><b>Федеральный закон № 173-ФЗ «О валютном регулировании и валютном контроле»</b></td><td>Для экспортёров и импортёров: валютная выручка, контракты с нерезидентами.</td></tr>
+  </table></div>
+</section>
+
+<!-- ===================== ОБОРОТНОЕ КРЕДИТОВАНИЕ ===================== -->
+<section class="page" id="wc" data-nav="Оборотное кредитование" data-code="05" hidden>
+  <div class="eyebrow">Раздел 5</div>
+  <h1>Оборотное кредитование</h1>
+  <p class="lead">Кредит на «оборот»: закупить сырьё и товар, заплатить зарплату, дать отсрочку покупателям. Возвращается из выручки в течение одного операционного цикла. Срок обычно до 12–18 месяцев, по кредитной линии — до 2–3 лет с короткими траншами.</p>
+
+  <h2>Главное понятие: финансовый цикл</h2>
+  <div class="blk">
+    <p>Компания платит поставщику, товар лежит на складе, потом его продают с отсрочкой, и только потом приходят деньги. Промежуток между оплатой поставщику и получением денег от покупателя — <span class="term">финансовый цикл</span>. Его и закрывает оборотный кредит.</p>
+    <div class="cycle" aria-label="Пример финансового цикла">
+      <div class="row"><span>Запасы на складе, 66 дней</span><div class="track"><div class="seg s1" style="left:0;width:48.5%">закупка → продажа</div></div></div>
+      <div class="row"><span>Ждём оплату покупателя, 70 дней</span><div class="track"><div class="seg s2" style="left:48.5%;width:51.5%">продажа → деньги</div></div></div>
+      <div class="row"><span>Отсрочка поставщику, 61 день</span><div class="track"><div class="seg s3" style="left:0;width:44.9%">платим поставщику</div></div></div>
+      <div class="row"><span><b>Разрыв: 75 дней</b></span><div class="track"><div class="seg s4" style="left:44.9%;width:55.1%">финансирует банк или собственные средства</div></div></div>
+    </div>
+    <div class="fx"><span class="lhs">Операционный цикл</span> = Оборот запасов в днях + Оборот дебиторской задолженности в днях</div>
+    <div class="fx"><span class="lhs">Финансовый цикл</span> = Операционный цикл − Оборот кредиторской задолженности в днях</div>
+    <p class="muted">Чем длиннее финансовый цикл, тем больше нужно оборотных денег. Отрицательный цикл (как у розничных сетей) означает, что бизнес финансируют поставщики.</p>
+  </div>
+
+  <h2>Продукты</h2>
+  <div class="tw"><table>
+    <tr><th>Продукт</th><th>Как работает</th><th>Кому подходит</th></tr>
+    <tr><td><b>Овердрафт</b></td><td>Банк оплачивает платежи сверх остатка на счёте. Гасится автоматически всеми поступлениями. Лимит считают от оборотов по счёту, срок непрерывной задолженности — 30–90 дней.</td><td>Кассовые разрывы на несколько дней</td></tr>
+    <tr><td><b>Разовый кредит</b></td><td>Вся сумма одной выдачей под конкретную цель.</td><td>Разовая закупка, сезонный запас</td></tr>
+    <tr><td><b>Возобновляемая кредитная линия</b></td><td>Лимит задолженности: погасили часть — можно снова выбрать. Каждый транш на свой срок.</td><td>Постоянная потребность в обороте</td></tr>
+    <tr><td><b>Невозобновляемая кредитная линия</b></td><td>Лимит выдачи: погашенное повторно не выдаётся. Деньги выбирают частями по мере надобности.</td><td>Исполнение конкретного контракта</td></tr>
+    <tr><td><b>Контрактное кредитование</b></td><td>Кредит на исполнение государственного или крупного контракта, погашается оплатой заказчика. Часто в паре с гарантией исполнения.</td><td>Подрядчики, поставщики по закупкам</td></tr>
+    <tr><td><b>Факторинг</b></td><td>Банк или фактор платит поставщику до 70–90% суммы отгрузки сразу, а покупатель потом платит фактору.</td><td>Поставщики крупных сетей с длинными отсрочками</td></tr>
+    <tr><td><b>Торговое финансирование</b></td><td>Аккредитивы, гарантии, финансирование импорта и экспорта.</td><td>Внешнеэкономическая деятельность</td></tr>
+  </table></div>
+
+  <h2>Как банк определяет лимит</h2>
+  <div class="blk"><p>Лимит считают несколькими способами и берут <b>наименьшую</b> сумму.</p>
+    <ol>
+      <li><b>По потребности в оборотном капитале.</b>
+        <div class="fx"><span class="lhs">Потребность</span> = Запасы + Дебиторская задолженность − Кредиторская задолженность</div>
+        <div class="fx"><span class="lhs">Свободный лимит</span> = Потребность − Уже имеющиеся краткосрочные кредиты − Собственный оборотный капитал (при консервативном подходе)</div>
+        <p>Другой вариант той же логики: потребность = Себестоимость за день × Финансовый цикл в днях.</p></li>
+      <li><b>По оборотам на счетах.</b> Для овердрафта — обычно 30–50% среднемесячных поступлений от покупателей за последние 6–12 месяцев, без учёта кредитов, займов и оборотов между своими компаниями.</li>
+      <li><b>По долговой нагрузке.</b> Весь долг после выдачи не должен превышать примерно 3–3,5 годовой EBITDA (порог зависит от отрасли и банка).</li>
+      <li><b>По выручке.</b> Часть банков ограничивает оборотный долг долей от выручки, например не более 4–6 месяцев выручки для торговли.</li>
+    </ol>
+    <p>Посчитать на своих цифрах можно в разделе «Калькуляторы».</p>
+  </div>
+
+  <div class="grid2">
+    <div class="blk"><h3>Что анализирует банк</h3><ul>
+      <li>Сезонность выручки и пиковую потребность в деньгах.</li>
+      <li>Зависимость от крупных покупателей и поставщиков.</li>
+      <li>Качество дебиторской задолженности: просрочка, связанные компании.</li>
+      <li>Оборачиваемость и ликвидность запасов.</li>
+      <li>Реальные поступления на банковские счета.</li>
+      <li>Кредиты в других банках и их графики.</li>
+    </ul></div>
+    <div class="blk"><h3>Обеспечение</h3><ul>
+      <li>Залог товаров в обороте (с дисконтом 40–60%).</li>
+      <li>Залог прав требования по контракту или дебиторской задолженности.</li>
+      <li>Поручительство собственников и компаний группы.</li>
+      <li>Залог оборудования, недвижимости — по возможности.</li>
+      <li>Для малого бизнеса — поручительство Корпорации малого и среднего предпринимательства или региональных гарантийных фондов.</li>
+    </ul></div>
+  </div>
+
+  <div class="blk"><h3>Ковенанты: обещания заёмщика в кредитном договоре</h3>
+    <ul>
+      <li><b>Финансовые:</b> чистый долг к EBITDA не более 3; покрытие процентов не менее 2; чистые активы не меньше заданной суммы; текущая ликвидность не менее 1.</li>
+      <li><b>Обороты:</b> проводить через счета банка не менее определённой доли выручки, обычно пропорционально доле банка в кредитном портфеле клиента.</li>
+      <li><b>Ограничения:</b> не брать новый долг, не выдавать поручительства и займы, не выплачивать дивиденды без согласия банка, не менять собственников.</li>
+      <li><b>Информационные:</b> ежеквартально предоставлять отчётность и расшифровки.</li>
+      <li><b>Последствия нарушения:</b> повышение ставки, требование досрочного погашения, прекращение выдач.</li>
+    </ul>
+  </div>
+
+  <div class="note bad"><b>Классическая ошибка — финансировать длинные активы короткими деньгами.</b> Если оборотный кредит ушёл на покупку оборудования, его нечем гасить в срок: оборудование окупается годами. Компания начинает перекредитовываться, и любая пауза в выдачах приводит к дефолту.</div>
+</section>
+
+<!-- ===================== ИНВЕСТИЦИОННОЕ КРЕДИТОВАНИЕ ===================== -->
+<section class="page" id="inv" data-nav="Инвестиционное кредитование" data-code="06" hidden>
+  <div class="eyebrow">Раздел 6</div>
+  <h1>Инвестиционное кредитование</h1>
+  <p class="lead">Кредит на покупку, строительство или модернизацию внеоборотных активов: завод, оборудование, недвижимость. Срок 3–10 лет и дольше. Возвращается из денежного потока, который создаст проект или весь бизнес.</p>
+
+  <h2>Корпоративное и проектное финансирование</h2>
+  <div class="tw"><table>
+    <tr><th></th><th>Корпоративное инвестиционное кредитование</th><th>Проектное финансирование</th></tr>
+    <tr><td><b>Заёмщик</b></td><td>Действующая компания</td><td>Специально созданная проектная компания, у которой пока нет бизнеса</td></tr>
+    <tr><td><b>Источник погашения</b></td><td>Денежный поток всей компании</td><td>Только денежный поток проекта</td></tr>
+    <tr><td><b>Что анализирует банк</b></td><td>Историческую отчётность плюс проект</td><td>Финансовую модель проекта, спонсора, контракты</td></tr>
+    <tr><td><b>Ответственность спонсора</b></td><td>Поручительство, залог имущества компании</td><td>Ограниченная: обычно только до ввода объекта в эксплуатацию</td></tr>
+    <tr><td><b>Обеспечение</b></td><td>Имущество компании, поручительства</td><td>Залог долей проектной компании, создаваемого имущества, прав по контрактам, поручительство спонсора до завершения строительства</td></tr>
+    <tr><td><b>Сложность</b></td><td>Ниже</td><td>Выше: много договоров, технический и юридический консультант банка</td></tr>
+  </table></div>
+
+  <h2>Структура сделки</h2>
+  <div class="grid2">
+    <div class="blk"><h3>Собственное участие</h3><p>Инициатор вкладывает свои деньги, обычно 20–30% стоимости проекта и больше. Так собственник разделяет риск и не бросит проект при первых трудностях. Собственные деньги обычно вкладывают первыми.</p></div>
+    <div class="blk"><h3>Выборка траншами</h3><p>Деньги выдают частями под этапы строительства, после подтверждения целевого использования предыдущих траншей: договоры, акты, платёжки.</p></div>
+    <div class="blk"><h3>Льготный период</h3><p>Пока объект строится и выходит на мощность, основной долг не гасится, платятся только проценты (иногда и они капитализируются). Обычно 6–24 месяца.</p></div>
+    <div class="blk"><h3>График погашения</h3><p>Равными долями, аннуитет или индивидуальный («скульптурированный») график, подстроенный под денежный поток проекта так, чтобы коэффициент покрытия долга был одинаковым каждый год.</p></div>
+    <div class="blk"><h3>Ставка</h3><p>Фиксированная или плавающая: ключевая ставка Банка России плюс маржа банка. При плавающей ставке банк проверяет устойчивость к её росту.</p></div>
+    <div class="blk"><h3>Резервный счёт</h3><p>Счёт резерва для обслуживания долга: деньги на 3–6 месяцев платежей держат на счёте в банке на случай временного падения потока.</p></div>
+  </div>
+
+  <h2>Анализ проекта</h2>
+  <div class="blk"><h3>Финансовая модель — что в ней должно быть</h3>
+    <ul>
+      <li><b>Выручка:</b> объёмы × цены, обоснованные контрактами, рынком, мощностью оборудования.</li>
+      <li><b>Операционные расходы:</b> сырьё, энергия, персонал, ремонты.</li>
+      <li><b>Капитальные вложения</b> по графику плюс резерв на непредвиденные расходы (обычно 5–10%).</li>
+      <li><b>Оборотный капитал:</b> запасы и отсрочки, которые понадобятся при запуске.</li>
+      <li><b>Налоги, финансирование, график долга.</b></li>
+      <li><b>Результаты:</b> чистая приведённая стоимость (NPV), внутренняя норма доходности (IRR), дисконтированный срок окупаемости, коэффициент покрытия долга (DSCR) — минимальный и средний, коэффициент покрытия за срок кредита (LLCR).</li>
+    </ul>
+  </div>
+  <div class="blk"><h3>Стресс-тесты и сценарии</h3>
+    <p>Банк проверяет, выдержит ли проект плохой сценарий. Типичные стрессы:</p>
+    <ul>
+      <li>Цена продукции ниже на 10–20%.</li>
+      <li>Объём продаж ниже на 10–20%, выход на мощность на полгода–год позже.</li>
+      <li>Капитальные вложения дороже на 10–20%.</li>
+      <li>Ставка выше на 2–5 процентных пунктов, курс рубля хуже на 15–20%.</li>
+    </ul>
+    <p>Вывод: при каком значении каждого фактора коэффициент покрытия долга падает ниже 1 («точка разрыва»). Чем дальше она от базового сценария, тем надёжнее проект.</p>
+  </div>
+
+  <h2>Риски проекта и как их снижают</h2>
+  <div class="tw"><table>
+    <tr><th>Риск</th><th>Суть</th><th>Как снижают</th></tr>
+    <tr><td><b>Строительный</b></td><td>Дороже, дольше или не достроят</td><td>Контракт «под ключ» с фиксированной ценой, опытный подрядчик, гарантии подрядчика, поручительство спонсора до завершения</td></tr>
+    <tr><td><b>Рыночный</b></td><td>Нет спроса или цена ниже</td><td>Долгосрочные контракты на сбыт, анализ рынка, консервативные цены в модели</td></tr>
+    <tr><td><b>Сырьевой</b></td><td>Нет сырья или оно дорожает</td><td>Долгосрочные договоры поставки</td></tr>
+    <tr><td><b>Операционный</b></td><td>Оборудование не выходит на мощность</td><td>Проверенная технология, гарантии производителя, страхование</td></tr>
+    <tr><td><b>Процентный</b></td><td>Рост плавающей ставки</td><td>Фиксированная ставка, процентный своп, запас по покрытию долга</td></tr>
+    <tr><td><b>Валютный</b></td><td>Оборудование в валюте, выручка в рублях</td><td>Кредит в валюте выручки, хеджирование, резерв в смете</td></tr>
+    <tr><td><b>Регуляторный</b></td><td>Изменение законов, тарифов, разрешений</td><td>Юридическая проверка, соглашения с государством</td></tr>
+  </table></div>
+
+  <div class="grid2">
+    <div class="blk"><h3>Обеспечение</h3><ul>
+      <li>Залог создаваемого имущества (ипотека, залог оборудования).</li>
+      <li>Залог долей или акций проектной компании.</li>
+      <li>Залог прав по ключевым контрактам и счетам.</li>
+      <li>Поручительство спонсора до ввода объекта.</li>
+      <li>Страхование имущества в пользу банка.</li>
+    </ul></div>
+    <div class="blk"><h3>Государственная поддержка</h3><ul>
+      <li>Фонд развития промышленности — льготные займы на промышленные проекты.</li>
+      <li>Фабрика проектного финансирования государственной корпорации развития ВЭБ.РФ — синдицированные кредиты для крупных проектов.</li>
+      <li>Корпорация малого и среднего предпринимательства — гарантии и льготное кредитование.</li>
+      <li>Отраслевые программы субсидирования процентной ставки.</li>
+    </ul><p class="muted">Условия программ меняются, их стоит проверять перед собеседованием.</p></div>
+  </div>
+
+  <div class="blk"><h3>Пример для рассказа на собеседовании: майнинг на попутном нефтяном газе</h3>
+    <p>Этот проект — хороший материал, чтобы показать, что вы думаете как кредитный аналитик. Как его увидел бы банк:</p>
+    <ul>
+      <li><b>Источник погашения:</b> выручка в криптовалюте, пересчитанная в рубли. Два риска сразу: цена биткоина и курс.</li>
+      <li><b>Сырьё:</b> газ дешёвый, но зависит от договора с недропользователем и объёмов добычи на месторождении.</li>
+      <li><b>Обеспечение:</b> оборудование быстро устаревает, после каждого халвинга теряет в цене. Залоговый дисконт высокий.</li>
+      <li><b>Регулирование:</b> майнинг легализован законом 2024 года, есть реестр майнеров и региональные ограничения.</li>
+      <li><b>Плюс проекта:</b> утилизация попутного газа снижает экологические платежи недропользователя. Это аргумент для долгосрочного договора на газ.</li>
+      <li><b>Что бы попросил банк:</b> консервативную цену биткоина в модели, стресс −50%, короткий срок кредита, собственное участие больше 30%, резервный счёт.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== КРЕДИТНЫЙ РИСК ===================== -->
+<section class="page" id="risk" data-nav="Кредитный риск" data-code="07" hidden>
+  <div class="eyebrow">Раздел 7</div>
+  <h1>Кредитный риск в банке</h1>
+  <p class="lead">Как банк измеряет вероятность того, что деньги не вернут, и сколько он на этом потеряет. Этот язык ждут от кандидата в риск-подразделение.</p>
+
+  <div class="blk"><h3>Пять «C» заёмщика — классическая рамка оценки</h3>
+    <div class="tw"><table>
+      <tr><th>Критерий</th><th>Вопрос</th><th>Что смотрят</th></tr>
+      <tr><td><b>Character</b> — репутация</td><td>Захочет ли вернуть?</td><td>Кредитная история, собственники, деловая репутация, суды</td></tr>
+      <tr><td><b>Capacity</b> — платёжеспособность</td><td>Сможет ли вернуть?</td><td>Денежный поток, EBITDA, покрытие долга</td></tr>
+      <tr><td><b>Capital</b> — капитал</td><td>Сколько своих денег в бизнесе?</td><td>Собственный капитал, чистые активы, левередж</td></tr>
+      <tr><td><b>Collateral</b> — обеспечение</td><td>Что банк получит, если не вернёт?</td><td>Залоги, поручительства, гарантии</td></tr>
+      <tr><td><b>Conditions</b> — условия</td><td>Что происходит вокруг?</td><td>Отрасль, экономика, цель и структура кредита</td></tr>
+    </table></div>
+  </div>
+
+  <h2>Параметры кредитного риска</h2>
+  <div class="grid2">
+    <div class="blk"><h3>PD — вероятность дефолта</h3><p><i>Probability of Default.</i> Вероятность, что заёмщик в течение года перестанет платить (обычно просрочка более 90 дней). Оценивается рейтинговой моделью.</p></div>
+    <div class="blk"><h3>LGD — уровень потерь при дефолте</h3><p><i>Loss Given Default.</i> Доля долга, которую банк потеряет после дефолта, с учётом продажи залога и взыскания. LGD = 1 − уровень возмещения.</p></div>
+    <div class="blk"><h3>EAD — сумма под риском при дефолте</h3><p><i>Exposure at Default.</i> Сколько будет должен клиент в момент дефолта. Для кредитных линий и гарантий учитывают, что клиент выберет лимит перед дефолтом (коэффициент кредитной конвертации).</p></div>
+    <div class="blk"><h3>EL — ожидаемые потери</h3><p><i>Expected Loss.</i> Средние потери, которые банк закладывает в цену кредита и покрывает резервами. Непредвиденные потери сверх ожидаемых покрывает капитал.</p></div>
+  </div>
+  <div class="fx"><span class="lhs">Ожидаемые потери (EL)</span> = PD × LGD × EAD</div>
+  <p class="muted">Пример: вероятность дефолта 3%, потери при дефолте 45%, долг 100 миллионов. Ожидаемые потери = 0,03 × 0,45 × 100 = 1,35 миллиона рублей, или 1,35% — это минимальная «плата за риск» в ставке.</p>
+
+  <h2>Категории качества ссуд (Положение № 590-П)</h2>
+  <div class="blk">
+    <p>Категорию определяют по двум критериям: <b>финансовое положение</b> заёмщика (хорошее, среднее, плохое) и <b>качество обслуживания долга</b> (хорошее, среднее, неудовлетворительное).</p>
+    <div class="tw"><table>
+      <tr><th>Категория</th><th>Название</th><th>Резерв</th></tr>
+      <tr><td class="num">I</td><td>Стандартные — кредитного риска нет</td><td class="num">0%</td></tr>
+      <tr><td class="num">II</td><td>Нестандартные — умеренный риск</td><td class="num">1–20%</td></tr>
+      <tr><td class="num">III</td><td>Сомнительные — значительный риск</td><td class="num">21–50%</td></tr>
+      <tr><td class="num">IV</td><td>Проблемные — высокий риск</td><td class="num">51–100%</td></tr>
+      <tr><td class="num">V</td><td>Безнадёжные — вероятность возврата отсутствует</td><td class="num">100%</td></tr>
+    </table></div>
+    <div class="tw"><table>
+      <tr><th>Финансовое положение ↓ / обслуживание долга →</th><th>Хорошее</th><th>Среднее</th><th>Неудовлетворительное</th></tr>
+      <tr><td><b>Хорошее</b></td><td>I</td><td>II</td><td>III</td></tr>
+      <tr><td><b>Среднее</b></td><td>II</td><td>III</td><td>IV</td></tr>
+      <tr><td><b>Плохое</b></td><td>III</td><td>IV</td><td>V</td></tr>
+    </table></div>
+    <p class="muted">Качественное обеспечение первой и второй категории позволяет снизить резерв.</p>
+  </div>
+
+  <h2>Залоги</h2>
+  <div class="blk">
+    <div class="fx"><span class="lhs">Залоговая стоимость</span> = Рыночная стоимость × (1 − Залоговый дисконт)</div>
+    <div class="tw"><table>
+      <tr><th>Вид залога</th><th>Ориентир дисконта</th><th>Почему</th></tr>
+      <tr><td>Денежный депозит в банке-кредиторе</td><td class="num">0%</td><td>Абсолютно ликвиден</td></tr>
+      <tr><td>Жилая и коммерческая недвижимость</td><td class="num">20–40%</td><td>Ликвидна, но продаётся месяцы</td></tr>
+      <tr><td>Автотранспорт, спецтехника</td><td class="num">30–40%</td><td>Изнашивается, дешевеет</td></tr>
+      <tr><td>Оборудование</td><td class="num">30–50%</td><td>Часто специализировано, сложно продать</td></tr>
+      <tr><td>Товары в обороте</td><td class="num">40–60%</td><td>Трудно контролировать, могут исчезнуть</td></tr>
+      <tr><td>Доли в обществе с ограниченной ответственностью</td><td class="num">зависит от бизнеса</td><td>Стоимость падает вместе с компанией-должником</td></tr>
+    </table></div>
+    <p class="muted">Хороший залог — ликвидный, контролируемый, со стабильной стоимостью и слабо связанный с бизнесом заёмщика.</p>
+  </div>
+
+  <h2>Прочие понятия</h2>
+  <div class="grid2">
+    <div class="blk"><h3>Группа связанных заёмщиков</h3><p>Компании под общим контролем или экономически зависимые. Банк оценивает риск на всю группу и ограничивает его нормативом Н6 — не более 25% капитала банка.</p></div>
+    <div class="blk"><h3>Кредитный рейтинг</h3><p>Внутренний рейтинг банка или внешний от аккредитованных агентств: АКРА, «Эксперт РА», Национальные кредитные рейтинги, Национальное рейтинговое агентство.</p></div>
+    <div class="blk"><h3>Мониторинг и ранние сигналы</h3><p>Снижение оборотов на счетах, задержки платежей, нарушение ковенант, негативные новости, смена собственников. Задача — увидеть проблему до просрочки.</p></div>
+    <div class="blk"><h3>Проблемные активы</h3><p>Реструктуризация (новый график), дополнительное обеспечение, взыскание через суд, продажа долга, банкротство.</p></div>
+  </div>
+</section>
+
+<!-- ===================== ПЛАН СЧЕТОВ ===================== -->
+<section class="page" id="accounts" data-nav="План счетов" data-code="08" hidden>
+  <div class="eyebrow">Раздел 8</div>
+  <h1>План счетов бухгалтерского учёта</h1>
+  <p class="lead">Утверждён Приказом Министерства финансов Российской Федерации от 31.10.2000 № 94н (с изменениями). Для каждого счёта: тип, что учитывается простыми словами и в какую строку баланса или отчёта попадает остаток.</p>
+  <div class="blk"><h3>Типы счетов</h3>
+    <ul>
+      <li><span class="pill a">Активный</span> — учитывает имущество. Увеличение по дебету, остаток дебетовый.</li>
+      <li><span class="pill p">Пассивный</span> — учитывает источники: капитал, долги. Увеличение по кредиту, остаток кредитовый.</li>
+      <li><span class="pill ap">Активно-пассивный</span> — расчёты, где компания может быть и должником, и кредитором. Остаток может быть и дебетовым, и кредитовым.</li>
+      <li><span class="pill">Регулирующий</span> — уточняет оценку другого счёта: амортизация, резервы.</li>
+    </ul>
+    <p class="muted">Дебет — левая сторона счёта, кредит — правая. Каждая операция записывается двойной записью: по дебету одного счёта и кредиту другого на одну сумму.</p>
+  </div>
+  <div class="accbar">
+    <input id="accq" type="search" placeholder="Номер или название счёта…" aria-label="Фильтр счетов">
+    <select id="accs" aria-label="Раздел плана счетов"></select>
+  </div>
+  <div class="tw"><table id="acct">
+    <thead><tr><th>Счёт</th><th>Название</th><th>Тип</th><th>Что учитывается</th><th>Строка отчётности</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2>Типовые проводки</h2>
+  <p>Дебет пишется первым (синим), кредит — вторым (зелёным).</p>
+  <div class="tw"><table id="provt">
+    <thead><tr><th>Операция</th><th>Дебет — Кредит</th><th>Комментарий</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</section>
+
+<!-- ===================== КАЛЬКУЛЯТОРЫ ===================== -->
+<section class="page" id="calc" data-nav="Калькуляторы" data-code="09" hidden>
+  <div class="eyebrow">Раздел 9</div>
+  <h1>Калькуляторы</h1>
+  <p class="lead">Все поля заполнены примером условной производственной компании (суммы в тысячах рублей). Подставьте свои цифры — пересчёт мгновенный.</p>
+
+  <div class="blk" id="c1"><h3>Коэффициенты по бухгалтерской отчётности</h3>
+    <p class="subtle">Для простоты берутся значения на конец периода, а не средние. Амортизацию возьмите из пояснений к отчётности.</p>
+    <div class="form" id="f1"></div>
+    <div class="res" id="r1"></div>
+  </div>
+
+  <div class="blk" id="c2"><h3>Оценка инвестиционного проекта: NPV, IRR, окупаемость</h3>
+    <div class="form">
+      <label>Инвестиции в начале, тыс. руб.<input id="i0" type="number" value="100000"></label>
+      <label>Ставка дисконтирования, % годовых<input id="ir" type="number" value="18" step="0.5"></label>
+    </div>
+    <label class="subtle" for="icf">Денежные потоки по годам через точку с запятой, тыс. руб.</label>
+    <textarea id="icf" rows="2">20000; 30000; 35000; 40000; 40000; 40000</textarea>
+    <div class="res" id="r2"></div>
+    <p class="subtle" style="margin-top:14px">Накопленный дисконтированный денежный поток по годам. Год, где столбец становится зелёным, — дисконтированный срок окупаемости.</p>
+    <div class="bars" id="b2"></div>
+    <div style="height:24px"></div>
+  </div>
+
+  <div class="blk" id="c3"><h3>График погашения инвестиционного кредита и покрытие долга (DSCR)</h3>
+    <div class="form">
+      <label>Сумма кредита, тыс. руб.<input id="ls" type="number" value="80000"></label>
+      <label>Ставка, % годовых<input id="lr" type="number" value="17" step="0.5"></label>
+      <label>Срок, лет<input id="ln" type="number" value="6" min="1" max="20"></label>
+      <label>Льготный период по основному долгу, лет<input id="lg" type="number" value="1" min="0"></label>
+      <label>Тип погашения<select id="lt"><option value="eq">Равными долями</option><option value="ann">Аннуитет</option></select></label>
+      <label>Денежный поток для обслуживания долга в первый год, тыс. руб.<input id="lc" type="number" value="24000"></label>
+      <label>Рост потока в год, %<input id="lgr" type="number" value="5" step="0.5"></label>
+    </div>
+    <div class="res" id="r3"></div>
+    <div class="tw"><table id="t3"></table></div>
+  </div>
+
+  <div class="blk" id="c4"><h3>Лимит оборотного кредита</h3>
+    <div class="form">
+      <label>Выручка за год, тыс. руб.<input id="wr" type="number" value="420000"></label>
+      <label>Себестоимость за год, тыс. руб.<input id="wc" type="number" value="330000"></label>
+      <label>Запасы, тыс. руб.<input id="wz" type="number" value="60000"></label>
+      <label>Дебиторская задолженность, тыс. руб.<input id="wd" type="number" value="80000"></label>
+      <label>Кредиторская задолженность, тыс. руб.<input id="wk" type="number" value="55000"></label>
+      <label>Текущие краткосрочные кредиты, тыс. руб.<input id="wb" type="number" value="40000"></label>
+      <label>Среднемесячные поступления на счета, тыс. руб.<input id="wo" type="number" value="33000"></label>
+      <label>Доля поступлений для овердрафта, %<input id="wp" type="number" value="40"></label>
+      <label>EBITDA за год, тыс. руб.<input id="we" type="number" value="58000"></label>
+      <label>Весь текущий долг, тыс. руб.<input id="wt" type="number" value="125000"></label>
+      <label>Предельный долг к EBITDA<input id="wm" type="number" value="3" step="0.25"></label>
+    </div>
+    <div class="res" id="r4"></div>
+  </div>
+</section>
+
+<!-- ===================== ВОПРОСЫ ===================== -->
+<section class="page" id="qa" data-nav="Вопросы собеседования" data-code="10" hidden>
+  <div class="eyebrow">Раздел 10</div>
+  <h1>Вопросы собеседования</h1>
+  <p class="lead">Сначала ответьте вслух, потом откройте эталон. Отметка «Знаю» убирает карточку из тренировки, «Повторить» оставляет её.</p>
+  <div class="trainer" id="tr">
+    <div class="subtle" id="trmeta"></div>
+    <div class="q" id="trq"></div>
+    <div class="a" id="tra" hidden></div>
+    <div class="row">
+      <button class="btn pri" id="trshow" type="button">Показать ответ</button>
+      <button class="btn" id="trok" type="button">Знаю</button>
+      <button class="btn" id="trno" type="button">Повторить</button>
+      <button class="btn" id="trreset" type="button">Начать заново</button>
+    </div>
+  </div>
+  <h2>Все вопросы по темам</h2>
+  <div id="qalist"></div>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fr=(a,b)=>`<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- ФОРМУЛЫ ---------- */
+const FG=["Прибыль и денежный поток","Ликвидность","Финансовая устойчивость","Долговая нагрузка","Рентабельность","Деловая активность","Инвестиционные решения","Стоимость капитала","Кредитный риск и безубыточность"];
+const F=[
+{g:0,n:"EBITDA",en:"Earnings Before Interest, Taxes, Depreciation and Amortization — прибыль до вычета процентов, налогов и амортизации",
+ f:`<span class="lhs">EBITDA</span> = Прибыль до налогообложения (2300) + Проценты к уплате (2330) + Амортизация`,
+ s:"Сколько бизнес зарабатывает основной деятельностью, если не смотреть, как он профинансирован (проценты), на налоги и на износ имущества (амортизация). Вариант «операционной» EBITDA: Прибыль от продаж (2200) + Амортизация — он чище, без прочих доходов и расходов.",
+ norm:"Сама по себе — сумма в рублях. Сравнивают с долгом и процентами. Рентабельность по EBITDA в промышленности обычно 10–25%.",
+ bank:"База для лимита долга. Банк «нормализует» EBITDA: убирает разовые статьи — продажу имущества, курсовые разницы, списания долгов, переоценку, проценты к получению.",
+ ln:"2300, 2330, 2200; амортизация — из пояснений или оборотов по счетам 02, 05"},
+{g:0,n:"EBIT — операционная прибыль",en:"Earnings Before Interest and Taxes — прибыль до вычета процентов и налогов",
+ f:`<span class="lhs">EBIT</span> = Прибыль до налогообложения (2300) + Проценты к уплате (2330)`,
+ s:"Прибыль, которую бизнес заработал для всех, кто его финансирует: и для банков, и для собственников.",
+ norm:"Должна с запасом покрывать проценты.",bank:"Числитель коэффициента покрытия процентов.",ln:"2300, 2330 (иногда минус 2320)"},
+{g:0,n:"Операционный денежный поток",en:"Operating Cash Flow — денежный поток от текущей деятельности",
+ f:`<span class="lhs">Операционный поток</span> = Сальдо денежных потоков от текущих операций (4100)`,
+ s:"Сколько реальных денег принесла основная деятельность после оплаты поставщиков, зарплаты, налогов и процентов.",
+ norm:"Положительный и сопоставимый с EBITDA. Конверсия (операционный поток ÷ EBITDA) ниже 50–60% несколько лет подряд — тревожный сигнал.",
+ bank:"Проверка, что прибыль реальная. Кредит гасится деньгами, а не прибылью.",ln:"4100"},
+{g:0,n:"Свободный денежный поток",en:"Free Cash Flow — деньги, которые остаются после поддержания и развития бизнеса",
+ f:`<span class="lhs">Свободный поток</span> = Операционный поток (4100) − Капитальные вложения (4221)`,
+ s:"Деньги, которые можно направить на погашение долга или дивиденды. Для оценки бизнеса используют свободный поток для всех инвесторов: EBIT × (1 − ставка налога) + Амортизация − Капитальные вложения − Прирост оборотного капитала.",
+ norm:"Положительный в зрелом бизнесе. Отрицательный — нормально на стадии роста, если профинансирован долгосрочно.",
+ bank:"Источник погашения основного долга по корпоративному кредиту.",ln:"4100, 4221"},
+{g:0,n:"Чистый оборотный капитал",en:"Net Working Capital — собственный оборотный капитал",
+ f:`<span class="lhs">Чистый оборотный капитал</span> = Оборотные активы (1200) − Краткосрочные обязательства (1500)`,
+ s:"Какая часть оборотных активов профинансирована долгосрочными источниками. Операционный вариант: Запасы (1210) + Дебиторская задолженность (1230) − Кредиторская задолженность (1520) — сколько денег «заморожено» в обороте.",
+ norm:"Как правило, больше нуля. Меньше нуля — либо проблема, либо бизнес с отрицательным финансовым циклом (розница).",
+ bank:"Основа расчёта потребности в оборотном кредите.",ln:"1200, 1500, 1210, 1230, 1520"},
+
+{g:1,n:"Коэффициент текущей ликвидности",en:"Current Ratio",
+ f:`<span class="lhs">Текущая ликвидность</span> = ${fr("Оборотные активы (1200)","Краткосрочные обязательства (1500) − Доходы будущих периодов (1530)")}`,
+ s:"Хватит ли всех оборотных активов, чтобы погасить долги со сроком до года.",
+ norm:"1,5–2,5 — хорошо; 1–1,5 — приемлемо; меньше 1 — оборотных активов не хватает на краткосрочные долги.",
+ bank:"Частая ковенанта: не менее 1–1,2. Сравнивать с отраслью.",ln:"1200, 1500, 1530"},
+{g:1,n:"Коэффициент быстрой ликвидности",en:"Quick Ratio — промежуточная ликвидность",
+ f:`<span class="lhs">Быстрая ликвидность</span> = ${fr("Дебиторская задолженность (1230) + Краткосрочные финансовые вложения (1240) + Денежные средства (1250)","Краткосрочные обязательства (1500) − 1530")}`,
+ s:"Хватит ли долгов покупателей и денег, если запасы продать не получится.",
+ norm:"0,7–1 и выше.",bank:"Особенно важен при неликвидных или специфических запасах.",ln:"1230, 1240, 1250, 1500, 1530"},
+{g:1,n:"Коэффициент абсолютной ликвидности",en:"Cash Ratio",
+ f:`<span class="lhs">Абсолютная ликвидность</span> = ${fr("Краткосрочные финансовые вложения (1240) + Денежные средства (1250)","Краткосрочные обязательства (1500) − 1530")}`,
+ s:"Какую часть краткосрочных долгов компания может погасить прямо сейчас.",
+ norm:"0,1–0,2 и выше. Слишком высокий — деньги лежат без дела.",bank:"Второстепенный показатель: остатки на дату легко «нарисовать».",ln:"1240, 1250, 1500, 1530"},
+
+{g:2,n:"Коэффициент автономии",en:"Equity Ratio — финансовая независимость",
+ f:`<span class="lhs">Автономия</span> = ${fr("Капитал и резервы (1300)","Баланс (1700)")}`,
+ s:"Какая доля имущества куплена на собственные деньги, а не в долг.",
+ norm:"Классика — не менее 0,5; банки обычно принимают 0,3 и выше. Меньше 0 — капитал отрицательный, стоп-фактор.",
+ bank:"Базовый показатель запаса прочности: чем выше, тем больше убытков компания переживёт без дефолта.",ln:"1300, 1700"},
+{g:2,n:"Финансовый рычаг (левередж)",en:"Debt to Equity — соотношение заёмного и собственного капитала",
+ f:`<span class="lhs">Финансовый рычаг</span> = ${fr("Долгосрочные (1400) + Краткосрочные обязательства (1500)","Капитал и резервы (1300)")}`,
+ s:"Сколько рублей долгов приходится на рубль собственного капитала. Узкий вариант — только кредиты и займы: (1410 + 1510) ÷ 1300.",
+ norm:"До 1 — консервативно, 1–2 — умеренно, больше 3 — высокая зависимость от кредиторов.",bank:"Используется в рейтинговых моделях и ковенантах.",ln:"1400, 1500, 1300, 1410, 1510"},
+{g:2,n:"Обеспеченность собственными оборотными средствами",en:"Доля оборотных активов, профинансированная собственным капиталом",
+ f:`<span class="lhs">Обеспеченность</span> = ${fr("Капитал и резервы (1300) − Внеоборотные активы (1100)","Оборотные активы (1200)")}`,
+ s:"Хватает ли собственного капитала, чтобы после покупки зданий и оборудования профинансировать ещё и часть оборота.",
+ norm:"Не менее 0,1. Отрицательное значение — оборот целиком на заёмные деньги (типично для капиталоёмких компаний с длинными кредитами).",
+ bank:"Классический показатель, используется и при оценке признаков банкротства.",ln:"1300, 1100, 1200"},
+{g:2,n:"Коэффициент финансовой устойчивости",en:"Доля устойчивых источников финансирования",
+ f:`<span class="lhs">Финансовая устойчивость</span> = ${fr("Капитал и резервы (1300) + Долгосрочные обязательства (1400)","Баланс (1700)")}`,
+ s:"Какая часть имущества профинансирована деньгами, которые не придётся отдавать в течение года.",norm:"0,7 и выше.",bank:"Проверка правила: длинные активы — на длинные деньги.",ln:"1300, 1400, 1700"},
+{g:2,n:"Чистые активы",en:"Net Assets",
+ f:`<span class="lhs">Чистые активы</span> = Активы − Обязательства ≈ Капитал и резервы (1300) + Доходы будущих периодов (1530)`,
+ s:"Сколько останется собственникам, если продать всё имущество по балансовой стоимости и раздать все долги.",
+ norm:"Больше нуля и не меньше уставного капитала.",
+ bank:"Отрицательные чистые активы — стоп-фактор почти в любом банке. По законам об обществах с ограниченной ответственностью и акционерных обществах, если чистые активы меньше уставного капитала, общество обязано уменьшить капитал или ликвидироваться.",ln:"1300, 1530, 1310"},
+
+{g:3,n:"Долг к EBITDA",en:"Debt / EBITDA и Net Debt / EBITDA",
+ f:`<span class="lhs">Чистый долг / EBITDA</span> = ${fr("Кредиты и займы (1410 + 1510) − Денежные средства (1250)","EBITDA за 12 месяцев")}`,
+ s:"За сколько лет компания погасит долг, если направит на это всю EBITDA. Банк добавляет к долгу лизинг, выданные поручительства и гарантии по своей оценке.",
+ norm:"До 2 — комфортно; 2–3,5 — умеренно; больше 4 — высокая нагрузка. Для стабильных отраслей (инфраструктура, аренда) допускают выше.",
+ bank:"Главная ковенанта и ограничитель суммы нового кредита.",ln:"1410, 1510, 1250, EBITDA"},
+{g:3,n:"Покрытие процентов",en:"Interest Coverage Ratio",
+ f:`<span class="lhs">Покрытие процентов</span> = ${fr("EBIT","Проценты к уплате (2330)")}`,
+ s:"Во сколько раз операционная прибыль больше процентов. Вариант — EBITDA ÷ проценты.",
+ norm:"Больше 3 — хорошо; 1,5–3 — приемлемо; меньше 1,5 — опасно; меньше 1 — прибыли не хватает даже на проценты.",
+ bank:"Особенно важен при росте ключевой ставки. Банк стрессует его ростом ставки.",ln:"2300, 2330"},
+{g:3,n:"Коэффициент покрытия обслуживания долга",en:"DSCR — Debt Service Coverage Ratio",
+ f:`<span class="lhs">DSCR</span> = ${fr("Денежный поток для обслуживания долга","Проценты + Основной долг к погашению за период")}`,
+ s:"Хватает ли денег за период, чтобы заплатить и проценты, и тело кредита. Денежный поток для обслуживания долга (CFADS) ≈ EBITDA − Налог на прибыль − Поддерживающие капитальные вложения ± Изменение оборотного капитала.",
+ norm:"Не менее 1,2–1,3 в каждом периоде; для проектного финансирования обычно 1,2–1,35. Меньше 1 — денег на платежи не хватает.",
+ bank:"Главный показатель инвестиционного и проектного кредита, ковенанта в договоре.",ln:"из финансовой модели или отчёта о движении денежных средств"},
+{g:3,n:"Долг к выручке",en:"Debt / Revenue",
+ f:`<span class="lhs">Долговая нагрузка по выручке</span> = ${fr("Кредиты и займы (1410 + 1510)","Выручка (2110)")}`,
+ s:"Какую долю годовой выручки составляет долг. Используется, когда EBITDA маленькая или нестабильная (торговля).",
+ norm:"Ориентир — до 0,3–0,5, зависит от отрасли.",bank:"Ограничитель оборотных лимитов.",ln:"1410, 1510, 2110"},
+
+{g:4,n:"Валовая маржа",en:"Gross Margin",f:`<span class="lhs">Валовая маржа</span> = ${fr("Валовая прибыль (2100)","Выручка (2110)")} × 100%`,
+ s:"Сколько копеек с рубля выручки остаётся после прямых затрат на продукцию.",norm:"Зависит от отрасли: торговля 15–30%, производство 20–40%, программное обеспечение 60% и выше.",bank:"Падение маржи — ранний сигнал ценового давления.",ln:"2100, 2110"},
+{g:4,n:"Рентабельность продаж",en:"Return on Sales — операционная маржа",f:`<span class="lhs">Рентабельность продаж</span> = ${fr("Прибыль от продаж (2200)","Выручка (2110)")} × 100%`,
+ s:"Сколько прибыли от основной деятельности приносит рубль выручки после всех операционных расходов.",norm:"Выше 5–10% для производства — хорошо. Отрицательная — основной бизнес убыточен.",bank:"Показывает, на чём зарабатывают: на основной деятельности или на прочих доходах.",ln:"2200, 2110"},
+{g:4,n:"Рентабельность по EBITDA",en:"EBITDA margin",f:`<span class="lhs">Маржа EBITDA</span> = ${fr("EBITDA","Выручка (2110)")} × 100%`,
+ s:"Доля выручки, которая превращается в операционный денежный результат до капитальных вложений.",norm:"Промышленность 10–25%, торговля 3–8%.",bank:"Сравнение с отраслью и динамика.",ln:"EBITDA, 2110"},
+{g:4,n:"Чистая рентабельность",en:"Net Profit Margin",f:`<span class="lhs">Чистая рентабельность</span> = ${fr("Чистая прибыль (2400)","Выручка (2110)")} × 100%`,
+ s:"Сколько чистой прибыли остаётся с каждого рубля выручки после всех расходов, процентов и налогов.",norm:"Положительная; уровень зависит от отрасли.",bank:"Вторичный показатель: сильно зависит от разовых статей.",ln:"2400, 2110"},
+{g:4,n:"Рентабельность активов",en:"ROA — Return on Assets",f:`<span class="lhs">ROA</span> = ${fr("Чистая прибыль (2400)","Средняя величина активов (1600)")} × 100%`,
+ s:"Насколько эффективно используется всё имущество компании.",norm:"5–10% и выше — хорошо для реального сектора.",bank:"Если рентабельность активов ниже ставки по кредитам, новый долг уменьшает доходность собственника.",ln:"2400, 1600"},
+{g:4,n:"Рентабельность собственного капитала",en:"ROE — Return on Equity",f:`<span class="lhs">ROE</span> = ${fr("Чистая прибыль (2400)","Средний собственный капитал (1300)")} × 100%`,
+ s:"Какую доходность получают собственники на вложенные деньги.",norm:"Выше ставки по безрисковым вложениям плюс премия за риск.",bank:"Очень высокий показатель при маленьком капитале — признак высокого левереджа, а не успеха.",ln:"2400, 1300"},
+{g:4,n:"Рентабельность задействованного капитала",en:"ROCE — Return on Capital Employed",f:`<span class="lhs">ROCE</span> = ${fr("EBIT","Капитал и резервы (1300) + Долгосрочные обязательства (1400)")} × 100%`,
+ s:"Доходность всего долгосрочного капитала — и собственного, и заёмного — независимо от структуры финансирования.",norm:"Выше средневзвешенной стоимости капитала (WACC) — бизнес создаёт стоимость.",bank:"Сравнение компаний с разной долговой нагрузкой.",ln:"2300, 2330, 1300, 1400"},
+{g:4,n:"Формула Дюпона",en:"DuPont analysis — разложение рентабельности капитала на три фактора",
+ f:`<span class="lhs">ROE</span> = ${fr("Чистая прибыль","Выручка")} × ${fr("Выручка","Активы")} × ${fr("Активы","Собственный капитал")}`,
+ s:"Рентабельность собственного капитала = маржа × оборачиваемость активов × финансовый рычаг. Показывает, за счёт чего собственники зарабатывают: высокой наценки, быстрого оборота или долгов.",
+ norm:"Сравнивают факторы в динамике и с конкурентами.",bank:"Если рентабельность капитала растёт только за счёт третьего множителя, растёт риск для банка.",ln:"2400, 2110, 1600, 1300"},
+
+{g:5,n:"Оборачиваемость дебиторской задолженности",en:"Days Sales Outstanding — средний срок оплаты покупателями",
+ f:`<span class="lhs">Дни дебиторской задолженности</span> = ${fr("Средняя дебиторская задолженность (1230)","Выручка (2110)")} × 365`,
+ s:"Сколько дней в среднем покупатели платят после отгрузки.",norm:"Сравнивать с договорными отсрочками и отраслью. Рост без роста выручки — тревога.",bank:"Растущий срок — признак проблем у покупателей или фиктивной выручки.",ln:"1230, 2110"},
+{g:5,n:"Оборачиваемость запасов",en:"Days Inventory Outstanding — сколько дней лежат запасы",
+ f:`<span class="lhs">Дни запасов</span> = ${fr("Средние запасы (1210)","Себестоимость продаж (2120)")} × 365`,
+ s:"Сколько дней в среднем товар и сырьё лежат на складе до продажи.",norm:"Зависит от отрасли: продукты — дни, машиностроение — месяцы.",bank:"Рост срока — затоваривание, неликвиды.",ln:"1210, 2120"},
+{g:5,n:"Оборачиваемость кредиторской задолженности",en:"Days Payables Outstanding — средний срок оплаты поставщикам",
+ f:`<span class="lhs">Дни кредиторской задолженности</span> = ${fr("Средняя кредиторская задолженность (1520)","Себестоимость продаж (2120)")} × 365`,
+ s:"Сколько дней в среднем компания не платит поставщикам.",norm:"Резкий рост может означать, что компании не хватает денег и она задерживает платежи.",bank:"Некоторые банки делят на выручку — важно пояснить, как считаете.",ln:"1520, 2120"},
+{g:5,n:"Операционный и финансовый цикл",en:"Operating Cycle и Cash Conversion Cycle",
+ f:`<span class="lhs">Финансовый цикл</span> = Дни запасов + Дни дебиторской задолженности − Дни кредиторской задолженности`,
+ s:"Сколько дней деньги компании «заморожены» в обороте между оплатой поставщику и получением денег от покупателя.",norm:"Чем короче, тем меньше нужно оборотных денег.",bank:"Основа расчёта оборотного лимита.",ln:"1210, 1230, 1520, 2110, 2120"},
+{g:5,n:"Оборачиваемость активов",en:"Asset Turnover",f:`<span class="lhs">Оборачиваемость активов</span> = ${fr("Выручка (2110)","Средние активы (1600)")}`,
+ s:"Сколько рублей выручки приносит рубль имущества за год.",norm:"Торговля 2–3 и выше, капиталоёмкие отрасли 0,3–0,8.",bank:"Второй множитель формулы Дюпона.",ln:"2110, 1600"},
+
+{g:6,n:"Чистая приведённая стоимость",en:"NPV — Net Present Value",
+ f:`<span class="lhs">NPV</span> = −Инвестиции + Σ ${fr("Денежный поток года t","(1 + ставка)<sup>t</sup>")}`,
+ s:"Сколько проект добавит к богатству инвестора в сегодняшних деньгах. Будущие деньги стоят меньше сегодняшних, поэтому их «дисконтируют».",
+ norm:"Больше 0 — проект окупается с требуемой доходностью. Меньше 0 — отказаться. Из взаимоисключающих проектов выбирают с большей NPV.",
+ bank:"Банку важна не столько NPV, сколько устойчивость денежного потока и покрытие долга. Но положительная NPV — минимальное условие.",ln:"финансовая модель"},
+{g:6,n:"Внутренняя норма доходности",en:"IRR — Internal Rate of Return",
+ f:`<span class="lhs">IRR</span> — такая ставка, при которой NPV = 0`,
+ s:"Доходность проекта в процентах годовых. Если привлечь деньги дешевле этой ставки, проект выгоден.",
+ norm:"IRR больше средневзвешенной стоимости капитала (WACC) — проект выгоден.",
+ bank:"Ограничения: при смене знака потоков может быть несколько значений; предполагает реинвестирование по той же ставке. При конфликте с NPV верить NPV.",ln:"финансовая модель"},
+{g:6,n:"Индекс доходности",en:"PI — Profitability Index",
+ f:`<span class="lhs">PI</span> = ${fr("Сумма дисконтированных денежных потоков","Инвестиции")}`,
+ s:"Сколько рублей приведённой отдачи приносит каждый вложенный рубль.",norm:"Больше 1 — проект выгоден (то же, что NPV больше 0).",bank:"Удобен, когда нужно выбрать из нескольких проектов при ограниченном бюджете.",ln:"финансовая модель"},
+{g:6,n:"Срок окупаемости",en:"PP — Payback Period и DPP — Discounted Payback Period",
+ f:`<span class="lhs">Срок окупаемости</span> = год, в котором накопленный денежный поток становится больше 0`,
+ s:"Простой срок считают по номинальным потокам, дисконтированный — по дисконтированным (он всегда длиннее).",
+ norm:"Короче срока кредита с запасом.",bank:"Если проект окупается позже, чем заканчивается кредит, долг нечем гасить.",ln:"финансовая модель"},
+{g:6,n:"Терминальная стоимость",en:"Terminal Value — модель Гордона",
+ f:`<span class="lhs">Терминальная стоимость</span> = ${fr("Денежный поток первого года после прогноза","Ставка дисконтирования − Темп роста")}`,
+ s:"Стоимость всех денежных потоков после окончания прогнозного периода, если они растут с постоянным темпом.",norm:"Темп роста — не выше долгосрочной инфляции и роста экономики.",bank:"Часто составляет больше половины стоимости бизнеса — проверять допущения.",ln:"финансовая модель"},
+{g:6,n:"Аннуитетный платёж",en:"Annuity payment",
+ f:`<span class="lhs">Платёж</span> = Сумма кредита × ${fr("ставка за период","1 − (1 + ставка за период)<sup>−число периодов</sup>")}`,
+ s:"Одинаковый платёж каждый период: в начале в нём больше процентов, в конце — больше основного долга.",norm:"—",bank:"Нагрузка на денежный поток постоянная, в отличие от погашения равными долями.",ln:"—"},
+{g:6,n:"Коэффициент покрытия за срок кредита",en:"LLCR — Loan Life Coverage Ratio",
+ f:`<span class="lhs">LLCR</span> = ${fr("Приведённая стоимость денежного потока для обслуживания долга за срок кредита","Остаток долга")}`,
+ s:"Хватит ли всего будущего потока за срок кредита, чтобы погасить долг целиком.",norm:"Не менее 1,3–1,5.",bank:"Используется в проектном финансировании вместе с DSCR.",ln:"финансовая модель"},
+
+{g:7,n:"Средневзвешенная стоимость капитала",en:"WACC — Weighted Average Cost of Capital",
+ f:`<span class="lhs">WACC</span> = ${fr("E","D + E")} × R<sub>e</sub> + ${fr("D","D + E")} × R<sub>d</sub> × (1 − t)`,
+ s:"Средняя «цена» денег компании. E — собственный капитал, D — долг, R<sub>e</sub> — требуемая доходность собственника, R<sub>d</sub> — ставка по долгу, t — ставка налога на прибыль (с 2025 года — 25%). Множитель (1 − t) — налоговый щит: проценты уменьшают налог.",
+ norm:"Ставка дисконтирования для NPV всего бизнеса или проекта.",bank:"Валюта и инфляция в ставке должны совпадать с валютой потоков: рублёвые потоки — рублёвая ставка.",ln:"—"},
+{g:7,n:"Модель оценки капитальных активов",en:"CAPM — Capital Asset Pricing Model",
+ f:`<span class="lhs">R<sub>e</sub></span> = R<sub>f</sub> + β × (R<sub>m</sub> − R<sub>f</sub>) + премии`,
+ s:"Требуемая доходность собственника. R<sub>f</sub> — безрисковая ставка (доходность облигаций федерального займа), β — чувствительность акций к рынку, R<sub>m</sub> − R<sub>f</sub> — премия за рыночный риск. Для непубличных компаний добавляют премии за размер и специфический риск.",
+ norm:"—",bank:"Нужна для WACC.",ln:"—"},
+{g:7,n:"Эффект финансового рычага",en:"Financial Leverage Effect — российская школа",
+ f:`<span class="lhs">Эффект рычага</span> = (1 − t) × (ROA − Ставка по кредиту) × ${fr("Заёмный капитал","Собственный капитал")}`,
+ s:"На сколько процентных пунктов долг увеличивает рентабельность собственного капитала. Если рентабельность активов ниже ставки по кредиту, эффект отрицательный: долг «съедает» доходность собственников.",
+ norm:"Положительный дифференциал (ROA больше ставки).",bank:"Хороший вопрос на собеседовании: когда брать кредит невыгодно.",ln:"—"},
+
+{g:8,n:"Ожидаемые потери",en:"EL — Expected Loss",f:`<span class="lhs">EL</span> = PD × LGD × EAD`,
+ s:"Вероятность дефолта × доля потерь при дефолте × сумма под риском.",norm:"—",bank:"Закладывается в ставку и резервы. Подробнее — раздел «Кредитный риск».",ln:"—"},
+{g:8,n:"Модель Альтмана для непубличных компаний",en:"Altman Z''-score — прогноз банкротства",
+ f:`<span class="lhs">Z''</span> = 6,56 × X1 + 3,26 × X2 + 6,72 × X3 + 1,05 × X4`,
+ s:"X1 = Чистый оборотный капитал ÷ Активы; X2 = Нераспределённая прибыль ÷ Активы; X3 = EBIT ÷ Активы; X4 = Собственный капитал ÷ Обязательства.",
+ norm:"Больше 2,6 — зона безопасности; 1,1–2,6 — серая зона; меньше 1,1 — высокий риск банкротства.",
+ bank:"Модель построена на американских данных. Для российских компаний — как дополнительная проверка, не как решение.",ln:"1200, 1500, 1370, 1600, 2300, 2330, 1300, 1400"},
+{g:8,n:"Точка безубыточности",en:"Break-even point",
+ f:`<span class="lhs">Точка безубыточности</span> = ${fr("Постоянные расходы","1 − Переменные расходы ÷ Выручка")}`,
+ s:"При какой выручке прибыль равна нулю. Знаменатель — доля маржинального дохода в выручке.",
+ norm:"Запас финансовой прочности = (Выручка − Точка безубыточности) ÷ Выручка. Больше 20–30% — комфортно.",bank:"Показывает, насколько может упасть выручка, прежде чем бизнес станет убыточным.",ln:"управленческая отчётность"},
+{g:8,n:"Операционный рычаг",en:"DOL — Degree of Operating Leverage",
+ f:`<span class="lhs">Операционный рычаг</span> = ${fr("Маржинальный доход (Выручка − Переменные расходы)","Операционная прибыль")}`,
+ s:"На сколько процентов изменится прибыль при изменении выручки на 1%. Высокий рычаг — много постоянных расходов, прибыль очень чувствительна к продажам.",
+ norm:"Чем выше, тем рискованнее при падении спроса.",bank:"Учитывается в стресс-тестах.",ln:"управленческая отчётность"}
+];
+let fg=-1;
+function renderF(){
+  $("#fchips").innerHTML=[`<button class="chip${fg<0?' on':''}" data-g="-1" type="button">Все (${F.length})</button>`].concat(FG.map((g,i)=>`<button class="chip${fg===i?' on':''}" data-g="${i}" type="button">${g}</button>`)).join("");
+  let h="";FG.forEach((g,i)=>{ if(fg>=0&&fg!==i)return; const items=F.filter(x=>x.g===i); h+=`<div class="gh">${g}</div>`;
+    items.forEach(x=>{h+=`<article class="blk fcard"><h3>${x.n}<span class="en">${x.en}</span></h3><div class="fx">${x.f}</div><dl class="fmeta"><dt>Простыми словами</dt><dd>${x.s}</dd><dt>Норма</dt><dd>${x.norm}</dd><dt>Как смотрит банк</dt><dd>${x.bank}</dd><dt>Строки отчётности</dt><dd class="mono" style="font-size:13.5px">${x.ln}</dd></dl></article>`});});
+  $("#flist").innerHTML=h;
+}
+$("#fchips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;fg=+b.dataset.g;renderF();});
+
+/* ---------- ПЛАН СЧЕТОВ ---------- */
+const SEC=["I. Внеоборотные активы","II. Производственные запасы","III. Затраты на производство","IV. Готовая продукция и товары","V. Денежные средства","VI. Расчёты","VII. Капитал","VIII. Финансовые результаты","Забалансовые счета"];
+const A=[
+[0,"01","Основные средства","a","Здания, машины, оборудование, транспорт — имущество, которое служит больше года. По первоначальной стоимости.","1150 (за вычетом счёта 02)"],
+[0,"02","Амортизация основных средств","r","Накопленный износ основных средств. Уменьшает их стоимость в балансе.","уменьшает 1150"],
+[0,"03","Доходные вложения в материальные ценности","a","Имущество, купленное для сдачи в аренду или лизинг.","1160"],
+[0,"04","Нематериальные активы","a","Программы, патенты, товарные знаки, лицензии. Также расходы на исследования и разработки.","1110, 1120"],
+[0,"05","Амортизация нематериальных активов","r","Накопленная амортизация нематериальных активов.","уменьшает 1110"],
+[0,"07","Оборудование к установке","a","Оборудование, которое требует монтажа и ещё не установлено.","1150 (в составе капитальных вложений)"],
+[0,"08","Вложения во внеоборотные активы","a","Капитальные вложения: строительство, покупка основных средств до ввода в эксплуатацию. Здесь «сидит» незавершённое строительство.","1150, 1110"],
+[0,"09","Отложенные налоговые активы","a","Налог на прибыль, который компания заплатит меньше в будущем из-за разницы бухгалтерского и налогового учёта.","1180"],
+[1,"10","Материалы","a","Сырьё, материалы, топливо, запчасти, тара.","1210"],
+[1,"11","Животные на выращивании и откорме","a","Молодняк и скот на откорме в сельском хозяйстве.","1210"],
+[1,"14","Резервы под снижение стоимости материальных ценностей","r","Резерв, если рыночная цена запасов упала ниже учётной.","уменьшает 1210"],
+[1,"15","Заготовление и приобретение материальных ценностей","a","Промежуточный счёт для формирования стоимости покупаемых материалов (если так выбрано в учётной политике).","1210"],
+[1,"16","Отклонение в стоимости материальных ценностей","ap","Разница между фактической и учётной ценой материалов.","1210"],
+[1,"19","Налог на добавленную стоимость по приобретённым ценностям","a","«Входящий» налог, уплаченный поставщикам, до принятия к вычету.","1220"],
+[2,"20","Основное производство","a","Прямые затраты на выпуск продукции. Остаток — незавершённое производство.","1210"],
+[2,"21","Полуфабрикаты собственного производства","a","Полуфабрикаты, которые пойдут на дальнейшую переработку.","1210"],
+[2,"23","Вспомогательные производства","a","Котельная, ремонтный цех, собственный транспорт, обслуживающие основное производство.","1210"],
+[2,"25","Общепроизводственные расходы","a","Расходы цехов: содержание оборудования, зарплата мастеров. В конце месяца распределяются на счёт 20.","остатка обычно нет"],
+[2,"26","Общехозяйственные расходы","a","Управленческие расходы: администрация, аренда офиса, бухгалтерия. Списываются на счёт 20 или 90.","остатка обычно нет; в отчёте — 2220"],
+[2,"28","Брак в производстве","a","Потери от брака.","остатка обычно нет"],
+[2,"29","Обслуживающие производства и хозяйства","a","Столовые, общежития, базы отдыха на балансе компании.","1210"],
+[3,"40","Выпуск продукции (работ, услуг)","ap","Сравнение фактической и плановой себестоимости выпуска (если используется).","остатка нет"],
+[3,"41","Товары","a","Товары, купленные для перепродажи.","1210"],
+[3,"42","Торговая наценка","r","Наценка в рознице, если товары учитываются по продажным ценам.","уменьшает 1210"],
+[3,"43","Готовая продукция","a","Изготовленная продукция на складе.","1210"],
+[3,"44","Расходы на продажу","a","Коммерческие расходы: реклама, доставка, упаковка, хранение.","остатка обычно нет; в отчёте — 2210"],
+[3,"45","Товары отгруженные","a","Отгружено, но право собственности ещё не перешло к покупателю.","1210"],
+[3,"46","Выполненные этапы по незавершённым работам","a","Этапы долгосрочных работ, принятые заказчиком.","остатка обычно нет"],
+[4,"50","Касса","a","Наличные деньги в кассе компании.","1250"],
+[4,"51","Расчётные счета","a","Рублёвые деньги на расчётных счетах в банках.","1250"],
+[4,"52","Валютные счета","a","Иностранная валюта на счетах в банках, в пересчёте в рубли.","1250"],
+[4,"55","Специальные счета в банках","a","Аккредитивы, депозиты, специальные счета для госконтрактов.","1250, 1240 или 1170 — по сроку"],
+[4,"57","Переводы в пути","a","Деньги, отправленные, но ещё не зачисленные (например, эквайринг).","1250"],
+[4,"58","Финансовые вложения","a","Акции, доли, облигации, выданные займы, депозиты. Особое внимание банка: здесь бывают займы связанным компаниям.","1170 (долгосрочные), 1240 (краткосрочные)"],
+[4,"59","Резервы под обесценение финансовых вложений","r","Резерв, если вложения потеряли ценность.","уменьшает 1170, 1240"],
+[5,"60","Расчёты с поставщиками и подрядчиками","ap","Долг компании поставщикам (кредит) и авансы, выданные поставщикам (дебет).","кредитовый остаток — 1520; дебетовый — 1230"],
+[5,"62","Расчёты с покупателями и заказчиками","ap","Долг покупателей за отгруженное (дебет) и авансы, полученные от покупателей (кредит).","дебетовый остаток — 1230; кредитовый — 1520"],
+[5,"63","Резервы по сомнительным долгам","r","Резерв под дебиторскую задолженность, которую могут не вернуть.","уменьшает 1230"],
+[5,"66","Расчёты по краткосрочным кредитам и займам","p","Кредиты и займы сроком до 12 месяцев и проценты по ним.","1510"],
+[5,"67","Расчёты по долгосрочным кредитам и займам","p","Кредиты и займы сроком более 12 месяцев.","1410 (часть к погашению в течение года может показываться в 1510)"],
+[5,"68","Расчёты по налогам и сборам","ap","Долг перед бюджетом по налогам или переплата. С 2023 года — с учётом единого налогового счёта.","1520 или 1230"],
+[5,"69","Расчёты по социальному страхованию и обеспечению","ap","Страховые взносы на пенсионное, медицинское, социальное страхование.","1520 или 1230"],
+[5,"70","Расчёты с персоналом по оплате труда","p","Начисленная, но не выплаченная зарплата.","1520"],
+[5,"71","Расчёты с подотчётными лицами","ap","Деньги, выданные сотрудникам под отчёт на командировки и закупки.","1230 или 1520"],
+[5,"73","Расчёты с персоналом по прочим операциям","ap","Займы сотрудникам, возмещение ущерба.","1230"],
+[5,"75","Расчёты с учредителями","ap","Вклады в уставный капитал, начисленные дивиденды.","1230 или 1520"],
+[5,"76","Расчёты с разными дебиторами и кредиторами","ap","Всё остальное: страхование, претензии, аренда, цессии. Рост «прочих» расчётов — повод для расшифровки.","1230 или 1520"],
+[5,"77","Отложенные налоговые обязательства","p","Налог на прибыль, который придётся заплатить больше в будущем.","1420"],
+[5,"79","Внутрихозяйственные расчёты","ap","Расчёты с филиалами и по договорам доверительного управления.","во внешней отчётности сворачивается"],
+[6,"80","Уставный капитал","p","Капитал, внесённый собственниками по уставу.","1310"],
+[6,"81","Собственные акции (доли)","a","Акции или доли, выкупленные у собственников. Показываются в скобках и уменьшают капитал.","1320"],
+[6,"82","Резервный капитал","p","Резерв из прибыли на покрытие убытков (для акционерных обществ обязателен).","1360"],
+[6,"83","Добавочный капитал","p","Переоценка основных средств, эмиссионный доход.","1340, 1350"],
+[6,"84","Нераспределённая прибыль (непокрытый убыток)","ap","Накопленная прибыль прошлых лет, не выплаченная в дивиденды. Или накопленный убыток.","1370"],
+[6,"86","Целевое финансирование","p","Средства на конкретные цели: субсидии, гранты, бюджетные деньги.","по характеру: 1450, 1550 или 1530"],
+[7,"90","Продажи","ap","Выручка (субсчёт 1), себестоимость (2), налог на добавленную стоимость (3), коммерческие и управленческие расходы. Каждый месяц результат переносится на счёт 99.","2110, 2120, 2210, 2220"],
+[7,"91","Прочие доходы и расходы","ap","Проценты полученные и уплаченные, продажа имущества, курсовые разницы, штрафы, резервы.","2310–2350"],
+[7,"94","Недостачи и потери от порчи ценностей","a","Выявленные недостачи до решения, кто виноват.","остатка обычно нет"],
+[7,"96","Резервы предстоящих расходов","p","Оценочные обязательства: резерв на отпуска, гарантийный ремонт, судебные иски.","1540 или 1430"],
+[7,"97","Расходы будущих периодов","a","Расходы, относящиеся к будущим периодам. После новых стандартов используется реже.","1210, 1190 или 1260 — по сути расхода"],
+[7,"98","Доходы будущих периодов","p","Полученные безвозмездно активы, бюджетные субсидии, которые признаются в доходах постепенно.","1530"],
+[7,"99","Прибыли и убытки","ap","Финансовый результат года. Сюда закрываются счета 90 и 91 и начисляется налог на прибыль. В декабре закрывается на счёт 84.","2400 (в течение года)"],
+[8,"001","Арендованные основные средства","o","Имущество, взятое в аренду (после ФСБУ 25/2018 применяется ограниченно).","вне баланса"],
+[8,"002","Товарно-материальные ценности, принятые на ответственное хранение","o","Чужое имущество на хранении.","вне баланса"],
+[8,"003","Материалы, принятые в переработку","o","Давальческое сырьё заказчика.","вне баланса"],
+[8,"004","Товары, принятые на комиссию","o","Товары комитента у комиссионера.","вне баланса"],
+[8,"005","Оборудование, принятое для монтажа","o","Чужое оборудование, которое монтирует компания.","вне баланса"],
+[8,"006","Бланки строгой отчётности","o","Трудовые книжки, бланки дипломов и подобное.","вне баланса"],
+[8,"007","Списанная в убыток задолженность неплатёжеспособных дебиторов","o","Списанные долги наблюдают 5 лет на случай, если должник заплатит.","вне баланса"],
+[8,"008","Обеспечения обязательств и платежей полученные","o","Полученные гарантии, поручительства, залоги. Здесь бенефициар учитывает полученную банковскую гарантию.","вне баланса"],
+[8,"009","Обеспечения обязательств и платежей выданные","o","Выданные поручительства и залоги за третьих лиц. Для банка это скрытая долговая нагрузка — всегда запрашивать расшифровку.","вне баланса"],
+[8,"010","Износ основных средств","o","Износ имущества, по которому амортизация не начисляется.","вне баланса"],
+[8,"011","Основные средства, сданные в аренду","o","Имущество, переданное в аренду, если оно числится у арендатора.","вне баланса"]
+];
+const TYPE={a:["Активный","a"],p:["Пассивный","p"],ap:["Активно-пассивный","ap"],r:["Регулирующий",""],o:["Забалансовый",""]};
+$("#accs").innerHTML=`<option value="-1">Все разделы</option>`+SEC.map((s,i)=>`<option value="${i}">${s}</option>`).join("");
+function renderA(){
+  const q=$("#accq").value.trim().toLowerCase(), s=+$("#accs").value; let h="",last=-1;
+  A.forEach(r=>{ if(s>=0&&r[0]!==s)return; if(q&&!(r[1]+" "+r[2]+" "+r[4]).toLowerCase().includes(q))return;
+    if(r[0]!==last){h+=`<tr class="sec"><td colspan="5">${SEC[r[0]]}</td></tr>`;last=r[0];}
+    const t=TYPE[r[3]]; h+=`<tr id="acc-${r[1]}"><td class="code">${r[1]}</td><td><b>${r[2]}</b></td><td><span class="pill ${t[1]}">${t[0]}</span></td><td>${r[4]}</td><td class="mono" style="font-size:13px">${r[5]}</td></tr>`;});
+  $("#acct tbody").innerHTML=h||`<tr><td colspan="5" class="muted">Ничего не найдено. Попробуйте номер счёта, например 62.</td></tr>`;
+}
+$("#accq").addEventListener("input",renderA);$("#accs").addEventListener("change",renderA);
+const P=[
+["Получен кредит на расчётный счёт","51","66 (67)","Счёт 66 — до года, 67 — больше года"],
+["Начислены проценты по кредиту","91.02","66 (67)","Если кредит на строительство объекта — проценты включаются в его стоимость: дебет 08"],
+["Погашен кредит","66 (67)","51",""],
+["Поступили материалы от поставщика","10","60","Входящий налог на добавленную стоимость: дебет 19, кредит 60"],
+["Налог на добавленную стоимость принят к вычету","68","19",""],
+["Оплачено поставщику","60","51",""],
+["Отгружена продукция покупателю — выручка","62","90.01","Налог на добавленную стоимость с выручки: дебет 90.03, кредит 68"],
+["Списана себестоимость проданной продукции","90.02","43 (41, 20)",""],
+["Получена оплата от покупателя","51","62",""],
+["Введено в эксплуатацию основное средство","01","08","До ввода все затраты копятся на счёте 08"],
+["Начислена амортизация","20 (25, 26, 44)","02","Расход без оттока денег — поэтому добавляется к прибыли в EBITDA"],
+["Начислена зарплата","20 (26, 44)","70","Налог на доходы физических лиц удержан: дебет 70, кредит 68; страховые взносы: дебет 20 (26), кредит 69"],
+["Создан резерв по сомнительным долгам","91.02","63",""],
+["Оплачена комиссия банку за гарантию","76","51","Затем в расходы: дебет 91.02 (или 44), кредит 76 — равномерно в течение срока гарантии"],
+["Получена банковская гарантия (у бенефициара)","008","—","Забалансовый учёт, простая запись без кредита"],
+["Выдано поручительство за другую компанию","009","—","Скрытая долговая нагрузка — банк добавляет к долгу"],
+["Начислен налог на прибыль","99","68",""],
+["Закрыт год: прибыль перенесена в нераспределённую","99","84","Реформация баланса, декабрь. Убыток — дебет 84, кредит 99"],
+["Начислены дивиденды собственникам","84","75.02","Для собственников-работников — кредит 70"]
+];
+$("#provt tbody").innerHTML=P.map(p=>`<tr><td>${p[0]}</td><td class="dk"><b>Дт ${p[1]}</b> — <i>Кт ${p[2]}</i></td><td class="muted" style="font-size:14px">${p[3]}</td></tr>`).join("");
+
+/* ---------- ВОПРОСЫ ---------- */
+const TAGS={fa:"Финансовый анализ",formulas:"Формулы",inv:"Инвестиционное кредитование",wc:"Оборотное кредитование",bg:"Гарантии",law:"Законы",risk:"Кредитный риск",accounts:"Бухгалтерский учёт",me:"О себе"};
+const Q=[
+["fa","С чего вы начнёте анализ компании?","Сначала пойму бизнес: что продаёт, кому, как зарабатывает, отрасль, сезонность, собственники и группа компаний. Затем проверю качество данных: аудит, сверка с отчётностью в налоговой, сверка выручки с оборотами на счетах. Потом структура и динамика отчётности за 2–3 года, коэффициенты, денежные потоки и долговая нагрузка. Скорректирую баланс на неликвидные активы и внебалансовые обязательства. Вывод — финансовое положение хорошее, среднее или плохое, и какой долг компания способна обслуживать."],
+["fa","Чем прибыль отличается от денежного потока?","Прибыль считается по начислению: выручку признают при отгрузке, даже если денег ещё нет. Денежный поток — реальные деньги на счёте. Между ними стоят изменения оборотного капитала (запасы, долги покупателей и поставщикам), капитальные вложения и неденежные статьи вроде амортизации. Компания может быть прибыльной и остаться без денег. Банку важны деньги: кредит гасится деньгами."],
+["fa","Как понять, что отчётность приукрашена?","Дебиторская задолженность растёт быстрее выручки; прибыль есть, а операционный денежный поток слабый; рост нематериальных активов и незавершённого строительства (расходы капитализируют); прибыль сделана прочими доходами; крупные займы связанным лицам; выручка больше оборотов по банковским счетам; оговорки в аудиторском заключении; частая смена аудитора."],
+["fa","Чем российские стандарты учёта отличаются от международных?","Международные стандарты ориентированы на инвесторов и кредиторов, ставят экономическое содержание выше юридической формы, требуют консолидации группы, шире применяют справедливую стоимость и тесты на обесценение. Российские исторически ориентированы на налоговый контроль и отдельное юридическое лицо, хотя новые федеральные стандарты (аренда, запасы, основные средства) сблизили их с международными."],
+["fa","Что такое чистые активы и почему они важны?","Активы минус обязательства — сколько останется собственникам, если распродать имущество и раздать долги. Отрицательные чистые активы — стоп-фактор для банка. По законам об обществах с ограниченной ответственностью и акционерных обществах, если чистые активы меньше уставного капитала, общество должно уменьшить капитал или ликвидироваться."],
+["formulas","Что такое EBITDA и почему банки её используют?","Прибыль до вычета процентов, налогов и амортизации. Показывает операционную доходность независимо от структуры финансирования, налогового режима и учётной политики по амортизации, поэтому удобна для сравнения компаний и расчёта долговой нагрузки. Ограничения: не учитывает капитальные вложения, изменения оборотного капитала и налоги, поэтому это не деньги. Её можно завысить капитализацией расходов."],
+["formulas","Как посчитать EBITDA по российской отчётности?","Прибыль до налогообложения (строка 2300) плюс проценты к уплате (2330) плюс амортизация из пояснений к отчётности. Более чистый вариант: прибыль от продаж (2200) плюс амортизация — без прочих доходов и расходов. Дальше нормализовать: убрать разовые статьи."],
+["formulas","Какое значение Долг/EBITDA нормальное?","До 2 — комфортно, 2–3,5 — умеренно, больше 4 — высокая нагрузка. Зависит от отрасли: стабильные бизнесы с предсказуемым потоком (инфраструктура, аренда) выдерживают больше, циклические (металлургия, строительство) — меньше. Смотрю также на чистый долг, график погашения и покрытие процентов."],
+["formulas","Текущая ликвидность 0,8 — это всегда плохо?","Нет. У розничной сети или компании с предоплатой покупатели платят сразу, а поставщикам — с отсрочкой. Финансовый цикл отрицательный, и ликвидность ниже 1 — нормальная модель бизнеса. Нужно смотреть отрасль, структуру оборотных активов и денежные потоки, а не число само по себе."],
+["formulas","Отрицательный оборотный капитал — хорошо или плохо?","Зависит от причины. Если бизнес получает предоплату и платит поставщикам с отсрочкой, это эффективная модель: оборот финансируют контрагенты. Если причина в просроченных долгах поставщикам и бюджету или в коротких кредитах, потраченных на капитальные вложения, это признак кризиса ликвидности."],
+["formulas","Что показывает формула Дюпона?","Раскладывает рентабельность собственного капитала на три фактора: маржа (чистая прибыль ÷ выручка), оборачиваемость активов (выручка ÷ активы) и финансовый рычаг (активы ÷ собственный капитал). Позволяет понять, за счёт чего растёт доходность собственников. Если только за счёт рычага — растёт риск для банка."],
+["formulas","Что такое эффект финансового рычага?","Прирост рентабельности собственного капитала за счёт долга. Равен (1 − ставка налога) × (рентабельность активов − ставка по кредиту) × (заёмный капитал ÷ собственный капитал). Если рентабельность активов ниже ставки по кредиту, долг снижает доходность собственника."],
+["inv","NPV и IRR — в чём разница и чему верить?","NPV — сколько проект добавит к стоимости в рублях сегодня при заданной ставке. IRR — ставка, при которой NPV равна нулю, то есть доходность проекта. При выборе из взаимоисключающих проектов верить NPV: IRR не учитывает масштаб, может иметь несколько значений при смене знака потоков и предполагает реинвестирование по той же ставке."],
+["inv","Какую ставку дисконтирования использовать?","Средневзвешенную стоимость капитала (WACC) компании или проекта с учётом его риска. Ставка должна соответствовать потокам: рублёвые номинальные потоки — рублёвая номинальная ставка; реальные потоки без инфляции — реальная ставка. Для рискованного проекта добавляют премию."],
+["inv","Что такое DSCR и какой минимум?","Коэффициент покрытия обслуживания долга: денежный поток за период ÷ (проценты + основной долг за тот же период). Минимум обычно 1,2–1,3 — запас 20–30% на случай ухудшения. Считается по каждому периоду, важен минимальный. Ниже 1 — денег на платежи не хватает."],
+["inv","Чем проектное финансирование отличается от корпоративного кредита?","В проектном финансировании заёмщик — специально созданная проектная компания без истории, а погашение идёт только из денежного потока проекта. Ответственность спонсора ограничена, обычно до ввода объекта. Анализ строится на финансовой модели и договорах. В корпоративном кредите погашение идёт из потока всей компании, банк опирается на её историю и имущество."],
+["inv","Зачем банк требует собственное участие?","Чтобы собственник разделил риск и был заинтересован довести проект до конца. Собственные деньги — первый буфер потерь. Кроме того, это снижает долг на единицу потока и улучшает покрытие. Обычно 20–30% и больше, для рискованных проектов выше."],
+["inv","Что такое скульптурированный график погашения?","График, в котором платежи по основному долгу подстроены под прогнозный денежный поток так, чтобы коэффициент покрытия был постоянным каждый период. Удобен для проектов с неравномерным потоком, например с постепенным выходом на мощность."],
+["wc","Как определить лимит оборотного кредита?","Несколькими способами, берётся минимум. По потребности в оборотном капитале: запасы плюс дебиторская задолженность минус кредиторская, минус уже имеющиеся краткосрочные кредиты. По оборотам на счетах: для овердрафта 30–50% среднемесячных поступлений. По долговой нагрузке: весь долг после выдачи не более примерно 3–3,5 EBITDA. Учитываю сезонность и пиковую потребность."],
+["wc","Что такое финансовый цикл?","Число дней между оплатой поставщику и получением денег от покупателя: дни запасов плюс дни дебиторской задолженности минус дни кредиторской задолженности. Именно этот разрыв нужно финансировать из собственных средств или оборотным кредитом."],
+["wc","Чем овердрафт отличается от кредитной линии?","Овердрафт покрывает кассовые разрывы: банк платит сверх остатка, а все поступления автоматически гасят долг. Лимит считают от оборотов по счёту, срок непрерывной задолженности короткий. Кредитная линия выдаётся под конкретные цели траншами на определённый срок. Возобновляемая линия ограничивает размер задолженности, невозобновляемая — общий объём выдачи."],
+["wc","Что такое ковенанты? Приведите примеры.","Обязательства заёмщика в кредитном договоре, позволяющие банку контролировать риск. Финансовые: чистый долг к EBITDA не более 3, покрытие процентов не менее 2. Оборотные: проводить долю выручки через счета банка. Ограничительные: не брать новый долг, не выдавать поручительства, не платить дивиденды без согласия. Нарушение даёт банку право повысить ставку или потребовать досрочного погашения."],
+["wc","Почему нельзя финансировать капитальные вложения оборотным кредитом?","Оборудование окупается годами, а оборотный кредит нужно вернуть за год. Компании придётся гасить кредит за счёт оборота или перекредитовываться. Любая пауза в выдачах или рост ставки приведёт к дефолту. Правило: длинные активы — на длинные деньги."],
+["bg","Что такое банковская гарантия простыми словами?","Письменное обязательство банка заплатить получателю гарантии (бенефициару) определённую сумму, если клиент банка (принципал) не выполнит обязательства. Компании не нужно замораживать свои деньги как обеспечение — она платит банку комиссию. Если банк заплатит, он взыщет деньги с клиента."],
+["bg","Чем гарантия отличается от поручительства?","Гарантия независима от основного обязательства: банк платит по требованию и документам, не разбираясь в споре. Поручительство акцессорно: зависит от основного долга и прекращается вместе с ним, поручитель может выдвигать возражения должника. Гарантию выдаёт банк или коммерческая организация, поручителем может быть любое лицо."],
+["bg","Что значит независимость гарантии?","Обязательство гаранта не зависит от основного договора, даже если в гарантии есть ссылка на него (статья 370 Гражданского кодекса). Банк проверяет только, соответствуют ли требование и документы условиям гарантии, и не вправе отказать, ссылаясь на возражения принципала по основному договору."],
+["bg","Что происходит, когда бенефициар требует выплату?","Банк получает требование, уведомляет принципала, в течение 5 дней (до 30, если так в гарантии) проверяет соответствие требования условиям и платит. Отказать можно, если требование не соответствует условиям или подано после окончания срока. Затем банк взыскивает сумму с принципала в порядке регресса."],
+["bg","Какие гарантии используются в госзакупках?","Обеспечение заявки (что победитель подпишет контракт), обеспечение исполнения контракта, гарантия возврата аванса, обеспечение гарантийных обязательств. По закону № 44-ФЗ гарантия должна быть выдана банком, соответствующим требованиям Правительства, и включена в реестр гарантий в Единой информационной системе."],
+["bg","Как банк анализирует клиента на гарантию?","Финансовое положение (выручка, прибыль, чистые активы, долг), соотношение суммы гарантии с выручкой и уже выданными гарантиями, опыт исполнения аналогичных контрактов, текущая загрузка контрактами, стоп-факторы: убытки, налоговые долги, реестр недобросовестных поставщиков, банкротство, суды. Для гарантий возврата аванса — контроль целевого использования аванса."],
+["law","Какой закон регулирует банковскую гарантию?","Гражданский кодекс, статьи 368–379 «Независимая гарантия». Банковская гарантия — независимая гарантия, выданная банком. Выдача гарантий — банковская операция по статье 5 закона «О банках и банковской деятельности». Для закупок — статьи 44, 45, 96 закона № 44-ФЗ и постановления Правительства № 1005 и № 440; для налогов — статьи 74.1 и 176.1 Налогового кодекса; для таможни — Таможенный кодекс Евразийского экономического союза и закон № 289-ФЗ."],
+["law","Что такое норматив Н6?","Максимальный размер риска на одного заёмщика или группу связанных заёмщиков — не более 25% капитала банка. В риск входят кредиты, гарантии и другие требования. Поэтому банк объединяет связанные компании в группу и считает лимит на всю группу."],
+["risk","Что такое ожидаемые потери?","Вероятность дефолта × доля потерь при дефолте × сумма под риском при дефолте. Это средние потери, которые банк закладывает в стоимость кредита и покрывает резервами. Непредвиденные потери сверх ожидаемых покрываются капиталом."],
+["risk","Как банк определяет категорию качества ссуды?","По Положению Банка России № 590-П: комбинация финансового положения заёмщика (хорошее, среднее, плохое) и качества обслуживания долга (хорошее, среднее, неудовлетворительное) даёт категорию от I (стандартные, резерв 0%) до V (безнадёжные, резерв 100%). Качественное обеспечение позволяет снизить резерв."],
+["risk","Как оценивают залог?","Независимый оценщик определяет рыночную стоимость, банк применяет залоговый дисконт с учётом ликвидности и срока продажи: недвижимость 20–40%, оборудование 30–50%, товары в обороте 40–60%. Важно, чтобы залог был ликвидным, контролируемым и его стоимость не падала вместе с бизнесом заёмщика."],
+["accounts","Какие счета формируют дебиторскую задолженность в балансе?","Дебетовые остатки счетов 62 (долги покупателей), 60 (авансы поставщикам), 68 и 69 (переплаты), 71, 73, 75, 76, за вычетом резерва по сомнительным долгам (счёт 63). Строка 1230."],
+["accounts","Что такое счета 008 и 009 и почему банку важен 009?","Забалансовые счета: 008 — полученные обеспечения (гарантии, поручительства, залоги), 009 — выданные за третьих лиц. Выданные поручительства не видны в балансе, но при дефолте третьего лица превращаются в долг компании. Банк всегда запрашивает расшифровку счёта 009 и добавляет эти суммы к долговой нагрузке."],
+["accounts","Какими проводками отражается получение и погашение кредита?","Получение: дебет 51, кредит 66 (краткосрочный) или 67 (долгосрочный). Проценты: дебет 91.02, кредит 66 или 67; если кредит на строительство объекта — дебет 08. Погашение: дебет 66 или 67, кредит 51."],
+["me","Расскажите о своём опыте с точки зрения кредитного риска.","Схема ответа: 1) Газпром Промгаз — экономика и оценка проектов, понимаю, откуда берётся денежный поток. 2) Аудит в Б1 — видел отчётность изнутри, знаю, где искажают цифры и как проверять расшифровки. 3) Финансовый менеджер проекта майнинга на попутном газе — строил финансовую модель, управлял денежными потоками, работал с волатильной выручкой и валютным риском. Итог: смотрю на компанию глазами и аудитора, и финансиста проекта — это и есть работа кредитного аналитика. Подставьте свои конкретные цифры и примеры."],
+["formulas","Как считать среднюю величину активов или капитала в формулах рентабельности и оборачиваемости?","Простой способ: (значение на начало периода + значение на конец периода) ÷ 2; начало периода — это конец предыдущего года из соседнего столбца баланса. Точнее — средняя хронологическая по квартальным или месячным балансам, она нужна при сезонности. Усреднять нужно, потому что прибыль и выручка накоплены за период, а баланс — снимок на дату. Для неполного года в оборачиваемости ставят число дней периода, а прибыль берут за последние 12 месяцев."],
+["formulas","Где в российской отчётности найти амортизацию?","Отдельной строки в балансе и отчёте о финансовых результатах нет. В балансе основные средства показаны уже за вычетом накопленной амортизации. В отчёте о финансовых результатах она внутри себестоимости, коммерческих и управленческих расходов. Цифру берут из пояснений: раздел «Затраты на производство», строка «Амортизация» (код 5640), или из движения основных средств. Если пояснений нет — кредитовый оборот счетов 02 и 05."],
+["formulas","Как амортизация влияет на прибыль и на денежный поток?","Уменьшает прибыль, но не деньги: деньги ушли при покупке актива. Поэтому её прибавляют к прибыли при расчёте EBITDA и операционного денежного потока. Она уменьшает налог на прибыль (налоговый щит = амортизация × ставка налога). Если капитальные вложения годами меньше амортизации, компания проедает активы."]
+];
+function renderQA(){
+  let h="";Object.keys(TAGS).forEach(t=>{const it=Q.filter(q=>q[0]===t);if(!it.length)return;
+    h+=`<div class="gh">${TAGS[t]}</div>`+it.map(q=>`<details class="qa blk" style="padding:0"><summary>${q[1]}</summary><div class="ans">${q[2]}</div></details>`).join("");});
+  $("#qalist").innerHTML=h;
+}
+// тренажёр
+let known=new Set(store.get("kr-known",[])), deck=[], cur=-1;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function buildDeck(){deck=shuffle(Q.map((_,i)=>i).filter(i=>!known.has(i)));}
+function nextCard(){
+  $("#tra").hidden=true;
+  if(!deck.length)buildDeck();
+  if(!deck.length){cur=-1;$("#trq").textContent="Все карточки отмечены как изученные.";$("#trmeta").textContent=`Знаю ${known.size} из ${Q.length}`;$("#tra").hidden=true;return;}
+  cur=deck.shift();const q=Q[cur];
+  $("#trmeta").textContent=`${TAGS[q[0]]} · знаю ${known.size} из ${Q.length}`;
+  $("#trq").textContent=q[1];$("#tra").textContent=q[2];
+}
+$("#trshow").onclick=()=>{if(cur>=0)$("#tra").hidden=false};
+$("#trok").onclick=()=>{if(cur>=0){known.add(cur);store.set("kr-known",[...known]);}nextCard()};
+$("#trno").onclick=()=>{if(cur>=0)deck.push(cur);nextCard()};
+$("#trreset").onclick=()=>{known.clear();store.set("kr-known",[]);buildDeck();nextCard()};
+
+/* ---------- НАВИГАЦИЯ И ПРОГРЕСС ---------- */
+const pages=$$("section.page");
+pages.forEach((p,i)=>{p.dataset.code=String(i).padStart(2,"0");const e=p.querySelector(".eyebrow");if(i&&e)e.textContent="Раздел "+i;});
+let done=new Set(store.get("kr-done",[]));
+function renderNav(){
+  const act=pages.find(p=>!p.hidden);
+  $("#nav").innerHTML=pages.map(p=>`<button type="button" data-p="${p.id}" class="${act&&act.id===p.id&&$("#results").hidden?'on':''}"><span class="code">${p.dataset.code}</span>${p.dataset.nav}${done.has(p.id)?'<span class="ck">✓</span>':''}</button>`).join("");
+  const n=pages.length-1, d=[...done].filter(x=>x!=="home").length;
+  $("#progt").textContent=`Изучено разделов: ${d} из ${n}`;$("#progb").style.width=(d/n*100)+"%";
+  pages.forEach(p=>{const b=p.querySelector(".markdone");if(b){b.classList.toggle("done",done.has(p.id));b.textContent=done.has(p.id)?"✓ Изучено":"Отметить раздел изученным";}});
+}
+pages.forEach(p=>{ if(p.id==="home")return; const bar=document.createElement("div");bar.className="pagebar";
+  bar.innerHTML=`<button type="button" class="btn markdone"></button>`;p.querySelector("h1").after(bar);
+  bar.firstChild.onclick=()=>{done.has(p.id)?done.delete(p.id):done.add(p.id);store.set("kr-done",[...done]);renderNav();};});
+function show(id,scrollEl){
+  $("#results").hidden=true;
+  pages.forEach(p=>p.hidden=p.id!==id);
+  renderNav();
+  try{history.replaceState(null,"","#"+id)}catch(e){}
+  if(scrollEl){scrollEl.scrollIntoView({block:"center"});scrollEl.classList.remove("flash");void scrollEl.offsetWidth;scrollEl.classList.add("flash");}
+  else window.scrollTo(0,0);
+}
+$("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(b){$("#q").value="";show(b.dataset.p);}});
+$("#brand").onclick=()=>{$("#q").value="";show("home")};
+$("#brand").onkeydown=e=>{if(e.key==="Enter")$("#brand").click()};
+$("#homecards").innerHTML=pages.filter(p=>p.id!=="home").map(p=>`<button class="card" type="button" data-p="${p.id}"><b>${p.dataset.nav}</b><span>${(p.querySelector(".lead")||{}).textContent||""}</span></button>`).join("");
+$("#homecards").addEventListener("click",e=>{const b=e.target.closest(".card");if(b)show(b.dataset.p)});
+
+/* ---------- ПОИСК ---------- */
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function snip(t,q){const i=t.toLowerCase().indexOf(q);if(i<0)return esc(t.slice(0,140))+"…";const a=Math.max(0,i-60);const s=t.slice(a,i+q.length+90);const j=s.toLowerCase().indexOf(q);return (a?"…":"")+esc(s.slice(0,j))+"<mark>"+esc(s.slice(j,j+q.length))+"</mark>"+esc(s.slice(j+q.length))+"…";}
+function doSearch(){
+  const q=$("#q").value.trim().toLowerCase();
+  if(q.length<2){ if(!$("#results").hidden){show((location.hash||"#home").slice(1)||"home");} return;}
+  fg=-1;renderF();$("#accq").value="";$("#accs").value="-1";renderA();
+  const out=[];
+  pages.forEach(p=>{ if(p.id==="home")return;
+    p.querySelectorAll(".blk, .tw tr, details.qa").forEach(el=>{
+      if(el.matches(".tw tr") && (el.closest(".blk")||el.querySelector("th")||el.classList.contains("sec")))return;
+      if(el.matches(".blk") && el.closest("details"))return;
+      const t=el.textContent.replace(/\s+/g," ").trim(); if(!t.toLowerCase().includes(q))return;
+      let title=(el.querySelector("h3,summary")||{}).textContent;
+      if(!title){const c=el.querySelector("td");title=c?(c.textContent+(el.children[1]?" · "+el.children[1].textContent:"")):t.slice(0,60);}
+      out.push({p,el,title:title.replace(/\s+/g," ").trim().slice(0,110),sn:snip(t,q)});});});
+  pages.forEach(p=>p.hidden=true);$("#results").hidden=false;renderNav();
+  $("#rtitle").textContent=out.length?`Найдено: ${out.length}`:"Ничего не найдено";
+  $("#rlist").innerHTML=out.slice(0,60).map((r,i)=>`<button type="button" data-i="${i}"><div class="where">${r.p.dataset.nav}</div><div class="tt">${esc(r.title)}</div><div class="sn">${r.sn}</div></button>`).join("")||`<p class="muted">Попробуйте другое слово: например «ликвидность», «44-ФЗ», «60», «DSCR».</p>`;
+  $("#rlist").onclick=e=>{const b=e.target.closest("button");if(!b)return;const r=out[+b.dataset.i];$("#q").value="";if(r.el.tagName==="DETAILS")r.el.open=true;show(r.p.id,r.el);};
+}
+let st;$("#q").addEventListener("input",()=>{clearTimeout(st);st=setTimeout(doSearch,180)});
+
+/* ---------- КАЛЬКУЛЯТОРЫ ---------- */
+const nf=(v,d=2)=>isFinite(v)?v.toLocaleString("ru-RU",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
+const pct=v=>isFinite(v)?nf(v*100,1)+"%":"—";
+const kpi=(k,v,cls,h)=>`<div class="kpi ${cls||''}"><div class="k">${k}</div><div class="v">${v}</div>${h?`<div class="h">${h}</div>`:""}</div>`;
+const grade=(v,g,w,hi=true)=>!isFinite(v)?"":hi?(v>=g?"good":v>=w?"warn":"bad"):(v<=g?"good":v<=w?"warn":"bad");
+const H={good:"хорошо",warn:"внимание",bad:"плохо","":""};
+const F1=[["1100","Внеоборотные активы (1100)",120000],["1200","Оборотные активы (1200)",180000],["1210","Запасы (1210)",60000],["1230","Дебиторская задолженность (1230)",80000],["1240","Краткосрочные финансовые вложения (1240)",0],["1250","Денежные средства (1250)",15000],["1300","Капитал и резервы (1300)",110000],["1370","Нераспределённая прибыль (1370)",95000],["1400","Долгосрочные обязательства (1400)",90000],["1410","Долгосрочные заёмные средства (1410)",85000],["1500","Краткосрочные обязательства (1500)",100000],["1510","Краткосрочные заёмные средства (1510)",40000],["1520","Кредиторская задолженность (1520)",55000],["1530","Доходы будущих периодов (1530)",0],["2110","Выручка (2110)",420000],["2120","Себестоимость продаж (2120)",330000],["2200","Прибыль от продаж (2200)",45000],["2300","Прибыль до налогообложения (2300)",28000],["2330","Проценты к уплате (2330)",12000],["2400","Чистая прибыль (2400)",21000],["am","Амортизация за год",18000]];
+$("#f1").innerHTML=F1.map(f=>`<label>${f[1]}<input type="number" id="v${f[0]}" value="${f[2]}"></label>`).join("");
+function calc1(){
+  const v={};F1.forEach(f=>v[f[0]]=parseFloat($("#v"+f[0]).value)||0);
+  const A=v["1100"]+v["1200"], KO=v["1500"]-v["1530"], EBIT=v["2300"]+v["2330"], EBITDA=EBIT+v.am, D=v["1410"]+v["1510"], ND=D-v["1250"]-v["1240"];
+  const cr=v["1200"]/KO, qr=(v["1230"]+v["1240"]+v["1250"])/KO, ar=(v["1240"]+v["1250"])/KO, aut=v["1300"]/A, lev=(v["1400"]+v["1500"])/v["1300"], sos=(v["1300"]-v["1100"])/v["1200"], fu=(v["1300"]+v["1400"])/A;
+  const nde=ND/EBITDA, icr=EBIT/v["2330"], ros=v["2200"]/v["2110"], em=EBITDA/v["2110"], nm=v["2400"]/v["2110"], roa=v["2400"]/A, roe=v["2400"]/v["1300"];
+  const dso=v["1230"]/v["2110"]*365, dio=v["1210"]/v["2120"]*365, dpo=v["1520"]/v["2120"]*365, ccc=dso+dio-dpo;
+  const X1=(v["1200"]-v["1500"])/A, X2=v["1370"]/A, X3=EBIT/A, X4=v["1300"]/(v["1400"]+v["1500"]), Z=6.56*X1+3.26*X2+6.72*X3+1.05*X4;
+  const bal=Math.abs(A-(v["1300"]+v["1400"]+v["1500"]));
+  const g=(k,val,disp,cls)=>kpi(k,disp,cls,H[cls]);
+  let h="";
+  if(bal>1)h+=`<div class="kpi warn" style="grid-column:1/-1"><div class="k">Проверка баланса</div><div class="h">Актив (1100 + 1200) не равен пассиву (1300 + 1400 + 1500): разница ${nf(bal,0)}. Проверьте ввод.</div></div>`;
+  h+=g("EBITDA, тыс. руб.",EBITDA,nf(EBITDA,0),EBITDA>0?"good":"bad");
+  h+=g("Маржа EBITDA",em,pct(em),grade(em,.12,.06));
+  h+=g("Чистый долг / EBITDA",nde,nf(nde),EBITDA<=0?"bad":grade(nde,2,3.5,false));
+  h+=g("Покрытие процентов (EBIT ÷ проценты)",icr,nf(icr),v["2330"]?grade(icr,3,1.5):"good");
+  h+=g("Текущая ликвидность",cr,nf(cr),grade(cr,1.5,1));
+  h+=g("Быстрая ликвидность",qr,nf(qr),grade(qr,.8,.6));
+  h+=g("Абсолютная ликвидность",ar,nf(ar),grade(ar,.2,.1));
+  h+=g("Коэффициент автономии",aut,nf(aut),grade(aut,.5,.3));
+  h+=g("Финансовый рычаг (обязательства ÷ капитал)",lev,nf(lev),grade(lev,1,2.5,false));
+  h+=g("Обеспеченность собственными оборотными средствами",sos,nf(sos),grade(sos,.1,0));
+  h+=g("Финансовая устойчивость",fu,nf(fu),grade(fu,.7,.6));
+  h+=g("Рентабельность продаж",ros,pct(ros),grade(ros,.08,.03));
+  h+=g("Чистая рентабельность",nm,pct(nm),grade(nm,.05,.01));
+  h+=g("Рентабельность активов (ROA)",roa,pct(roa),grade(roa,.07,.02));
+  h+=g("Рентабельность капитала (ROE)",roe,pct(roe),v["1300"]<=0?"bad":grade(roe,.15,.05));
+  h+=kpi("Дни дебиторской задолженности",nf(dso,0)+" дн.");
+  h+=kpi("Дни запасов",nf(dio,0)+" дн.");
+  h+=kpi("Дни кредиторской задолженности",nf(dpo,0)+" дн.");
+  h+=kpi("Финансовый цикл",nf(ccc,0)+" дн.","", "");
+  h+=g("Модель Альтмана Z''",Z,nf(Z),Z>2.6?"good":Z>1.1?"warn":"bad");
+  $("#r1").innerHTML=h;
+}
+$("#f1").addEventListener("input",calc1);
+
+function npv(r,cf){return cf.reduce((s,c,t)=>s+c/Math.pow(1+r,t),0)}
+function irr(cf){let lo=-0.99,hi=10,flo=npv(lo,cf),fhi=npv(hi,cf);if(flo*fhi>0)return NaN;for(let i=0;i<200;i++){const m=(lo+hi)/2,fm=npv(m,cf);if(flo*fm<=0){hi=m;fhi=fm}else{lo=m;flo=fm}}return (lo+hi)/2}
+function payback(cf){let c=cf[0];for(let t=1;t<cf.length;t++){const p=c;c+=cf[t];if(c>=0)return t-1+(-p)/cf[t];}return NaN}
+function calc2(){
+  const I=parseFloat($("#i0").value)||0, r=(parseFloat($("#ir").value)||0)/100;
+  const flows=$("#icf").value.split(/[;\n]+/).map(s=>parseFloat(s.replace(/\s/g,"").replace(",","."))).filter(x=>isFinite(x));
+  const cf=[-I].concat(flows), dcf=cf.map((c,t)=>c/Math.pow(1+r,t));
+  const N=npv(r,cf), R=irr(cf), PV=dcf.slice(1).reduce((a,b)=>a+b,0), PI=I?PV/I:NaN, PP=payback(cf), DPP=payback(dcf);
+  $("#r2").innerHTML=kpi("NPV — чистая приведённая стоимость, тыс. руб.",nf(N,0),N>=0?"good":"bad",N>=0?"проект создаёт стоимость":"проект разрушает стоимость")
+   +kpi("IRR — внутренняя норма доходности",pct(R),isFinite(R)?(R>=r?"good":"bad"):"",isFinite(R)?(R>=r?"выше ставки дисконтирования":"ниже ставки дисконтирования"):"не определяется")
+   +kpi("PI — индекс доходности",nf(PI),PI>=1?"good":"bad",PI>=1?"больше 1":"меньше 1")
+   +kpi("Простой срок окупаемости",isFinite(PP)?nf(PP,1)+" лет":"не окупается",isFinite(PP)?"":"bad")
+   +kpi("Дисконтированный срок окупаемости",isFinite(DPP)?nf(DPP,1)+" лет":"не окупается",isFinite(DPP)?"":"bad");
+  let cum=0;const cc=dcf.map(x=>cum+=x);const mx=Math.max(...cc,0),mn=Math.min(...cc,0),rg=(mx-mn)||1;const z=mx/rg*100;
+  $("#b2").innerHTML=`<div class="zero" style="top:${z}%"></div>`+cc.map((c,t)=>{const hgt=Math.abs(c)/rg*100;const top=c>=0?z-hgt:z;return `<div class="col" title="Год ${t}: ${nf(c,0)}"><i class="${c>=0?'pos':'neg'}" style="top:${top}%;height:${Math.max(hgt,.5)}%"></i><span>${t}</span></div>`}).join("");
+}
+["#i0","#ir","#icf"].forEach(s=>$(s).addEventListener("input",calc2));
+
+function calc3(){
+  const S=+$("#ls").value||0, r=(+$("#lr").value||0)/100, n=Math.max(1,Math.round(+$("#ln").value||1)), g=Math.min(Math.max(0,Math.round(+$("#lg").value||0)),n-1), typ=$("#lt").value, c0=+$("#lc").value||0, gr=(+$("#lgr").value||0)/100;
+  let bal=S, rows="", mins=Infinity, sum=0, ti=0, k=n-g;
+  const ann=r?S*r/(1-Math.pow(1+r,-k)):S/k;
+  for(let t=1;t<=n;t++){
+    const int=bal*r; ti+=int; let pr=0;
+    if(t>g){pr=typ==="ann"?ann-int:S/k;} pr=Math.min(pr,bal);
+    const ds=int+pr, cf=c0*Math.pow(1+gr,t-1), d=cf/ds; mins=Math.min(mins,d); sum+=d;
+    const cls=d>=1.3?"good":d>=1.1?"warn":"bad";
+    rows+=`<tr><td class="num">${t}</td><td class="num">${nf(bal,0)}</td><td class="num">${nf(int,0)}</td><td class="num">${nf(pr,0)}</td><td class="num">${nf(ds,0)}</td><td class="num">${nf(cf,0)}</td><td class="num" style="color:var(--${cls});font-weight:600">${nf(d)}</td></tr>`;
+    bal-=pr;
+  }
+  $("#t3").innerHTML=`<tr><th>Год</th><th>Долг на начало</th><th>Проценты</th><th>Основной долг</th><th>Всего платёж</th><th>Денежный поток</th><th>DSCR</th></tr>`+rows;
+  $("#r3").innerHTML=kpi("Минимальный DSCR",nf(mins),mins>=1.3?"good":mins>=1.1?"warn":"bad",mins>=1.3?"с запасом":mins>=1?"мало запаса":"денег не хватает")+kpi("Средний DSCR",nf(sum/n))+kpi("Сумма процентов за срок, тыс. руб.",nf(ti,0));
+}
+["#ls","#lr","#ln","#lg","#lt","#lc","#lgr"].forEach(s=>$(s).addEventListener("input",calc3));
+
+function calc4(){
+  const R=+$("#wr").value||0, C=+$("#wc").value||0, Z=+$("#wz").value||0, Dz=+$("#wd").value||0, K=+$("#wk").value||0, B=+$("#wb").value||0, O=+$("#wo").value||0, p=(+$("#wp").value||0)/100, E=+$("#we").value||0, T=+$("#wt").value||0, M=+$("#wm").value||0;
+  const dio=C?Z/C*365:0, dso=R?Dz/R*365:0, dpo=C?K/C*365:0, ccc=dio+dso-dpo;
+  const need=Z+Dz-K, l1=Math.max(0,need-B), l2=O*p, l3=Math.max(0,E*M-T), lim=Math.min(l1,l3);
+  $("#r4").innerHTML=kpi("Финансовый цикл",nf(ccc,0)+" дн.",ccc<=60?"good":ccc<=120?"warn":"bad",`запасы ${nf(dio,0)} + дебиторы ${nf(dso,0)} − кредиторы ${nf(dpo,0)}`)
+   +kpi("Потребность в оборотном капитале, тыс. руб.",nf(need,0),"","запасы + дебиторы − кредиторы")
+   +kpi("Лимит по потребности, тыс. руб.",nf(l1,0),"","потребность минус текущие краткосрочные кредиты")
+   +kpi("Лимит по долговой нагрузке, тыс. руб.",nf(l3,0),l3>0?"":"bad",`EBITDA × ${nf(M)} минус весь текущий долг`)
+   +kpi("Лимит овердрафта по оборотам, тыс. руб.",nf(l2,0),"",`${nf(p*100,0)}% среднемесячных поступлений`)
+   +kpi("Итоговый лимит кредитной линии, тыс. руб.",nf(lim,0),lim>0?"good":"bad","минимум из двух ограничений");
+}
+["#wr","#wc","#wz","#wd","#wk","#wb","#wo","#wp","#we","#wt","#wm"].forEach(s=>$(s).addEventListener("input",calc4));
+
+/* ---------- СТАРТ ---------- */
+renderF();renderA();renderQA();buildDeck();nextCard();calc1();calc2();calc3();calc4();
+const start=(location.hash||"").slice(1);show(pages.some(p=>p.id===start)?start:"home");
+})();
+</script>
+
+</body>
+</html>
