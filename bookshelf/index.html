@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e9e3d8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1f1b18" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Полка">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,sans-serif;overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+img{max-width:100%}[hidden]{display:none!important}
+</style>
+<title>Моя книжная полка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,500&family=PT+Sans:wght@400;700&display=swap">
+<style>
+/* Layout: a wall with stacked wooden shelves; an input strip on top styled like a library card */
+:root{
+  --wall:#e9e3d8; --ink:#2b2420; --muted:#6f6359;
+  --wood:#8a5a36; --wood-dark:#5e3b22; --wood-light:#a8754b;
+  --card:#fbf8f2; --line:#d8cfc2; --accent:#9c3b2c; --star:#d9a227;
+  --display:"Lora", Georgia, serif; --body:"PT Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --wall:#1f1b18; --ink:#efe7dc; --muted:#a89a8c;
+  --wood:#6b4329; --wood-dark:#3f2716; --wood-light:#85563a;
+  --card:#2a2420; --line:#433a33; --accent:#d4705e; --star:#e8b443; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --wall:#1f1b18; --ink:#efe7dc; --muted:#a89a8c;
+  --wood:#6b4329; --wood-dark:#3f2716; --wood-light:#85563a;
+  --card:#2a2420; --line:#433a33; --accent:#d4705e; --star:#e8b443; color-scheme:dark}
+body{background:var(--wall);color:var(--ink);font-family:var(--body);font-size:15px}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 48px}
+h1{font-family:var(--display);font-weight:700;font-size:1.9rem;margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 20px}
+.sub b{font-variant-numeric:tabular-nums}
+
+form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);
+  border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:28px}
+#title{flex:1 1 220px;min-width:0;font:inherit;font-size:1rem;padding:10px 12px;border:1px solid var(--line);
+  border-radius:4px;background:transparent;color:var(--ink)}
+#title:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stars{display:flex;gap:2px}
+.stars button{background:none;border:0;padding:2px;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--line)}
+.stars button.on{color:var(--star)}
+.add{font:inherit;font-weight:700;padding:10px 18px;border:0;border-radius:4px;background:var(--accent);color:#fff;cursor:pointer}
+.add:disabled{opacity:.5;cursor:default}
+
+.shelf{position:relative;margin-bottom:34px}
+.books{display:flex;align-items:flex-end;gap:3px;min-height:190px;padding:0 10px;overflow-x:auto;overflow-y:hidden;
+  background:linear-gradient(var(--wood-dark),var(--wood-dark)) left/10px 100% no-repeat,
+             linear-gradient(var(--wood-dark),var(--wood-dark)) right/10px 100% no-repeat;}
+.board{height:16px;border-radius:2px;background:linear-gradient(var(--wood-light),var(--wood) 40%,var(--wood-dark));
+  box-shadow:0 6px 10px -4px rgba(0,0,0,.35)}
+.empty{align-self:center;margin:auto;color:var(--muted);font-style:italic;font-family:var(--display)}
+
+.book{flex:0 0 auto;width:var(--w);height:var(--h);background:var(--c);border-radius:3px 3px 1px 1px;
+  position:relative;cursor:pointer;border:0;padding:8px 0;color:#fdf6ea;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  box-shadow:inset 3px 0 0 rgba(255,255,255,.18),inset -4px 0 0 rgba(0,0,0,.22);
+  transition:transform .2s ease;animation:drop .45s ease-out}
+.book:hover,.book.sel{transform:translateY(-10px)}
+.book .t{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--display);font-weight:500;
+  font-size:.82rem;line-height:1.1;max-height:calc(var(--h) - 46px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.book .r{font-size:.62rem;color:var(--star);writing-mode:vertical-rl;letter-spacing:-1px}
+.book::before,.book::after{content:"";position:absolute;left:4px;right:4px;height:2px;background:rgba(255,255,255,.35)}
+.book::before{top:5px}.book::after{bottom:5px}
+.book{touch-action:none;user-select:none;-webkit-user-select:none}
+.book.placeholder{opacity:.25;transform:none;animation:none}
+.book.flying{position:fixed;z-index:50;pointer-events:none;margin:0;animation:none;transition:none;
+  transform:rotate(-5deg) scale(1.05);box-shadow:inset 3px 0 0 rgba(255,255,255,.18),inset -4px 0 0 rgba(0,0,0,.22),0 14px 24px rgba(0,0,0,.35)}
+.shelf.target .board{background:linear-gradient(var(--wood-light),var(--wood-light) 40%,var(--wood));outline:2px solid var(--star)}
+body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+.moves{display:flex;gap:4px}
+.moves .ghost{padding:6px 10px}
+@keyframes drop{from{transform:translateY(-40px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.book{animation:none;transition:none}}
+
+.detail{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin:-20px 0 28px}
+.detail h2{font-family:var(--display);font-size:1.1rem;margin:0;min-width:0;overflow-wrap:anywhere}
+.detail .dr{color:var(--star);font-size:1.1rem}
+.detail .acts{display:flex;gap:8px}
+.ghost{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
+.ghost.danger{color:var(--accent);border-color:var(--accent)}
+.note{color:var(--muted);font-size:.85rem}
+.nojs{background:var(--card);border:1px solid var(--accent);border-radius:6px;padding:12px 14px;margin:0 0 20px;line-height:1.45}
+.nojs b{color:var(--accent)}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="nojs" id="nojs"><b>В браузере выключены скрипты.</b> Без них полка не работает.</div>
+  <h1>Моя книжная полка</h1>
+  <p class="sub">Прочитано книг: <b id="count">0</b> · средняя оценка <b id="avg">—</b></p>
+
+  <form id="f" autocomplete="off">
+    <input id="title" type="text" placeholder="Название книги" maxlength="80" aria-label="Название книги">
+    <div class="stars" id="stars" role="radiogroup" aria-label="Рейтинг"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></div>
+    <button class="add" id="add" type="submit" disabled>На полку</button>
+  </form>
+
+  <div id="shelves"><div class="shelf"><div class="books"><span class="empty">Полка пуста</span></div><div class="board"></div></div><div class="shelf"><div class="books"><span class="empty">Полка пуста</span></div><div class="board"></div></div></div>
+  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы посмотреть оценку или убрать книгу. Книги хранятся только на этом телефоне.</p>
+</div>
+
+<script>
+const PALETTE=["#7a2e2a","#2f4b3a","#27415e","#6b4a1e","#4b2f55","#8a6a2a","#3b5a5a","#5a2a3a","#33363d","#6d3b1f"];
+const PER_SHELF=14, KEY="bookshelf-v1";
+const SAMPLE=[{t:"Мастер и Маргарита",r:5},{t:"Преступление и наказание",r:4},{t:"Пикник на обочине",r:5},{t:"Евгений Онегин",r:4}];
+let books, rating=0, selected=null;
+
+function load(){let list=null;try{const s=localStorage.getItem(KEY);if(s)list=JSON.parse(s)}catch(e){}
+  if(!list)list=SAMPLE.map((b,i)=>({...b,id:"s"+i,seed:i*7+3}));
+  return list.map((b,i)=>({...b,s:Number.isInteger(b.s)?b.s:Math.floor(i/PER_SHELF)}))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(books))}catch(e){}}
+books=load();
+const shelfCount=()=>Math.max(2,books.reduce((m,b)=>Math.max(m,b.s),-1)+2);
+const onShelf=s=>books.filter(b=>b.s===s);
+
+function look(b){const s=b.seed;
+  return {c:PALETTE[s%PALETTE.length],w:30+(s*13)%22+Math.min(b.t.length,30)*.4,h:140+(s*29)%45}}
+
+document.getElementById("nojs").hidden=true;
+const starsEl=document.getElementById("stars");starsEl.innerHTML="";
+for(let i=1;i<=5;i++){const btn=document.createElement("button");btn.type="button";btn.textContent="★";
+  btn.setAttribute("aria-label",i+" из 5");btn.onclick=()=>{rating=i;paintStars();check()};starsEl.appendChild(btn)}
+function paintStars(){[...starsEl.children].forEach((b,i)=>{b.classList.toggle("on",i<rating);b.setAttribute("aria-checked",i+1===rating)})}
+
+const title=document.getElementById("title"), addBtn=document.getElementById("add");
+function check(){addBtn.disabled=!(title.value.trim()&&rating)}
+title.addEventListener("input",check);
+document.getElementById("f").addEventListener("submit",e=>{e.preventDefault();
+  const t=title.value.trim(); if(!t||!rating)return;
+  let s=0; while(onShelf(s).length>=PER_SHELF)s++;
+  books.push({t,r:rating,s,id:Date.now().toString(36),seed:Math.floor(Math.random()*1000)});
+  save(); title.value=""; rating=0; paintStars(); check(); selected=null; render(); title.focus()});
+
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stars=r=>"★".repeat(r)+"☆".repeat(5-r);
+
+function render(){
+  document.getElementById("count").textContent=books.length;
+  document.getElementById("avg").textContent=books.length?(books.reduce((a,b)=>a+b.r,0)/books.length).toFixed(1):"—";
+  const n=shelfCount(); let html="";
+  for(let s=0;s<n;s++){
+    const part=onShelf(s);
+    html+=`<div class="shelf"><div class="books">${part.length?part.map(b=>{const L=look(b);
+      return `<button class="book${selected===b.id?" sel":""}" data-id="${b.id}" style="--c:${L.c};--w:${L.w}px;--h:${L.h}px" aria-label="${esc(b.t)}, ${b.r} из 5"><span class="t">${esc(b.t)}</span><span class="r">${"★".repeat(b.r)}</span></button>`}).join("")
+      :`<span class="empty">${s===0?"Полка пуста — добавьте первую книгу":"Здесь пока свободно"}</span>`}</div><div class="board"></div></div>`;
+    const sb=part.find(b=>b.id===selected);
+    if(sb)html+=`<div class="detail"><div><h2>${esc(sb.t)}</h2><div class="dr">${stars(sb.r)}</div></div>
+      <div class="acts"><div class="moves">
+        <button class="ghost" data-act="left" aria-label="Сдвинуть влево">◀</button>
+        <button class="ghost" data-act="right" aria-label="Сдвинуть вправо">▶</button>
+        <button class="ghost" data-act="up" aria-label="На полку выше">▲</button>
+        <button class="ghost" data-act="down" aria-label="На полку ниже">▼</button></div>
+      <button class="ghost" data-act="close">Закрыть</button><button class="ghost danger" data-act="del">Убрать с полки</button></div></div>`;
+  }
+  document.getElementById("shelves").innerHTML=html;
+}
+const shelvesEl=document.getElementById("shelves");
+function moveSelected(act){
+  const i=books.findIndex(b=>b.id===selected); if(i<0)return; const b=books[i];
+  if(act==="up"||act==="down"){
+    const ns=b.s+(act==="up"?-1:1); if(ns<0||ns>=shelfCount())return;
+    books.splice(i,1); books.push({...b,s:ns});
+  }else{
+    const same=books.map((x,k)=>[x,k]).filter(([x])=>x.s===b.s);
+    const pos=same.findIndex(([x])=>x.id===b.id), np=pos+(act==="left"?-1:1);
+    if(np<0||np>=same.length)return; const j=same[np][1];
+    [books[i],books[j]]=[books[j],books[i]];
+  }
+  save(); render();
+}
+let justDragged=false;
+shelvesEl.addEventListener("click",e=>{
+  if(justDragged)return;
+  const bk=e.target.closest(".book"); if(bk){selected=selected===bk.dataset.id?null:bk.dataset.id;render();return}
+  const a=e.target.closest("[data-act]"); if(!a)return; const act=a.dataset.act;
+  if(["left","right","up","down"].includes(act)){moveSelected(act);return}
+  if(act==="del"){books=books.filter(b=>b.id!==selected);save()}
+  selected=null; render()});
+
+/* Drag and drop: pointer events work for mouse and touch */
+let drag=null;
+shelvesEl.addEventListener("pointerdown",e=>{
+  const bk=e.target.closest(".book"); if(!bk||e.button>0)return;
+  drag={el:bk,x:e.clientX,y:e.clientY,active:false};
+});
+function startDrag(e){
+  const el=drag.el, r=el.getBoundingClientRect();
+  const fly=el.cloneNode(true); fly.classList.add("flying"); fly.classList.remove("sel");
+  Object.assign(fly.style,{width:r.width+"px",height:r.height+"px"});
+  document.body.appendChild(fly);
+  Object.assign(drag,{active:true,fly,dx:e.clientX-r.left,dy:e.clientY-r.top});
+  el.classList.add("placeholder"); el.classList.remove("sel");
+  document.querySelector(".detail")?.remove(); selected=null;
+  document.body.classList.add("dragging");
+}
+function moveDrag(e){
+  drag.fly.style.left=(e.clientX-drag.dx)+"px"; drag.fly.style.top=(e.clientY-drag.dy)+"px";
+  const shelf=document.elementFromPoint(e.clientX,e.clientY)?.closest(".shelf");
+  document.querySelectorAll(".shelf.target").forEach(s=>s!==shelf&&s.classList.remove("target"));
+  if(!shelf)return; shelf.classList.add("target");
+  const row=shelf.querySelector(".books"); row.querySelector(".empty")?.remove();
+  const others=[...row.querySelectorAll(".book")].filter(b=>b!==drag.el);
+  const before=others.find(b=>{const r=b.getBoundingClientRect();return e.clientX<r.left+r.width/2});
+  if(before){if(drag.el.nextSibling!==before)row.insertBefore(drag.el,before)}
+  else if(row.lastElementChild!==drag.el)row.appendChild(drag.el);
+  // auto-scroll a crowded shelf near its edges
+  const rr=row.getBoundingClientRect();
+  if(e.clientX<rr.left+30)row.scrollLeft-=8; else if(e.clientX>rr.right-30)row.scrollLeft+=8;
+}
+function endDrag(){
+  drag.fly.remove(); document.body.classList.remove("dragging");
+  const byId=Object.fromEntries(books.map(b=>[b.id,b])), next=[];
+  document.querySelectorAll(".books").forEach((row,s)=>row.querySelectorAll(".book").forEach(el=>next.push({...byId[el.dataset.id],s})));
+  books=next; save(); justDragged=true; setTimeout(()=>justDragged=false,0); render();
+}
+window.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  if(!drag.active){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return; startDrag(e)}
+  e.preventDefault(); moveDrag(e);
+},{passive:false});
+const stop=()=>{if(drag?.active)endDrag(); drag=null};
+window.addEventListener("pointerup",stop); window.addEventListener("pointercancel",stop);
+paintStars(); render();
+</script>
+
+<script>
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+</script>
+</body>
+</html>
