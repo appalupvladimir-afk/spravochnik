@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths:
       - "bookshelf/**"
-      - "bookshelf-android/**"
+      - "bookshelf-app/**"
       - ".github/workflows/bookshelf-android.yml"
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: bookshelf-android
+        working-directory: bookshelf-app
     steps:
       - uses: actions/checkout@v5
 
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: bookshelf-android/package-lock.json
+          cache-dependency-path: bookshelf-app/package-lock.json
 
       - uses: actions/setup-java@v5
         with:
@@ -47,7 +47,7 @@ jobs:
           npx cap sync android
 
       - name: Сборка APK
-        working-directory: bookshelf-android/android
+        working-directory: bookshelf-app/android
         run: |
           echo "Android SDK: $ANDROID_HOME"
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true

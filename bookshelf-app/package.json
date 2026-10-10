@@ -1,14 +1,15 @@
 {
-  "name": "bookshelf-android",
+  "name": "bookshelf-app",
   "private": true,
   "version": "1.0.0",
-  "description": "Моя книжная полка — Android-приложение",
+  "description": "Моя книжная полка — приложение для Android и iOS",
   "scripts": {
     "build:web": "node scripts/build-web.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
-    "@capacitor/core": "8.5.2"
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "^8.5.2"
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.2",

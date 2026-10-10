@@ -1,0 +1,76 @@
+# Собирает iOS-приложение «Полка» без подписи и выкладывает Polka.ipa в релиз polka-ios.
+# Подпись делает AltStore или Sideloadly при установке на iPhone вашим Apple ID.
+name: Сборка IPA «Полка»
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "bookshelf/**"
+      - "bookshelf-app/**"
+      - ".github/workflows/bookshelf-ios.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bookshelf-ios
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: bookshelf-app
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bookshelf-app/package-lock.json
+
+      - name: Веб-часть приложения
+        run: |
+          npm ci
+          npm run build:web
+          npx cap sync ios
+
+      - name: Сборка без подписи
+        run: |
+          xcodebuild -version
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            MARKETING_VERSION=1.0.${{ github.run_number }} \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | tail -n 40
+          test -d build/Build/Products/Release-iphoneos/App.app
+
+      - name: Упаковка в IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qry "$GITHUB_WORKSPACE/Polka.ipa" Payload
+          ls -la "$GITHUB_WORKSPACE/Polka.ipa"
+
+      - name: Публикация в релиз
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="Сборка №${{ github.run_number }} от $(date -u +'%d.%m.%Y %H:%M') UTC. Файл без подписи: установите Polka.ipa на iPhone через AltStore или Sideloadly со своим Apple ID."
+          if gh release view polka-ios >/dev/null 2>&1; then
+            gh release upload polka-ios Polka.ipa --clobber
+            gh release edit polka-ios --notes "$NOTES"
+          else
+            gh release create polka-ios Polka.ipa --title "Полка для iPhone" --notes "$NOTES"
+          fi
