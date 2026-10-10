@@ -1,0 +1,13 @@
+{
+  "appId": "io.github.appalupvladimir.bookshelf",
+  "appName": "Полка",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#e9e3d8"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+# Собирает Android-приложение «Полка» и выкладывает Polka.apk в релиз polka-android.
+# Запускается при изменениях полки или вручную (Actions → Сборка APK → Run workflow).
+name: Сборка APK «Полка»
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "bookshelf/**"
+      - "bookshelf-android/**"
+      - ".github/workflows/bookshelf-android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bookshelf-android
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bookshelf-android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bookshelf-android/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Веб-часть приложения
+        run: |
+          npm ci
+          npm run build:web
+          npx cap sync android
+
+      - name: Сборка APK
+        working-directory: bookshelf-android/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/Polka.apk"
+
+      - name: Публикация в релиз
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="Сборка №${{ github.run_number }} от $(date -u +'%d.%m.%Y %H:%M') UTC. Скачайте Polka.apk и откройте его на Android-телефоне."
+          if gh release view polka-android >/dev/null 2>&1; then
+            gh release upload polka-android Polka.apk --clobber
+            gh release edit polka-android --notes "$NOTES"
+          else
+            gh release create polka-android Polka.apk --title "Полка для Android" --notes "$NOTES"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Polka-apk
+          path: Polka.apk
