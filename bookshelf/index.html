@@ -64,7 +64,7 @@ select.field{flex:0 1 auto;padding:9px 10px;background:var(--card)}
 .shelf{position:relative;margin-bottom:30px}
 /* латунная табличка под полкой */
 .shelf-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
-.plate-wrap{position:relative;flex:0 1 300px;min-width:0}
+.plate-wrap{position:relative;flex:1 1 180px;max-width:320px;min-width:0}
 .plate-wrap::before,.plate-wrap::after{content:"";position:absolute;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;
   background:radial-gradient(circle at 35% 35%,#f3e2b0,#8a6a2a);box-shadow:0 1px 1px rgba(0,0,0,.4);pointer-events:none}
 .plate-wrap::before{left:8px}.plate-wrap::after{right:8px}
@@ -76,9 +76,22 @@ select.field{flex:0 1 auto;padding:9px 10px;background:var(--card)}
 .shelf-count{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .icon-btn{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px 6px;border-radius:4px}
 .icon-btn:hover{color:var(--accent)}
+.shelf,.shelves{min-width:0;max-width:100%}
 .books{display:flex;align-items:flex-end;gap:3px;min-height:190px;padding:0 10px;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
   background:linear-gradient(var(--wood-dark),var(--wood-dark)) left/10px 100% no-repeat,
              linear-gradient(var(--wood-dark),var(--wood-dark)) right/10px 100% no-repeat}
+.books::-webkit-scrollbar{display:none}
+/* ползунок под переполненной полкой */
+.scroller{display:flex;align-items:center;gap:8px;margin-top:8px;padding:0 4px}
+.scroller .hint{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.shelf-range{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:28px;background:transparent;margin:0;cursor:pointer;touch-action:pan-y}
+.shelf-range::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:var(--line);box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+.shelf-range::-moz-range-track{height:8px;border-radius:4px;background:var(--line)}
+.shelf-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--tw,48px);height:22px;margin-top:-7px;border-radius:5px;
+  background:linear-gradient(var(--wood-light),var(--wood) 50%,var(--wood-dark));border:1px solid var(--wood-dark);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.shelf-range::-moz-range-thumb{width:var(--tw,48px);height:20px;border-radius:5px;background:linear-gradient(var(--wood-light),var(--wood) 50%,var(--wood-dark));border:1px solid var(--wood-dark)}
+.shelf-range:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .board{height:16px;border-radius:2px;background:linear-gradient(var(--wood-light),var(--wood) 40%,var(--wood-dark));
   box-shadow:0 6px 10px -4px rgba(0,0,0,.35)}
 .empty{align-self:center;margin:auto;color:var(--muted);font-style:italic;font-family:var(--display);text-align:center;padding:0 8px}
@@ -322,6 +335,7 @@ function render(){
         return `<button type="button" class="book${selected===b.id?" sel":""}${isRead(b)?"":" unread"}" data-id="${b.id}" style="--c:${L.c};--w:${L.w}px;--h:${L.h}px" aria-label="${esc(b.t)}, ${b.r} из 5, ${isRead(b)?"прочитана":"не прочитана"}"><span class="mk${isRead(b)?" on":""}" data-act="read" data-id="${b.id}" title="${isRead(b)?"Прочитана":"Не прочитана"}">✓</span><span class="t">${esc(b.t)}</span><span class="r">${"★".repeat(b.r)}</span></button>`}).join("")
         :`<span class="empty">Полка пуста. Добавьте книгу или перетащите сюда.</span>`}</div>
       <div class="board"></div>
+      <div class="scroller" hidden><span class="hint">◀</span><input type="range" class="shelf-range" min="0" max="1000" value="0" step="1" aria-label="Прокрутить полку ${esc(s.name)}"><span class="hint">▶</span></div>
       <div class="shelf-foot"><div class="plate-wrap"><input class="shelf-name" value="${esc(s.name)}" placeholder="Название полки" maxlength="40" aria-label="Название полки" data-id="${s.id}"></div>
         <span class="shelf-count">${cnt}</span>${S.length>1?delBtn:""}</div></div>`;
     const sb=part.find(b=>b.id===selected);
@@ -352,7 +366,11 @@ function render(){
     }
   }
   if(!html)html=`<p class="empty" style="padding:30px 0">Ничего не найдено.</p>`;
-  const sh=$("shelves"); sh.innerHTML=html; sh.classList.toggle("locked",locked);
+  const sh=$("shelves"), keep={};
+  sh.querySelectorAll(".shelf").forEach(x=>keep[x.dataset.shelf]=x.querySelector(".books").scrollLeft);
+  sh.innerHTML=html; sh.classList.toggle("locked",locked);
+  sh.querySelectorAll(".shelf").forEach(x=>{if(keep[x.dataset.shelf])x.querySelector(".books").scrollLeft=keep[x.dataset.shelf]});
+  setupScrollers();
 }
 
 function moveSelected(act){
@@ -456,6 +474,27 @@ addEventListener("pointermove",e=>{
 const stop=()=>{if(drag?.active)endDrag(); drag=null};
 addEventListener("pointerup",stop); addEventListener("pointercancel",stop);
 
+/* ---------- ползунки прокрутки полок ---------- */
+function syncScroller(shelf){
+  const row=shelf.querySelector(".books"), box=shelf.querySelector(".scroller"); if(!row||!box)return;
+  const max=row.scrollWidth-row.clientWidth;
+  box.hidden=max<=2; if(box.hidden)return;
+  const range=box.querySelector(".shelf-range");
+  // ширина бегунка пропорциональна видимой части полки
+  range.style.setProperty("--tw",Math.max(36,Math.round(range.clientWidth*row.clientWidth/row.scrollWidth))+"px");
+  if(document.activeElement!==range)range.value=Math.round(row.scrollLeft/max*1000);
+}
+function setupScrollers(){
+  document.querySelectorAll(".shelf").forEach(shelf=>{
+    const row=shelf.querySelector(".books"), range=shelf.querySelector(".shelf-range"); if(!row||!range)return;
+    range.addEventListener("input",()=>{row.scrollLeft=range.value/1000*(row.scrollWidth-row.clientWidth)});
+    range.addEventListener("change",()=>range.blur());
+    row.addEventListener("scroll",()=>syncScroller(shelf),{passive:true});
+    syncScroller(shelf);
+  });
+}
+addEventListener("resize",()=>document.querySelectorAll(".shelf").forEach(syncScroller));
+document.fonts?.ready.then(()=>document.querySelectorAll(".shelf").forEach(syncScroller));
 paintStars(); render();
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
