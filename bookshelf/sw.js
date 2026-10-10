@@ -1,5 +1,5 @@
-// Офлайн-кэш: файлы приложения сохраняются при установке, шрифты — при первой загрузке.
-const CACHE = "bookshelf-v1";
+// Офлайн-кэш. Сначала берём свежую версию из сети, без интернета — из кэша.
+const CACHE = "bookshelf-v2";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
@@ -17,16 +17,15 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then(hit => {
-      if (hit) return hit;
-      return fetch(e.request).then(res => {
-        const url = e.request.url;
-        if (res.ok || url.includes("fonts.g")) {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copy));
-        }
-        return res;
-      }).catch(() => caches.match("index.html"));
-    })
+    fetch(e.request).then(res => {
+      if (res.ok || res.type === "opaque") {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+      }
+      return res;
+    }).catch(() =>
+      caches.match(e.request).then(hit => hit ||
+        (e.request.mode === "navigate" ? caches.match("index.html") : Response.error()))
+    )
   );
 });

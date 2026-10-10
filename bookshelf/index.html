@@ -12,21 +12,18 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>
-:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;font:14px system-ui,sans-serif;overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
-img{max-width:100%}[hidden]{display:none!important}
-</style>
 <title>Моя книжная полка</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,500&family=PT+Sans:wght@400;700&display=swap">
 <style>
-/* Layout: a wall with stacked wooden shelves; an input strip on top styled like a library card */
+/* Layout: a wall with stacked, named wooden shelves; a library-card form and a filter bar on top */
 :root{
   --wall:#e9e3d8; --ink:#2b2420; --muted:#6f6359;
   --wood:#8a5a36; --wood-dark:#5e3b22; --wood-light:#a8754b;
   --card:#fbf8f2; --line:#d8cfc2; --accent:#9c3b2c; --star:#d9a227;
   --display:"Lora", Georgia, serif; --body:"PT Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --wall:#1f1b18; --ink:#efe7dc; --muted:#a89a8c;
@@ -36,164 +33,314 @@ img{max-width:100%}[hidden]{display:none!important}
   --wall:#1f1b18; --ink:#efe7dc; --muted:#a89a8c;
   --wood:#6b4329; --wood-dark:#3f2716; --wood-light:#85563a;
   --card:#2a2420; --line:#433a33; --accent:#d4705e; --star:#e8b443; color-scheme:dark}
-body{background:var(--wall);color:var(--ink);font-family:var(--body);font-size:15px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--wall);color:var(--ink);font-family:var(--body);font-size:15px;
+  overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:900px;margin:0 auto;padding:24px 16px 48px}
 h1{font-family:var(--display);font-weight:700;font-size:1.9rem;margin:0 0 4px;text-wrap:balance}
 .sub{color:var(--muted);margin:0 0 20px}
 .sub b{font-variant-numeric:tabular-nums}
+input,select,button{font:inherit;color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);
-  border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:28px}
-#title{flex:1 1 220px;min-width:0;font:inherit;font-size:1rem;padding:10px 12px;border:1px solid var(--line);
-  border-radius:4px;background:transparent;color:var(--ink)}
-#title:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);
+  border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:12px}
+.field{flex:1 1 200px;min-width:0;font-size:1rem;padding:10px 12px;border:1px solid var(--line);
+  border-radius:4px;background:transparent}
+select.field{flex:0 1 auto;padding:9px 10px;background:var(--card)}
+.lbl{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:100%;margin-bottom:-4px}
 .stars{display:flex;gap:2px}
 .stars button{background:none;border:0;padding:2px;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--line)}
 .stars button.on{color:var(--star)}
-.add{font:inherit;font-weight:700;padding:10px 18px;border:0;border-radius:4px;background:var(--accent);color:#fff;cursor:pointer}
+.add{font-weight:700;padding:10px 18px;border:0;border-radius:4px;background:var(--accent);color:#fff;cursor:pointer}
 .add:disabled{opacity:.5;cursor:default}
+.ghost{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer}
+.ghost.danger{color:var(--accent);border-color:var(--accent)}
+.status{width:100%;font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.status .ghost{padding:4px 10px;font-size:.85rem}
 
-.shelf{position:relative;margin-bottom:34px}
+.shelves{margin-top:24px}
+.shelf{position:relative;margin-bottom:30px}
+.shelf-head{display:flex;align-items:center;gap:8px;margin:0 0 6px}
+.shelf-name{flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:1.05rem;border:1px solid transparent;
+  background:transparent;padding:4px 6px;margin-left:-6px;border-radius:4px;text-overflow:ellipsis}
+.shelf-name:hover,.shelf-name:focus{border-color:var(--line);background:var(--card)}
+.shelf-count{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.icon-btn{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px 6px;border-radius:4px}
+.icon-btn:hover{color:var(--accent)}
 .books{display:flex;align-items:flex-end;gap:3px;min-height:190px;padding:0 10px;overflow-x:auto;overflow-y:hidden;
   background:linear-gradient(var(--wood-dark),var(--wood-dark)) left/10px 100% no-repeat,
-             linear-gradient(var(--wood-dark),var(--wood-dark)) right/10px 100% no-repeat;}
+             linear-gradient(var(--wood-dark),var(--wood-dark)) right/10px 100% no-repeat}
 .board{height:16px;border-radius:2px;background:linear-gradient(var(--wood-light),var(--wood) 40%,var(--wood-dark));
   box-shadow:0 6px 10px -4px rgba(0,0,0,.35)}
-.empty{align-self:center;margin:auto;color:var(--muted);font-style:italic;font-family:var(--display)}
+.empty{align-self:center;margin:auto;color:var(--muted);font-style:italic;font-family:var(--display);text-align:center;padding:0 8px}
+.add-shelf{width:100%;padding:14px;border:2px dashed var(--line);border-radius:6px;background:transparent;
+  color:var(--muted);font-weight:700;cursor:pointer}
+.add-shelf:hover{border-color:var(--wood-light);color:var(--ink)}
 
 .book{flex:0 0 auto;width:var(--w);height:var(--h);background:var(--c);border-radius:3px 3px 1px 1px;
-  position:relative;cursor:pointer;border:0;padding:8px 0;color:#fdf6ea;
+  position:relative;cursor:grab;border:0;padding:8px 0;color:#fdf6ea;touch-action:none;user-select:none;-webkit-user-select:none;
   display:flex;flex-direction:column;align-items:center;justify-content:space-between;
   box-shadow:inset 3px 0 0 rgba(255,255,255,.18),inset -4px 0 0 rgba(0,0,0,.22);
   transition:transform .2s ease;animation:drop .45s ease-out}
+.locked .book{cursor:pointer;touch-action:auto}
 .book:hover,.book.sel{transform:translateY(-10px)}
 .book .t{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--display);font-weight:500;
   font-size:.82rem;line-height:1.1;max-height:calc(var(--h) - 46px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .book .r{font-size:.62rem;color:var(--star);writing-mode:vertical-rl;letter-spacing:-1px}
 .book::before,.book::after{content:"";position:absolute;left:4px;right:4px;height:2px;background:rgba(255,255,255,.35)}
 .book::before{top:5px}.book::after{bottom:5px}
-.book{touch-action:none;user-select:none;-webkit-user-select:none}
 .book.placeholder{opacity:.25;transform:none;animation:none}
 .book.flying{position:fixed;z-index:50;pointer-events:none;margin:0;animation:none;transition:none;
   transform:rotate(-5deg) scale(1.05);box-shadow:inset 3px 0 0 rgba(255,255,255,.18),inset -4px 0 0 rgba(0,0,0,.22),0 14px 24px rgba(0,0,0,.35)}
 .shelf.target .board{background:linear-gradient(var(--wood-light),var(--wood-light) 40%,var(--wood));outline:2px solid var(--star)}
 body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
-.moves{display:flex;gap:4px}
-.moves .ghost{padding:6px 10px}
 @keyframes drop{from{transform:translateY(-40px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.book{animation:none;transition:none}}
 
 .detail{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
-  background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin:-20px 0 28px}
-.detail h2{font-family:var(--display);font-size:1.1rem;margin:0;min-width:0;overflow-wrap:anywhere}
+  background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin:-16px 0 28px}
+.detail h2{font-family:var(--display);font-size:1.1rem;margin:0;overflow-wrap:anywhere}
+.detail>div:first-child{min-width:0}
 .detail .dr{color:var(--star);font-size:1.1rem}
-.detail .acts{display:flex;gap:8px}
-.ghost{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--ink);cursor:pointer}
-.ghost.danger{color:var(--accent);border-color:var(--accent)}
-.note{color:var(--muted);font-size:.85rem}
-.nojs{background:var(--card);border:1px solid var(--accent);border-radius:6px;padding:12px 14px;margin:0 0 20px;line-height:1.45}
+.detail .where{color:var(--muted);font-size:.85rem}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.moves{display:flex;gap:4px}
+.moves .ghost{padding:6px 10px}
+.note{color:var(--muted);font-size:.85rem;line-height:1.45}
+.nojs{background:var(--card);border:1px solid var(--accent);border-radius:6px;padding:12px 14px;margin:0 0 20px}
 .nojs b{color:var(--accent)}
 </style>
-
 </head>
 <body>
 <div class="wrap">
   <div class="nojs" id="nojs"><b>В браузере выключены скрипты.</b> Без них полка не работает.</div>
   <h1>Моя книжная полка</h1>
-  <p class="sub">Прочитано книг: <b id="count">0</b> · средняя оценка <b id="avg">—</b></p>
+  <p class="sub">Книг: <b id="count">0</b> · полок: <b id="scount">0</b> · средняя оценка <b id="avg">—</b></p>
 
-  <form id="f" autocomplete="off">
-    <input id="title" type="text" placeholder="Название книги" maxlength="80" aria-label="Название книги">
+  <form class="panel" id="f" autocomplete="off">
+    <input class="field" id="title" type="text" placeholder="Название книги" maxlength="80" aria-label="Название книги">
     <div class="stars" id="stars" role="radiogroup" aria-label="Рейтинг"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></div>
+    <select class="field" id="target" aria-label="На какую полку"></select>
     <button class="add" id="add" type="submit" disabled>На полку</button>
   </form>
 
-  <div id="shelves"><div class="shelf"><div class="books"><span class="empty">Полка пуста</span></div><div class="board"></div></div><div class="shelf"><div class="books"><span class="empty">Полка пуста</span></div><div class="board"></div></div></div>
-  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы посмотреть оценку или убрать книгу. Книги хранятся только на этом телефоне.</p>
+  <div class="panel" id="filters">
+    <span class="lbl">Фильтр по всем полкам</span>
+    <input class="field" id="q" type="search" placeholder="Поиск по названию" aria-label="Поиск по названию">
+    <select class="field" id="minr" aria-label="Оценка">
+      <option value="0">Любая оценка</option>
+      <option value="5">★★★★★ только</option>
+      <option value="4">★★★★ и выше</option>
+      <option value="3">★★★ и выше</option>
+      <option value="2">★★ и выше</option>
+      <option value="-2">★★ и ниже</option>
+    </select>
+    <select class="field" id="sort" aria-label="Сортировка">
+      <option value="manual">Как расставил</option>
+      <option value="az">По названию, А–Я</option>
+      <option value="za">По названию, Я–А</option>
+      <option value="rdesc">Сначала высокие оценки</option>
+      <option value="rasc">Сначала низкие оценки</option>
+      <option value="new">Сначала новые</option>
+      <option value="old">Сначала старые</option>
+    </select>
+    <div class="status" id="status" hidden></div>
+  </div>
+
+  <div class="shelves" id="shelves"></div>
+  <button class="add-shelf" id="addShelf" type="button">＋ Добавить полку</button>
+  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы посмотреть оценку или убрать книгу. Название полки можно изменить, нажав на него. Книги хранятся только на этом устройстве.</p>
 </div>
 
 <script>
-const PALETTE=["#7a2e2a","#2f4b3a","#27415e","#6b4a1e","#4b2f55","#8a6a2a","#3b5a5a","#5a2a3a","#33363d","#6d3b1f"];
-const PER_SHELF=14, KEY="bookshelf-v1";
-const SAMPLE=[{t:"Мастер и Маргарита",r:5},{t:"Преступление и наказание",r:4},{t:"Пикник на обочине",r:5},{t:"Евгений Онегин",r:4}];
-let books, rating=0, selected=null;
-
-function load(){let list=null;try{const s=localStorage.getItem(KEY);if(s)list=JSON.parse(s)}catch(e){}
-  if(!list)list=SAMPLE.map((b,i)=>({...b,id:"s"+i,seed:i*7+3}));
-  return list.map((b,i)=>({...b,s:Number.isInteger(b.s)?b.s:Math.floor(i/PER_SHELF)}))}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(books))}catch(e){}}
-books=load();
-const shelfCount=()=>Math.max(2,books.reduce((m,b)=>Math.max(m,b.s),-1)+2);
-const onShelf=s=>books.filter(b=>b.s===s);
-
-function look(b){const s=b.seed;
-  return {c:PALETTE[s%PALETTE.length],w:30+(s*13)%22+Math.min(b.t.length,30)*.4,h:140+(s*29)%45}}
-
 document.getElementById("nojs").hidden=true;
-const starsEl=document.getElementById("stars");starsEl.innerHTML="";
-for(let i=1;i<=5;i++){const btn=document.createElement("button");btn.type="button";btn.textContent="★";
-  btn.setAttribute("aria-label",i+" из 5");btn.onclick=()=>{rating=i;paintStars();check()};starsEl.appendChild(btn)}
-function paintStars(){[...starsEl.children].forEach((b,i)=>{b.classList.toggle("on",i<rating);b.setAttribute("aria-checked",i+1===rating)})}
+const PALETTE=["#7a2e2a","#2f4b3a","#27415e","#6b4a1e","#4b2f55","#8a6a2a","#3b5a5a","#5a2a3a","#33363d","#6d3b1f"];
+const KEY="bookshelf-v2", OLD_KEY="bookshelf-v1", PREF="bookshelf-view";
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+let state, rating=0, selected=null, confirmDel=null;
+let view={q:"",minr:0,sort:"manual"};
 
-const title=document.getElementById("title"), addBtn=document.getElementById("add");
+function load(){
+  try{const s=localStorage.getItem(KEY);if(s){const d=JSON.parse(s);if(d&&d.shelves&&d.books)return d}}catch(e){}
+  let old=null; try{old=JSON.parse(localStorage.getItem(OLD_KEY)||"null")}catch(e){}
+  if(Array.isArray(old)){ // перенос со старой версии
+    const n=Math.max(1,old.reduce((m,b)=>Math.max(m,Number.isInteger(b.s)?b.s:0),0)+1);
+    const shelves=Array.from({length:n},(_,i)=>({id:"sh"+i,name:"Полка "+(i+1)}));
+    const t0=Date.now()-old.length*1000;
+    return {shelves,books:old.map((b,i)=>({id:b.id||uid(),t:b.t,r:b.r,seed:b.seed??i*7,added:t0+i*1000,
+      shelf:"sh"+(Number.isInteger(b.s)?b.s:0)}))};
+  }
+  const t0=Date.now()-1e6;
+  return {shelves:[{id:"sh0",name:"Классика"},{id:"sh1",name:"Фантастика"}],
+    books:[{t:"Мастер и Маргарита",r:5,shelf:"sh0"},{t:"Преступление и наказание",r:4,shelf:"sh0"},
+      {t:"Евгений Онегин",r:4,shelf:"sh0"},{t:"Пикник на обочине",r:5,shelf:"sh1"},{t:"Солярис",r:3,shelf:"sh1"}]
+      .map((b,i)=>({...b,id:"s"+i,seed:i*7+3,added:t0+i*1000}))};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function saveView(){try{localStorage.setItem(PREF,JSON.stringify(view))}catch(e){}}
+state=load();
+try{const v=JSON.parse(localStorage.getItem(PREF)||"null");if(v)view={...view,...v}}catch(e){}
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const starsTxt=r=>"★".repeat(r)+"☆".repeat(5-r);
+const look=b=>{const s=b.seed;return {c:PALETTE[s%PALETTE.length],w:30+(s*13)%22+Math.min(b.t.length,30)*.4,h:140+(s*29)%45}};
+const coll=new Intl.Collator("ru",{sensitivity:"base",numeric:true});
+const SORTS={
+  az:(a,b)=>coll.compare(a.t,b.t), za:(a,b)=>coll.compare(b.t,a.t),
+  rdesc:(a,b)=>b.r-a.r||coll.compare(a.t,b.t), rasc:(a,b)=>a.r-b.r||coll.compare(a.t,b.t),
+  new:(a,b)=>b.added-a.added, old:(a,b)=>a.added-b.added};
+const filtering=()=>view.q.trim()!==""||view.minr!==0;
+const isLocked=()=>view.sort!=="manual"||filtering();
+function matches(b){
+  const q=view.q.trim().toLowerCase();
+  if(q&&!b.t.toLowerCase().includes(q))return false;
+  if(view.minr>0&&b.r<view.minr)return false;
+  if(view.minr<0&&b.r>-view.minr)return false;
+  return true;
+}
+function shown(shelfId){
+  let list=state.books.filter(b=>b.shelf===shelfId&&matches(b));
+  if(view.sort!=="manual")list=[...list].sort(SORTS[view.sort]);
+  return list;
+}
+
+/* ---------- form ---------- */
+const starsEl=$("stars"); starsEl.innerHTML="";
+for(let i=1;i<=5;i++){const btn=document.createElement("button");btn.type="button";btn.textContent="★";
+  btn.setAttribute("role","radio");btn.setAttribute("aria-label",i+" из 5");
+  btn.onclick=()=>{rating=i;paintStars();check()};starsEl.appendChild(btn)}
+function paintStars(){[...starsEl.children].forEach((b,i)=>{b.classList.toggle("on",i<rating);b.setAttribute("aria-checked",i+1===rating)})}
+const title=$("title"), addBtn=$("add"), target=$("target");
 function check(){addBtn.disabled=!(title.value.trim()&&rating)}
 title.addEventListener("input",check);
-document.getElementById("f").addEventListener("submit",e=>{e.preventDefault();
+$("f").addEventListener("submit",e=>{e.preventDefault();
   const t=title.value.trim(); if(!t||!rating)return;
-  let s=0; while(onShelf(s).length>=PER_SHELF)s++;
-  books.push({t,r:rating,s,id:Date.now().toString(36),seed:Math.floor(Math.random()*1000)});
+  if(!state.shelves.length)state.shelves.push({id:uid(),name:"Полка 1"});
+  const shelf=state.shelves.some(s=>s.id===target.value)?target.value:state.shelves[0].id;
+  state.books.push({t,r:rating,shelf,id:uid(),seed:Math.floor(Math.random()*1000),added:Date.now()});
   save(); title.value=""; rating=0; paintStars(); check(); selected=null; render(); title.focus()});
 
-const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const stars=r=>"★".repeat(r)+"☆".repeat(5-r);
+/* ---------- filters ---------- */
+const qEl=$("q"), minrEl=$("minr"), sortEl=$("sort");
+qEl.value=view.q; minrEl.value=String(view.minr); sortEl.value=view.sort;
+qEl.addEventListener("input",()=>{view.q=qEl.value;saveView();selected=null;render()});
+minrEl.addEventListener("change",()=>{view.minr=+minrEl.value;saveView();selected=null;render()});
+sortEl.addEventListener("change",()=>{view.sort=sortEl.value;saveView();selected=null;render()});
+function resetView(){view={q:"",minr:0,sort:"manual"};qEl.value="";minrEl.value="0";sortEl.value="manual";saveView();render()}
+function applySort(){ // закрепить текущую сортировку как расстановку
+  const next=[];
+  state.shelves.forEach(s=>{const list=state.books.filter(b=>b.shelf===s.id);
+    next.push(...(view.sort==="manual"?list:[...list].sort(SORTS[view.sort])))});
+  state.books=next; save(); view.sort="manual"; sortEl.value="manual"; saveView(); render();
+}
+
+/* ---------- shelves ---------- */
+$("addShelf").addEventListener("click",()=>{
+  const s={id:uid(),name:"Полка "+(state.shelves.length+1)}; state.shelves.push(s); save(); render();
+  const inp=document.querySelector(`[data-shelf="${s.id}"] .shelf-name`);
+  if(inp){inp.scrollIntoView({block:"center",behavior:"smooth"});inp.focus();inp.select()}
+});
 
 function render(){
-  document.getElementById("count").textContent=books.length;
-  document.getElementById("avg").textContent=books.length?(books.reduce((a,b)=>a+b.r,0)/books.length).toFixed(1):"—";
-  const n=shelfCount(); let html="";
-  for(let s=0;s<n;s++){
-    const part=onShelf(s);
-    html+=`<div class="shelf"><div class="books">${part.length?part.map(b=>{const L=look(b);
-      return `<button class="book${selected===b.id?" sel":""}" data-id="${b.id}" style="--c:${L.c};--w:${L.w}px;--h:${L.h}px" aria-label="${esc(b.t)}, ${b.r} из 5"><span class="t">${esc(b.t)}</span><span class="r">${"★".repeat(b.r)}</span></button>`}).join("")
-      :`<span class="empty">${s===0?"Полка пуста — добавьте первую книгу":"Здесь пока свободно"}</span>`}</div><div class="board"></div></div>`;
+  const B=state.books, S=state.shelves;
+  $("count").textContent=B.length; $("scount").textContent=S.length;
+  $("avg").textContent=B.length?(B.reduce((a,b)=>a+b.r,0)/B.length).toFixed(1):"—";
+  const prev=target.value;
+  target.innerHTML=S.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  if(S.some(s=>s.id===prev))target.value=prev;
+  target.hidden=S.length<2;
+
+  const locked=isLocked(), total=B.filter(matches).length;
+  const st=$("status");
+  if(locked){
+    st.hidden=false;
+    st.innerHTML=`<span>${filtering()?`Найдено книг: <b>${total}</b> из ${B.length}.`:"Книги отсортированы на всех полках."} Перетаскивание выключено.</span>`
+      +(view.sort!=="manual"&&!filtering()?` <button class="ghost" type="button" data-act="apply">Расставить так навсегда</button>`:"")
+      +` <button class="ghost" type="button" data-act="reset">Сбросить</button>`;
+  }else st.hidden=true;
+
+  let html="";
+  for(const s of S){
+    const all=B.filter(b=>b.shelf===s.id), part=shown(s.id);
+    if(filtering()&&!part.length)continue; // при поиске прячем полки без совпадений
+    const cnt=filtering()?`${part.length} из ${all.length}`:String(all.length);
+    const delBtn=confirmDel===s.id
+      ?`<button class="ghost danger" type="button" data-act="delshelf-yes" data-id="${s.id}">${all.length?"Удалить, книги на соседнюю полку":"Удалить полку"}</button><button class="ghost" type="button" data-act="delshelf-no">Отмена</button>`
+      :`<button class="icon-btn" type="button" data-act="delshelf" data-id="${s.id}" aria-label="Удалить полку ${esc(s.name)}" title="Удалить полку">✕</button>`;
+    html+=`<div class="shelf" data-shelf="${s.id}">
+      <div class="shelf-head"><input class="shelf-name" value="${esc(s.name)}" maxlength="40" aria-label="Название полки" data-id="${s.id}">
+        <span class="shelf-count">${cnt}</span>${S.length>1?delBtn:""}</div>
+      <div class="books">${part.length?part.map(b=>{const L=look(b);
+        return `<button type="button" class="book${selected===b.id?" sel":""}" data-id="${b.id}" style="--c:${L.c};--w:${L.w}px;--h:${L.h}px" aria-label="${esc(b.t)}, ${b.r} из 5"><span class="t">${esc(b.t)}</span><span class="r">${"★".repeat(b.r)}</span></button>`}).join("")
+        :`<span class="empty">Полка пуста. Добавьте книгу или перетащите сюда.</span>`}</div>
+      <div class="board"></div></div>`;
     const sb=part.find(b=>b.id===selected);
-    if(sb)html+=`<div class="detail"><div><h2>${esc(sb.t)}</h2><div class="dr">${stars(sb.r)}</div></div>
-      <div class="acts"><div class="moves">
-        <button class="ghost" data-act="left" aria-label="Сдвинуть влево">◀</button>
-        <button class="ghost" data-act="right" aria-label="Сдвинуть вправо">▶</button>
-        <button class="ghost" data-act="up" aria-label="На полку выше">▲</button>
-        <button class="ghost" data-act="down" aria-label="На полку ниже">▼</button></div>
-      <button class="ghost" data-act="close">Закрыть</button><button class="ghost danger" data-act="del">Убрать с полки</button></div></div>`;
+    if(sb){
+      const idx=S.findIndex(x=>x.id===s.id);
+      html+=`<div class="detail"><div><h2>${esc(sb.t)}</h2><div class="dr">${starsTxt(sb.r)}</div><div class="where">${esc(s.name)}</div></div>
+      <div class="acts">${locked?"":`<div class="moves">
+        <button class="ghost" type="button" data-act="left" aria-label="Сдвинуть влево">◀</button>
+        <button class="ghost" type="button" data-act="right" aria-label="Сдвинуть вправо">▶</button>
+        <button class="ghost" type="button" data-act="up" aria-label="На полку выше" ${idx===0?"disabled":""}>▲</button>
+        <button class="ghost" type="button" data-act="down" aria-label="На полку ниже" ${idx===S.length-1?"disabled":""}>▼</button></div>`}
+      <button class="ghost" type="button" data-act="close">Закрыть</button>
+      <button class="ghost danger" type="button" data-act="del">Убрать с полки</button></div></div>`;
+    }
   }
-  document.getElementById("shelves").innerHTML=html;
+  if(!html)html=`<p class="empty" style="padding:30px 0">Ничего не найдено.</p>`;
+  const sh=$("shelves"); sh.innerHTML=html; sh.classList.toggle("locked",locked);
 }
-const shelvesEl=document.getElementById("shelves");
+
 function moveSelected(act){
-  const i=books.findIndex(b=>b.id===selected); if(i<0)return; const b=books[i];
+  const i=state.books.findIndex(b=>b.id===selected); if(i<0)return; const b=state.books[i];
   if(act==="up"||act==="down"){
-    const ns=b.s+(act==="up"?-1:1); if(ns<0||ns>=shelfCount())return;
-    books.splice(i,1); books.push({...b,s:ns});
+    const si=state.shelves.findIndex(s=>s.id===b.shelf)+(act==="up"?-1:1);
+    if(si<0||si>=state.shelves.length)return;
+    state.books.splice(i,1); state.books.push({...b,shelf:state.shelves[si].id});
   }else{
-    const same=books.map((x,k)=>[x,k]).filter(([x])=>x.s===b.s);
+    const same=state.books.map((x,k)=>[x,k]).filter(([x])=>x.shelf===b.shelf);
     const pos=same.findIndex(([x])=>x.id===b.id), np=pos+(act==="left"?-1:1);
     if(np<0||np>=same.length)return; const j=same[np][1];
-    [books[i],books[j]]=[books[j],books[i]];
+    [state.books[i],state.books[j]]=[state.books[j],state.books[i]];
   }
   save(); render();
 }
-let justDragged=false;
-shelvesEl.addEventListener("click",e=>{
-  if(justDragged)return;
-  const bk=e.target.closest(".book"); if(bk){selected=selected===bk.dataset.id?null:bk.dataset.id;render();return}
-  const a=e.target.closest("[data-act]"); if(!a)return; const act=a.dataset.act;
-  if(["left","right","up","down"].includes(act)){moveSelected(act);return}
-  if(act==="del"){books=books.filter(b=>b.id!==selected);save()}
-  selected=null; render()});
 
-/* Drag and drop: pointer events work for mouse and touch */
+const shelvesEl=$("shelves");
+let justDragged=false;
+shelvesEl.addEventListener("change",e=>{
+  const inp=e.target.closest(".shelf-name"); if(!inp)return;
+  const s=state.shelves.find(x=>x.id===inp.dataset.id); if(!s)return;
+  s.name=inp.value.trim()||s.name; save(); render();
+});
+shelvesEl.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.closest(".shelf-name"))e.target.blur()});
+document.addEventListener("click",e=>{
+  if(justDragged)return;
+  const a=e.target.closest("[data-act]");
+  const bk=e.target.closest(".book");
+  if(bk){selected=selected===bk.dataset.id?null:bk.dataset.id;confirmDel=null;render();return}
+  if(!a)return; const act=a.dataset.act;
+  if(act==="reset"){resetView();return}
+  if(act==="apply"){applySort();return}
+  if(act==="delshelf"){confirmDel=a.dataset.id;render();return}
+  if(act==="delshelf-no"){confirmDel=null;render();return}
+  if(act==="delshelf-yes"){
+    const idx=state.shelves.findIndex(s=>s.id===a.dataset.id); if(idx<0)return;
+    const to=state.shelves[idx>0?idx-1:1];
+    if(to)state.books.forEach(b=>{if(b.shelf===a.dataset.id)b.shelf=to.id});
+    state.shelves.splice(idx,1); confirmDel=null; save(); render(); return}
+  if(["left","right","up","down"].includes(act)){moveSelected(act);return}
+  if(act==="del"){state.books=state.books.filter(b=>b.id!==selected);save()}
+  if(act==="del"||act==="close"){selected=null;render()}
+});
+
+/* ---------- drag and drop (mouse + touch) ---------- */
 let drag=null;
 shelvesEl.addEventListener("pointerdown",e=>{
-  const bk=e.target.closest(".book"); if(!bk||e.button>0)return;
+  const bk=e.target.closest(".book"); if(!bk||e.button>0||isLocked())return;
   drag={el:bk,x:e.clientX,y:e.clientY,active:false};
 });
 function startDrag(e){
@@ -216,27 +363,25 @@ function moveDrag(e){
   const before=others.find(b=>{const r=b.getBoundingClientRect();return e.clientX<r.left+r.width/2});
   if(before){if(drag.el.nextSibling!==before)row.insertBefore(drag.el,before)}
   else if(row.lastElementChild!==drag.el)row.appendChild(drag.el);
-  // auto-scroll a crowded shelf near its edges
   const rr=row.getBoundingClientRect();
   if(e.clientX<rr.left+30)row.scrollLeft-=8; else if(e.clientX>rr.right-30)row.scrollLeft+=8;
+  if(e.clientY<60)scrollBy(0,-10); else if(e.clientY>innerHeight-60)scrollBy(0,10);
 }
 function endDrag(){
   drag.fly.remove(); document.body.classList.remove("dragging");
-  const byId=Object.fromEntries(books.map(b=>[b.id,b])), next=[];
-  document.querySelectorAll(".books").forEach((row,s)=>row.querySelectorAll(".book").forEach(el=>next.push({...byId[el.dataset.id],s})));
-  books=next; save(); justDragged=true; setTimeout(()=>justDragged=false,0); render();
+  const byId=Object.fromEntries(state.books.map(b=>[b.id,b])), next=[];
+  document.querySelectorAll(".shelf").forEach(sh=>sh.querySelectorAll(".book").forEach(el=>next.push({...byId[el.dataset.id],shelf:sh.dataset.shelf})));
+  state.books=next; save(); justDragged=true; setTimeout(()=>justDragged=false,0); render();
 }
-window.addEventListener("pointermove",e=>{
+addEventListener("pointermove",e=>{
   if(!drag)return;
   if(!drag.active){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return; startDrag(e)}
   e.preventDefault(); moveDrag(e);
 },{passive:false});
 const stop=()=>{if(drag?.active)endDrag(); drag=null};
-window.addEventListener("pointerup",stop); window.addEventListener("pointercancel",stop);
-paintStars(); render();
-</script>
+addEventListener("pointerup",stop); addEventListener("pointercancel",stop);
 
-<script>
+paintStars(); render();
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
 </body>
