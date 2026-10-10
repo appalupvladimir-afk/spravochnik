@@ -115,6 +115,14 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .detail{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
   background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin:-16px 0 28px}
 .detail h2{font-family:var(--display);font-size:1.1rem;margin:0;overflow-wrap:anywhere}
+.detail .info{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.detail .author{font-family:var(--display);font-style:italic;color:var(--ink)}
+.detail .author.none,.detail .desc.none{color:var(--muted);font-style:italic;font-family:var(--body);font-size:.9rem}
+.detail .desc{margin:4px 0 0;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;max-width:62ch}
+.edit{display:flex;flex-direction:column;gap:8px}
+.edit .field{flex:none;width:100%}
+textarea.field{resize:vertical;min-height:70px;font-family:inherit;line-height:1.45}
+.edit .stars button{font-size:1.4rem}
 .detail>div:first-child{min-width:0}
 .detail .dr{color:var(--star);font-size:1.1rem}
 .detail .where{color:var(--muted);font-size:.85rem}
@@ -140,6 +148,8 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 
   <form class="panel" id="f" autocomplete="off">
     <input class="field" id="title" type="text" placeholder="Название книги" maxlength="80" aria-label="Название книги">
+    <input class="field" id="author" type="text" placeholder="Автор" maxlength="80" aria-label="Автор">
+    <textarea class="field" id="desc" rows="2" placeholder="Краткое описание или комментарий" maxlength="1000" aria-label="Краткое описание" style="flex-basis:100%"></textarea>
     <div class="stars" id="stars" role="radiogroup" aria-label="Рейтинг"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></div>
     <select class="field" id="target" aria-label="На какую полку"></select>
     <button class="toggle" id="readNew" type="button" aria-pressed="true">✓ Прочитана</button>
@@ -148,7 +158,7 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 
   <div class="panel" id="filters">
     <span class="lbl">Фильтр по всем полкам</span>
-    <input class="field" id="q" type="search" placeholder="Поиск по названию" aria-label="Поиск по названию">
+    <input class="field" id="q" type="search" placeholder="Поиск по названию или автору" aria-label="Поиск по названию или автору">
     <select class="field" id="minr" aria-label="Оценка">
       <option value="0">Любая оценка</option>
       <option value="5">★★★★★ только</option>
@@ -166,6 +176,7 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
       <option value="manual">Как расставил</option>
       <option value="az">По названию, А–Я</option>
       <option value="za">По названию, Я–А</option>
+      <option value="author">По автору, А–Я</option>
       <option value="rdesc">Сначала высокие оценки</option>
       <option value="rasc">Сначала низкие оценки</option>
       <option value="new">Сначала новые</option>
@@ -176,7 +187,7 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 
   <div class="shelves" id="shelves"></div>
   <button class="add-shelf" id="addShelf" type="button">＋ Добавить полку</button>
-  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы посмотреть оценку или убрать книгу. Название полки пишется на табличке под ней. Кружок на корешке отмечает, прочитана ли книга. Цвет корешка меняется в карточке книги. Книги хранятся только на этом устройстве.</p>
+  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы увидеть автора, описание и оценку, изменить их или убрать книгу. Название полки пишется на табличке под ней. Кружок на корешке отмечает, прочитана ли книга. Цвет корешка меняется в карточке книги. Книги хранятся только на этом устройстве.</p>
 </div>
 
 <script>
@@ -184,7 +195,7 @@ document.getElementById("nojs").hidden=true;
 const PALETTE=["#7a2e2a","#2f4b3a","#27415e","#6b4a1e","#4b2f55","#8a6a2a","#3b5a5a","#5a2a3a","#33363d","#6d3b1f"];
 const KEY="bookshelf-v2", OLD_KEY="bookshelf-v1", PREF="bookshelf-view";
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-let state, rating=0, selected=null, confirmDel=null;
+let state, rating=0, selected=null, confirmDel=null, editing=false, editR=0;
 let view={q:"",minr:0,read:"all",sort:"manual"};
 
 function load(){
@@ -199,8 +210,8 @@ function load(){
   }
   const t0=Date.now()-1e6;
   return {shelves:[{id:"sh0",name:"Классика"},{id:"sh1",name:"Фантастика"}],
-    books:[{t:"Мастер и Маргарита",r:5,shelf:"sh0"},{t:"Преступление и наказание",r:4,shelf:"sh0"},
-      {t:"Евгений Онегин",r:4,shelf:"sh0"},{t:"Пикник на обочине",r:5,shelf:"sh1"},{t:"Солярис",r:3,shelf:"sh1",read:false}]
+    books:[{t:"Мастер и Маргарита",a:"Михаил Булгаков",d:"Пример книги: нажмите «Изменить», чтобы поправить описание.",r:5,shelf:"sh0"},{t:"Преступление и наказание",a:"Фёдор Достоевский",r:4,shelf:"sh0"},
+      {t:"Евгений Онегин",a:"Александр Пушкин",r:4,shelf:"sh0"},{t:"Пикник на обочине",a:"Аркадий и Борис Стругацкие",r:5,shelf:"sh1"},{t:"Солярис",a:"Станислав Лем",r:3,shelf:"sh1",read:false}]
       .map((b,i)=>({...b,id:"s"+i,seed:i*7+3,added:t0+i*1000}))};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
@@ -218,12 +229,13 @@ const coll=new Intl.Collator("ru",{sensitivity:"base",numeric:true});
 const SORTS={
   az:(a,b)=>coll.compare(a.t,b.t), za:(a,b)=>coll.compare(b.t,a.t),
   rdesc:(a,b)=>b.r-a.r||coll.compare(a.t,b.t), rasc:(a,b)=>a.r-b.r||coll.compare(a.t,b.t),
+  author:(a,b)=>(!a.a)-(!b.a)||coll.compare(a.a||"",b.a||"")||coll.compare(a.t,b.t),
   new:(a,b)=>b.added-a.added, old:(a,b)=>a.added-b.added};
 const filtering=()=>view.q.trim()!==""||view.minr!==0||view.read!=="all";
 const isLocked=()=>view.sort!=="manual"||filtering();
 function matches(b){
   const q=view.q.trim().toLowerCase();
-  if(q&&!b.t.toLowerCase().includes(q))return false;
+  if(q&&!b.t.toLowerCase().includes(q)&&!(b.a||"").toLowerCase().includes(q))return false;
   if(view.minr>0&&b.r<view.minr)return false;
   if(view.minr<0&&b.r>-view.minr)return false;
   if(view.read==="read"&&!isRead(b))return false;
@@ -252,8 +264,9 @@ $("f").addEventListener("submit",e=>{e.preventDefault();
   const t=title.value.trim(); if(!t||!rating)return;
   if(!state.shelves.length)state.shelves.push({id:uid(),name:"Полка 1"});
   const shelf=state.shelves.some(s=>s.id===target.value)?target.value:state.shelves[0].id;
-  state.books.push({t,r:rating,shelf,read:newRead,id:uid(),seed:Math.floor(Math.random()*1000),added:Date.now()});
-  save(); title.value=""; rating=0; paintStars(); check(); selected=null; render(); title.focus()});
+  const a=$("author").value.trim(), d=$("desc").value.trim();
+  state.books.push({t,a,d,r:rating,shelf,read:newRead,id:uid(),seed:Math.floor(Math.random()*1000),added:Date.now()});
+  save(); title.value=""; $("author").value=""; $("desc").value=""; rating=0; paintStars(); check(); selected=null; render(); title.focus()});
 
 /* ---------- filters ---------- */
 const qEl=$("q"), minrEl=$("minr"), sortEl=$("sort");
@@ -314,7 +327,18 @@ function render(){
     const sb=part.find(b=>b.id===selected);
     if(sb){
       const idx=S.findIndex(x=>x.id===s.id);
-      html+=`<div class="detail"><div><h2>${esc(sb.t)}</h2><div class="dr">${starsTxt(sb.r)}</div><div class="where">${esc(s.name)}</div>
+      html+=editing?`<div class="detail"><form class="info edit" id="editForm">
+        <input class="field" id="eT" value="${esc(sb.t)}" maxlength="80" placeholder="Название книги" aria-label="Название книги">
+        <input class="field" id="eA" value="${esc(sb.a||"")}" maxlength="80" placeholder="Автор" aria-label="Автор">
+        <textarea class="field" id="eD" rows="4" maxlength="1000" placeholder="Краткое описание или комментарий" aria-label="Краткое описание">${esc(sb.d||"")}</textarea>
+        <div class="stars" id="eR" role="radiogroup" aria-label="Рейтинг">${[1,2,3,4,5].map(i=>`<button type="button" class="${i<=sb.r?"on":""}" data-act="setr" data-r="${i}" aria-label="${i} из 5">★</button>`).join("")}</div>
+        <div class="acts"><button class="add" type="submit">Сохранить</button><button class="ghost" type="button" data-act="cancel-edit">Отмена</button></div>
+      </form></div>`
+      :`<div class="detail"><div class="info"><h2>${esc(sb.t)}</h2>
+      <div class="author${sb.a?"":" none"}">${sb.a?esc(sb.a):"Автор не указан"}</div>
+      <div class="dr">${starsTxt(sb.r)}</div>
+      ${sb.d?`<p class="desc">${esc(sb.d)}</p>`:`<p class="desc none">Описания пока нет</p>`}
+      <div class="where">${esc(s.name)}</div>
       <div class="swatches" role="group" aria-label="Цвет корешка">${COLORS.map(c=>`<button type="button" class="sw${look(sb).c===c?" on":""}" style="--c:${c}" data-act="color" data-c="${c}" aria-label="Цвет ${c}"></button>`).join("")}</div></div>
       <div class="acts">${locked?"":`<div class="moves">
         <button class="ghost" type="button" data-act="left" aria-label="Сдвинуть влево">◀</button>
@@ -322,6 +346,7 @@ function render(){
         <button class="ghost" type="button" data-act="up" aria-label="На полку выше" ${idx===0?"disabled":""}>▲</button>
         <button class="ghost" type="button" data-act="down" aria-label="На полку ниже" ${idx===S.length-1?"disabled":""}>▼</button></div>`}
       <button class="toggle" type="button" data-act="read" data-id="${sb.id}" aria-pressed="${isRead(sb)}">${isRead(sb)?"✓ Прочитана":"○ Не прочитана"}</button>
+      <button class="ghost" type="button" data-act="edit">Изменить</button>
       <button class="ghost" type="button" data-act="close">Закрыть</button>
       <button class="ghost danger" type="button" data-act="del">Убрать с полки</button></div></div>`;
     }
@@ -352,6 +377,13 @@ shelvesEl.addEventListener("change",e=>{
   const s=state.shelves.find(x=>x.id===inp.dataset.id); if(!s)return;
   s.name=inp.value.trim()||s.name; save(); render();
 });
+shelvesEl.addEventListener("submit",e=>{
+  if(e.target.id!=="editForm")return; e.preventDefault();
+  const b=state.books.find(x=>x.id===selected); if(!b)return;
+  const t=$("eT").value.trim(); if(t)b.t=t;
+  b.a=$("eA").value.trim(); b.d=$("eD").value.trim(); if(editR)b.r=editR;
+  editing=false; save(); render();
+});
 shelvesEl.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.closest(".shelf-name"))e.target.blur()});
 document.addEventListener("click",e=>{
   if(justDragged)return;
@@ -361,9 +393,12 @@ document.addEventListener("click",e=>{
   if(a&&a.dataset.act==="color"){const b=state.books.find(x=>x.id===selected);
     if(b){b.color=a.dataset.c;save();render()} return}
   const bk=e.target.closest(".book");
-  if(bk){selected=selected===bk.dataset.id?null:bk.dataset.id;confirmDel=null;render();return}
+  if(bk){selected=selected===bk.dataset.id?null:bk.dataset.id;confirmDel=null;editing=false;render();return}
   if(!a)return; const act=a.dataset.act;
   if(act==="reset"){resetView();return}
+  if(act==="edit"){editing=true;editR=(state.books.find(b=>b.id===selected)||{}).r||0;render();$("eT")?.focus();return}
+  if(act==="cancel-edit"){editing=false;render();return}
+  if(act==="setr"){editR=+a.dataset.r;[...$("eR").children].forEach((b,i)=>b.classList.toggle("on",i<editR));return}
   if(act==="apply"){applySort();return}
   if(act==="delshelf"){confirmDel=a.dataset.id;render();return}
   if(act==="delshelf-no"){confirmDel=null;render();return}
@@ -374,7 +409,7 @@ document.addEventListener("click",e=>{
     state.shelves.splice(idx,1); confirmDel=null; save(); render(); return}
   if(["left","right","up","down"].includes(act)){moveSelected(act);return}
   if(act==="del"){state.books=state.books.filter(b=>b.id!==selected);save()}
-  if(act==="del"||act==="close"){selected=null;render()}
+  if(act==="del"||act==="close"){selected=null;editing=false;render()}
 });
 
 /* ---------- drag and drop (mouse + touch) ---------- */
