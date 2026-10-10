@@ -62,10 +62,17 @@ select.field{flex:0 1 auto;padding:9px 10px;background:var(--card)}
 
 .shelves{margin-top:24px}
 .shelf{position:relative;margin-bottom:30px}
-.shelf-head{display:flex;align-items:center;gap:8px;margin:0 0 6px}
-.shelf-name{flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:1.05rem;border:1px solid transparent;
-  background:transparent;padding:4px 6px;margin-left:-6px;border-radius:4px;text-overflow:ellipsis}
-.shelf-name:hover,.shelf-name:focus{border-color:var(--line);background:var(--card)}
+/* латунная табличка под полкой */
+.shelf-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.plate-wrap{position:relative;flex:0 1 300px;min-width:0}
+.plate-wrap::before,.plate-wrap::after{content:"";position:absolute;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#f3e2b0,#8a6a2a);box-shadow:0 1px 1px rgba(0,0,0,.4);pointer-events:none}
+.plate-wrap::before{left:8px}.plate-wrap::after{right:8px}
+.shelf-name{width:100%;text-align:center;font-family:var(--display);font-weight:700;font-size:.95rem;letter-spacing:.04em;
+  color:#3a2a12;padding:6px 22px;border:1px solid #8a6a2a;border-radius:3px;text-overflow:ellipsis;
+  background:linear-gradient(#ead39a,#c9a95c 55%,#b8954a);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 2px 4px rgba(0,0,0,.25)}
+.shelf-name::placeholder{color:#6b5527;font-weight:500;font-style:italic}
+.shelf-name:focus{outline:2px solid var(--star);outline-offset:2px}
 .shelf-count{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .icon-btn{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px 6px;border-radius:4px}
 .icon-btn:hover{color:var(--accent)}
@@ -91,6 +98,12 @@ select.field{flex:0 1 auto;padding:9px 10px;background:var(--card)}
 .book .r{font-size:.62rem;color:var(--star);writing-mode:vertical-rl;letter-spacing:-1px}
 .book::before,.book::after{content:"";position:absolute;left:4px;right:4px;height:2px;background:rgba(255,255,255,.35)}
 .book::before{top:5px}.book::after{bottom:5px}
+.book .mk{flex:0 0 auto;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;line-height:1;
+  font-weight:700;border:1.5px solid rgba(253,246,234,.75);color:transparent;background:rgba(0,0,0,.15);cursor:pointer;position:relative}
+.book .mk::after{content:"";position:absolute;inset:-8px}
+.book .mk.on{background:#4f8a4a;border-color:#dff0d6;color:#fff}
+.book .t{margin-top:4px}
+.book.unread{filter:saturate(.75)}
 .book.placeholder{opacity:.25;transform:none;animation:none}
 .book.flying{position:fixed;z-index:50;pointer-events:none;margin:0;animation:none;transition:none;
   transform:rotate(-5deg) scale(1.05);box-shadow:inset 3px 0 0 rgba(255,255,255,.18),inset -4px 0 0 rgba(0,0,0,.22),0 14px 24px rgba(0,0,0,.35)}
@@ -108,6 +121,12 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .moves{display:flex;gap:4px}
 .moves .ghost{padding:6px 10px}
+.swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sw{width:26px;height:26px;border-radius:4px;border:2px solid transparent;background:var(--c);cursor:pointer;padding:0;
+  box-shadow:inset 2px 0 0 rgba(255,255,255,.2),inset -3px 0 0 rgba(0,0,0,.2)}
+.sw.on{border-color:var(--ink)}
+.toggle{padding:9px 12px;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer}
+.toggle[aria-pressed="true"]{background:#4f8a4a;border-color:#4f8a4a;color:#fff}
 .note{color:var(--muted);font-size:.85rem;line-height:1.45}
 .nojs{background:var(--card);border:1px solid var(--accent);border-radius:6px;padding:12px 14px;margin:0 0 20px}
 .nojs b{color:var(--accent)}
@@ -117,12 +136,13 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 <div class="wrap">
   <div class="nojs" id="nojs"><b>В браузере выключены скрипты.</b> Без них полка не работает.</div>
   <h1>Моя книжная полка</h1>
-  <p class="sub">Книг: <b id="count">0</b> · полок: <b id="scount">0</b> · средняя оценка <b id="avg">—</b></p>
+  <p class="sub">Книг: <b id="count">0</b> · прочитано <b id="rcount">0</b> · полок: <b id="scount">0</b> · средняя оценка <b id="avg">—</b></p>
 
   <form class="panel" id="f" autocomplete="off">
     <input class="field" id="title" type="text" placeholder="Название книги" maxlength="80" aria-label="Название книги">
     <div class="stars" id="stars" role="radiogroup" aria-label="Рейтинг"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></div>
     <select class="field" id="target" aria-label="На какую полку"></select>
+    <button class="toggle" id="readNew" type="button" aria-pressed="true">✓ Прочитана</button>
     <button class="add" id="add" type="submit" disabled>На полку</button>
   </form>
 
@@ -136,6 +156,11 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
       <option value="3">★★★ и выше</option>
       <option value="2">★★ и выше</option>
       <option value="-2">★★ и ниже</option>
+    </select>
+    <select class="field" id="readf" aria-label="Прочитано">
+      <option value="all">Все книги</option>
+      <option value="read">Прочитанные</option>
+      <option value="unread">Не прочитанные</option>
     </select>
     <select class="field" id="sort" aria-label="Сортировка">
       <option value="manual">Как расставил</option>
@@ -151,7 +176,7 @@ body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 
   <div class="shelves" id="shelves"></div>
   <button class="add-shelf" id="addShelf" type="button">＋ Добавить полку</button>
-  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы посмотреть оценку или убрать книгу. Название полки можно изменить, нажав на него. Книги хранятся только на этом устройстве.</p>
+  <p class="note">Перетащите корешок, чтобы переставить книгу или перенести на другую полку. Нажмите на него, чтобы посмотреть оценку или убрать книгу. Название полки пишется на табличке под ней. Кружок на корешке отмечает, прочитана ли книга. Цвет корешка меняется в карточке книги. Книги хранятся только на этом устройстве.</p>
 </div>
 
 <script>
@@ -160,7 +185,7 @@ const PALETTE=["#7a2e2a","#2f4b3a","#27415e","#6b4a1e","#4b2f55","#8a6a2a","#3b5
 const KEY="bookshelf-v2", OLD_KEY="bookshelf-v1", PREF="bookshelf-view";
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 let state, rating=0, selected=null, confirmDel=null;
-let view={q:"",minr:0,sort:"manual"};
+let view={q:"",minr:0,read:"all",sort:"manual"};
 
 function load(){
   try{const s=localStorage.getItem(KEY);if(s){const d=JSON.parse(s);if(d&&d.shelves&&d.books)return d}}catch(e){}
@@ -175,7 +200,7 @@ function load(){
   const t0=Date.now()-1e6;
   return {shelves:[{id:"sh0",name:"Классика"},{id:"sh1",name:"Фантастика"}],
     books:[{t:"Мастер и Маргарита",r:5,shelf:"sh0"},{t:"Преступление и наказание",r:4,shelf:"sh0"},
-      {t:"Евгений Онегин",r:4,shelf:"sh0"},{t:"Пикник на обочине",r:5,shelf:"sh1"},{t:"Солярис",r:3,shelf:"sh1"}]
+      {t:"Евгений Онегин",r:4,shelf:"sh0"},{t:"Пикник на обочине",r:5,shelf:"sh1"},{t:"Солярис",r:3,shelf:"sh1",read:false}]
       .map((b,i)=>({...b,id:"s"+i,seed:i*7+3,added:t0+i*1000}))};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
@@ -186,19 +211,23 @@ try{const v=JSON.parse(localStorage.getItem(PREF)||"null");if(v)view={...view,..
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const starsTxt=r=>"★".repeat(r)+"☆".repeat(5-r);
-const look=b=>{const s=b.seed;return {c:PALETTE[s%PALETTE.length],w:30+(s*13)%22+Math.min(b.t.length,30)*.4,h:140+(s*29)%45}};
+const COLORS=["#7a2e2a","#a0442c","#8a6a2a","#6b4a1e","#2f4b3a","#4d6b3a","#3b5a5a","#27415e","#3d5f8a","#4b2f55","#7a4466","#5a2a3a","#33363d","#d6c7a8"];
+const isRead=b=>b.read!==false;
+const look=b=>{const s=b.seed;return {c:b.color||PALETTE[s%PALETTE.length],w:30+(s*13)%22+Math.min(b.t.length,30)*.4,h:140+(s*29)%45}};
 const coll=new Intl.Collator("ru",{sensitivity:"base",numeric:true});
 const SORTS={
   az:(a,b)=>coll.compare(a.t,b.t), za:(a,b)=>coll.compare(b.t,a.t),
   rdesc:(a,b)=>b.r-a.r||coll.compare(a.t,b.t), rasc:(a,b)=>a.r-b.r||coll.compare(a.t,b.t),
   new:(a,b)=>b.added-a.added, old:(a,b)=>a.added-b.added};
-const filtering=()=>view.q.trim()!==""||view.minr!==0;
+const filtering=()=>view.q.trim()!==""||view.minr!==0||view.read!=="all";
 const isLocked=()=>view.sort!=="manual"||filtering();
 function matches(b){
   const q=view.q.trim().toLowerCase();
   if(q&&!b.t.toLowerCase().includes(q))return false;
   if(view.minr>0&&b.r<view.minr)return false;
   if(view.minr<0&&b.r>-view.minr)return false;
+  if(view.read==="read"&&!isRead(b))return false;
+  if(view.read==="unread"&&isRead(b))return false;
   return true;
 }
 function shown(shelfId){
@@ -213,23 +242,28 @@ for(let i=1;i<=5;i++){const btn=document.createElement("button");btn.type="butto
   btn.setAttribute("role","radio");btn.setAttribute("aria-label",i+" из 5");
   btn.onclick=()=>{rating=i;paintStars();check()};starsEl.appendChild(btn)}
 function paintStars(){[...starsEl.children].forEach((b,i)=>{b.classList.toggle("on",i<rating);b.setAttribute("aria-checked",i+1===rating)})}
-const title=$("title"), addBtn=$("add"), target=$("target");
+const title=$("title"), addBtn=$("add"), target=$("target"), readNew=$("readNew");
+let newRead=true;
+readNew.addEventListener("click",()=>{newRead=!newRead;readNew.setAttribute("aria-pressed",newRead);
+  readNew.textContent=newRead?"✓ Прочитана":"○ Не прочитана"});
 function check(){addBtn.disabled=!(title.value.trim()&&rating)}
 title.addEventListener("input",check);
 $("f").addEventListener("submit",e=>{e.preventDefault();
   const t=title.value.trim(); if(!t||!rating)return;
   if(!state.shelves.length)state.shelves.push({id:uid(),name:"Полка 1"});
   const shelf=state.shelves.some(s=>s.id===target.value)?target.value:state.shelves[0].id;
-  state.books.push({t,r:rating,shelf,id:uid(),seed:Math.floor(Math.random()*1000),added:Date.now()});
+  state.books.push({t,r:rating,shelf,read:newRead,id:uid(),seed:Math.floor(Math.random()*1000),added:Date.now()});
   save(); title.value=""; rating=0; paintStars(); check(); selected=null; render(); title.focus()});
 
 /* ---------- filters ---------- */
 const qEl=$("q"), minrEl=$("minr"), sortEl=$("sort");
-qEl.value=view.q; minrEl.value=String(view.minr); sortEl.value=view.sort;
+const readfEl=$("readf");
+qEl.value=view.q; minrEl.value=String(view.minr); sortEl.value=view.sort; readfEl.value=view.read||"all";
+readfEl.addEventListener("change",()=>{view.read=readfEl.value;saveView();selected=null;render()});
 qEl.addEventListener("input",()=>{view.q=qEl.value;saveView();selected=null;render()});
 minrEl.addEventListener("change",()=>{view.minr=+minrEl.value;saveView();selected=null;render()});
 sortEl.addEventListener("change",()=>{view.sort=sortEl.value;saveView();selected=null;render()});
-function resetView(){view={q:"",minr:0,sort:"manual"};qEl.value="";minrEl.value="0";sortEl.value="manual";saveView();render()}
+function resetView(){view={q:"",minr:0,read:"all",sort:"manual"};qEl.value="";minrEl.value="0";readfEl.value="all";sortEl.value="manual";saveView();render()}
 function applySort(){ // закрепить текущую сортировку как расстановку
   const next=[];
   state.shelves.forEach(s=>{const list=state.books.filter(b=>b.shelf===s.id);
@@ -246,7 +280,7 @@ $("addShelf").addEventListener("click",()=>{
 
 function render(){
   const B=state.books, S=state.shelves;
-  $("count").textContent=B.length; $("scount").textContent=S.length;
+  $("count").textContent=B.length; $("rcount").textContent=B.filter(isRead).length; $("scount").textContent=S.length;
   $("avg").textContent=B.length?(B.reduce((a,b)=>a+b.r,0)/B.length).toFixed(1):"—";
   const prev=target.value;
   target.innerHTML=S.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
@@ -271,21 +305,23 @@ function render(){
       ?`<button class="ghost danger" type="button" data-act="delshelf-yes" data-id="${s.id}">${all.length?"Удалить, книги на соседнюю полку":"Удалить полку"}</button><button class="ghost" type="button" data-act="delshelf-no">Отмена</button>`
       :`<button class="icon-btn" type="button" data-act="delshelf" data-id="${s.id}" aria-label="Удалить полку ${esc(s.name)}" title="Удалить полку">✕</button>`;
     html+=`<div class="shelf" data-shelf="${s.id}">
-      <div class="shelf-head"><input class="shelf-name" value="${esc(s.name)}" maxlength="40" aria-label="Название полки" data-id="${s.id}">
-        <span class="shelf-count">${cnt}</span>${S.length>1?delBtn:""}</div>
       <div class="books">${part.length?part.map(b=>{const L=look(b);
-        return `<button type="button" class="book${selected===b.id?" sel":""}" data-id="${b.id}" style="--c:${L.c};--w:${L.w}px;--h:${L.h}px" aria-label="${esc(b.t)}, ${b.r} из 5"><span class="t">${esc(b.t)}</span><span class="r">${"★".repeat(b.r)}</span></button>`}).join("")
+        return `<button type="button" class="book${selected===b.id?" sel":""}${isRead(b)?"":" unread"}" data-id="${b.id}" style="--c:${L.c};--w:${L.w}px;--h:${L.h}px" aria-label="${esc(b.t)}, ${b.r} из 5, ${isRead(b)?"прочитана":"не прочитана"}"><span class="mk${isRead(b)?" on":""}" data-act="read" data-id="${b.id}" title="${isRead(b)?"Прочитана":"Не прочитана"}">✓</span><span class="t">${esc(b.t)}</span><span class="r">${"★".repeat(b.r)}</span></button>`}).join("")
         :`<span class="empty">Полка пуста. Добавьте книгу или перетащите сюда.</span>`}</div>
-      <div class="board"></div></div>`;
+      <div class="board"></div>
+      <div class="shelf-foot"><div class="plate-wrap"><input class="shelf-name" value="${esc(s.name)}" placeholder="Название полки" maxlength="40" aria-label="Название полки" data-id="${s.id}"></div>
+        <span class="shelf-count">${cnt}</span>${S.length>1?delBtn:""}</div></div>`;
     const sb=part.find(b=>b.id===selected);
     if(sb){
       const idx=S.findIndex(x=>x.id===s.id);
-      html+=`<div class="detail"><div><h2>${esc(sb.t)}</h2><div class="dr">${starsTxt(sb.r)}</div><div class="where">${esc(s.name)}</div></div>
+      html+=`<div class="detail"><div><h2>${esc(sb.t)}</h2><div class="dr">${starsTxt(sb.r)}</div><div class="where">${esc(s.name)}</div>
+      <div class="swatches" role="group" aria-label="Цвет корешка">${COLORS.map(c=>`<button type="button" class="sw${look(sb).c===c?" on":""}" style="--c:${c}" data-act="color" data-c="${c}" aria-label="Цвет ${c}"></button>`).join("")}</div></div>
       <div class="acts">${locked?"":`<div class="moves">
         <button class="ghost" type="button" data-act="left" aria-label="Сдвинуть влево">◀</button>
         <button class="ghost" type="button" data-act="right" aria-label="Сдвинуть вправо">▶</button>
         <button class="ghost" type="button" data-act="up" aria-label="На полку выше" ${idx===0?"disabled":""}>▲</button>
         <button class="ghost" type="button" data-act="down" aria-label="На полку ниже" ${idx===S.length-1?"disabled":""}>▼</button></div>`}
+      <button class="toggle" type="button" data-act="read" data-id="${sb.id}" aria-pressed="${isRead(sb)}">${isRead(sb)?"✓ Прочитана":"○ Не прочитана"}</button>
       <button class="ghost" type="button" data-act="close">Закрыть</button>
       <button class="ghost danger" type="button" data-act="del">Убрать с полки</button></div></div>`;
     }
@@ -320,6 +356,10 @@ shelvesEl.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.closest(".
 document.addEventListener("click",e=>{
   if(justDragged)return;
   const a=e.target.closest("[data-act]");
+  if(a&&a.dataset.act==="read"){const b=state.books.find(x=>x.id===a.dataset.id);
+    if(b){b.read=!isRead(b);save();render()} return}
+  if(a&&a.dataset.act==="color"){const b=state.books.find(x=>x.id===selected);
+    if(b){b.color=a.dataset.c;save();render()} return}
   const bk=e.target.closest(".book");
   if(bk){selected=selected===bk.dataset.id?null:bk.dataset.id;confirmDel=null;render();return}
   if(!a)return; const act=a.dataset.act;
