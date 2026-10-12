@@ -1,0 +1,13 @@
+{
+  "appId": "io.github.appalupvladimir.coinvault",
+  "appName": "Монетный склеп",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#14111b"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css"
+    }
+  }
+}

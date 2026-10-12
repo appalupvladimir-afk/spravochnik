@@ -1,0 +1,74 @@
+# Собирает Android-приложение «Монетный склеп» и выкладывает MonetnySklep.apk в релиз sklep-android.
+# Запускается при изменениях игры или вручную (Actions → Сборка APK → Run workflow).
+name: Сборка APK «Монетный склеп»
+
+on:
+  push:
+    branches: [main, claude/apk-artifact-coin-vault-grvyu1]
+    paths:
+      - "coinvault/**"
+      - "coinvault-app/**"
+      - ".github/workflows/coinvault-android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: coinvault-android
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: coinvault-app
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: coinvault-app/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Веб-часть приложения
+        run: |
+          npm ci
+          npm run build:web
+          npx cap sync android
+
+      - name: Сборка APK
+        working-directory: coinvault-app/android
+        run: |
+          echo "Android SDK: $ANDROID_HOME"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/MonetnySklep.apk"
+
+      - name: Публикация в релиз
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="Сборка №${{ github.run_number }} от $(date -u +'%d.%m.%Y %H:%M') UTC. Скачайте MonetnySklep.apk и откройте его на Android-телефоне."
+          if gh release view sklep-android >/dev/null 2>&1; then
+            gh release upload sklep-android MonetnySklep.apk --clobber
+            gh release edit sklep-android --notes "$NOTES"
+          else
+            gh release create sklep-android MonetnySklep.apk --title "Монетный склеп для Android" --notes "$NOTES"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MonetnySklep-apk
+          path: MonetnySklep.apk

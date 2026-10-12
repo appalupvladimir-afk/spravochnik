@@ -1,0 +1,19 @@
+{
+  "name": "coinvault-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Монетный склеп — игра для Android",
+  "scripts": {
+    "build:web": "node scripts/build-web.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2",
+    "@fontsource/alegreya-sans": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@fontsource/ruslan-display": "5.3.0"
+  }
+}

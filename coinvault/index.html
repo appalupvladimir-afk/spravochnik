@@ -1,0 +1,892 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Монетный Склеп</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Alegreya+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: три колонны — герой | арена-склеп с факельным светом | снаряжение; на телефоне арена сверху */
+:root{
+  --bg:#14111b; --bg2:#1c1726; --panel:#1f1a2b; --panel2:#272136; --line:#3a3049;
+  --fg:#efe6d2; --muted:#a397b3; --gold:#f2b53a; --gold2:#ffdf85; --blood:#e0474f;
+  --mana:#62b0f0; --xp:#9ad66b; --frost:#8fe3ff; --spirit:#c58bff;
+  --r0:#b3acbd; --r1:#7fd36a; --r2:#5aa8ff; --r3:#c27bff; --r4:#ff9a3c;
+  --f-display:"Ruslan Display","Georgia",serif;
+  --f-body:"Alegreya Sans","Segoe UI",system-ui,sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --zh:265;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.4}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+.app{max-width:1300px;margin:0 auto;padding-inline:16px;padding-block:14px 32px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-size:clamp(22px,3.4vw,34px);letter-spacing:.02em;color:var(--gold2);text-shadow:0 2px 0 #5a3a0a,0 0 22px rgba(242,181,58,.25);margin:0;line-height:1}
+.purse{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 16px 6px 8px}
+.purse b{font-family:var(--f-num);font-size:20px;color:var(--gold2);font-variant-numeric:tabular-nums}
+.coin-ic{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b8 0 12%,var(--gold2) 22%,var(--gold) 60%,#a86a10 100%);box-shadow:inset 0 0 0 2px rgba(120,70,0,.5);display:inline-block;flex:none}
+.coin-ic.sm{width:13px;height:13px;vertical-align:-2px;box-shadow:inset 0 0 0 1.5px rgba(120,70,0,.5)}
+.purse.pop{animation:pop .25s}
+@keyframes pop{50%{transform:scale(1.08)}}
+.grid{display:grid;grid-template-columns:270px minmax(0,1fr) 350px;gap:14px;align-items:start}
+@media (max-width:1080px){.grid{grid-template-columns:1fr 1fr}.arena{grid-column:1/-1;order:-1}}
+@media (max-width:700px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel h2{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:700}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* Hero */
+.lvlrow{display:flex;align-items:center;gap:12px}
+.lvlbadge{width:54px;height:54px;flex:none;display:grid;place-items:center;border-radius:12px;background:linear-gradient(160deg,#3b2f52,#211a30);border:1px solid #5a4877;font-family:var(--f-num);font-weight:700;font-size:22px;color:var(--gold2)}
+.lvlrow .t{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.bar{position:relative;height:14px;border-radius:7px;background:#120f19;border:1px solid var(--line);overflow:hidden}
+.bar>i{position:absolute;inset:0 auto 0 0;width:0;border-radius:7px;transition:width .12s linear}
+.bar>span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
+.bar.xp>i{background:linear-gradient(90deg,#4f8d2c,var(--xp))}
+.bar.hp{height:18px}
+.bar.hp>i{background:linear-gradient(90deg,#8e1f2a,var(--blood))}
+.bar.hp.shield>i{background:linear-gradient(90deg,#c9a640,var(--gold2))}
+.lbl{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.stats{display:flex;flex-direction:column;gap:6px}
+.stat{display:grid;grid-template-columns:1fr auto 30px;align-items:center;gap:8px;padding:6px 8px;background:var(--panel2);border-radius:8px}
+.stat .n{font-weight:700}
+.stat .h{display:block;font-size:11px;color:var(--muted);font-weight:400}
+.plus{width:30px;height:30px;border-radius:8px;border:1px solid #5a4877;background:#3a2d52;color:var(--gold2);font-weight:800;font-size:18px;cursor:pointer;line-height:1}
+.plus:disabled{opacity:.3;cursor:default}
+.pts{font-size:13px;color:var(--gold2)}
+.derived{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:13px;margin:0}
+.derived dt{color:var(--muted)}
+.derived dd{margin:0;text-align:right;font-family:var(--f-num);font-size:12.5px}
+.foot{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.linkbtn{background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0;font-size:12px;align-self:flex-start}
+
+/* Arena */
+.arena{position:relative;overflow:hidden;border-radius:16px;border:1px solid var(--line);min-height:540px;display:flex;flex-direction:column;padding:14px;gap:10px;
+  background:
+    radial-gradient(90% 55% at 50% 100%,hsl(var(--zh) 45% 20%) 0%,transparent 70%),
+    radial-gradient(55% 45% at 50% 52%,hsl(var(--zh) 70% 40% / .28),transparent 70%),
+    radial-gradient(30% 40% at 6% 18%,rgba(255,150,40,.16),transparent 70%),
+    radial-gradient(30% 40% at 94% 18%,rgba(255,150,40,.16),transparent 70%),
+    linear-gradient(180deg,hsl(var(--zh) 25% 13%),hsl(var(--zh) 30% 7%));
+  transition:background .6s}
+.arena-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.zone{display:flex;flex-direction:column;gap:2px;min-width:0}
+.zone .z{font-family:var(--f-display);font-size:clamp(18px,2.4vw,24px);color:var(--fg);line-height:1.1}
+.zone .s{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:6px}
+.navbtn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:rgba(0,0,0,.3);cursor:pointer;font-size:16px}
+.navbtn:disabled{opacity:.3;cursor:default}
+.stagebox{font-family:var(--f-num);font-weight:700;font-size:18px;min-width:56px;text-align:center}
+.farm{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.farm input{accent-color:var(--gold)}
+.pips{display:flex;gap:5px;justify-content:center;align-items:center;min-height:16px}
+.pip{width:22px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)}
+.pip.on{background:var(--gold)}
+.bosstag{font-family:var(--f-display);color:var(--blood);font-size:15px;letter-spacing:.06em}
+.stage-area{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:300px}
+.monname{font-weight:800;font-size:17px;text-align:center}
+.monname.boss{color:#ffb3a6;font-family:var(--f-display);font-weight:400;font-size:20px}
+.monbar{width:min(360px,90%)}
+.monbar .bar{height:16px}
+.monbar .bar>i{background:linear-gradient(90deg,#7a1520,#d9393f)}
+.timer{width:min(360px,90%);height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.timer>i{display:block;height:100%;background:var(--frost);width:100%}
+.timer.frozen>i{background:#c9f3ff}
+.mon{position:relative;font-size:clamp(96px,16vw,150px);line-height:1;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:10px 20px;border-radius:24px;outline:none;filter:drop-shadow(0 12px 14px rgba(0,0,0,.6));animation:bob 2.4s ease-in-out infinite}
+.mon:focus-visible{box-shadow:0 0 0 3px var(--gold)}
+.mon.boss{font-size:clamp(120px,21vw,196px);filter:drop-shadow(0 0 26px rgba(224,71,79,.55)) drop-shadow(0 14px 14px rgba(0,0,0,.6))}
+.mon.frozen{filter:drop-shadow(0 0 18px var(--frost)) saturate(.4) brightness(1.2)}
+.mon .crown{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:.28em}
+.floor{width:220px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),transparent);margin-top:-22px}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.dmg{position:absolute;pointer-events:none;font-family:var(--f-num);font-weight:700;font-size:20px;color:#fff;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.8);white-space:nowrap;z-index:5}
+.dmg.crit{color:var(--gold2);font-size:28px}
+.dmg.ult{color:var(--mana);font-size:30px}
+.dmg.auto{color:var(--spirit);font-size:16px}
+.dmg.heal{color:var(--xp);font-size:16px}
+.chest{width:150px;height:118px;position:relative;cursor:pointer;border:none;background:none;padding:0;animation:chestglow 1.2s ease-in-out infinite}
+.chest .lid{position:absolute;left:0;right:0;top:0;height:50px;border-radius:70px 70px 8px 8px/40px 40px 8px 8px;background:linear-gradient(180deg,#9a5a24,#6a3713);border:3px solid #3d1f08;box-shadow:inset 0 0 0 6px rgba(0,0,0,.12)}
+.chest .body{position:absolute;left:0;right:0;bottom:0;height:72px;border-radius:6px 6px 10px 10px;background:linear-gradient(180deg,#86491b,#5a2e10);border:3px solid #3d1f08}
+.chest .band{position:absolute;top:0;bottom:0;width:16px;background:linear-gradient(180deg,var(--gold2),var(--gold));border-left:2px solid #6b4508;border-right:2px solid #6b4508}
+.chest .lock{position:absolute;left:50%;top:40px;transform:translateX(-50%);width:26px;height:30px;border-radius:6px;background:linear-gradient(180deg,var(--gold2),#b07a12);border:2px solid #5a3a06;z-index:2}
+@keyframes chestglow{0%,100%{filter:drop-shadow(0 0 10px rgba(255,210,90,.4))}50%{filter:drop-shadow(0 0 28px rgba(255,210,90,.85));transform:rotate(-2deg)}}
+.chest-hint{font-family:var(--f-display);color:var(--gold2);font-size:18px}
+.ultbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(0,0,0,.32);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.ult{position:relative;width:72px;height:72px;flex:none;border-radius:50%;border:2px solid var(--mana);background:radial-gradient(circle at 40% 35%,#2f4a7a,#141b33);font-size:34px;cursor:pointer;display:grid;place-items:center;box-shadow:0 0 18px rgba(98,176,240,.45);overflow:hidden}
+.ult .cd{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(10,8,18,.78) var(--p,0%),transparent 0);pointer-events:none}
+.ult .cdt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:18px;text-shadow:0 1px 3px #000;pointer-events:none}
+.ult.ready{animation:ready 1.4s ease-in-out infinite}
+.ult:disabled{cursor:default;border-color:var(--line);box-shadow:none}
+@keyframes ready{50%{box-shadow:0 0 30px rgba(98,176,240,.9)}}
+.ultinfo{display:flex;flex-direction:column;gap:2px;flex:1;min-width:150px}
+.ultinfo b{font-size:15px}
+.ultinfo span{font-size:12.5px;color:var(--muted)}
+kbd{font-family:var(--f-num);font-size:11px;padding:1px 6px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)}
+.buffs{display:flex;gap:6px;flex-wrap:wrap}
+.buff{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-family:var(--f-num)}
+.toasts{position:absolute;top:64px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:8;pointer-events:none;width:90%}
+.toast{background:rgba(15,12,22,.92);border:1px solid var(--line);padding:7px 14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center}
+.toast.good{border-color:var(--gold);color:var(--gold2)}
+.toast.bad{border-color:var(--blood);color:#ffb0b4}
+.hurt{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 70px 10px rgba(224,40,50,.65);opacity:0;border-radius:16px;z-index:4}
+
+/* Gear */
+.slots{display:flex;flex-direction:column;gap:8px}
+.slot{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--rc,var(--line))}
+.slot .ic{font-size:28px;text-align:center}
+.slot .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.slot .nm{font-weight:700;color:var(--rc,var(--fg));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .ds{font-size:12px;color:var(--muted)}
+.sharp{border:1px solid #6b4f1c;background:linear-gradient(180deg,#3e2e12,#2a1f0c);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:78px}
+.sharp .c{font-family:var(--f-num);color:var(--gold2);font-size:11.5px}
+.sharp:disabled{opacity:.4;cursor:default}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#120f19;border-radius:10px;padding:4px}
+.tab{border:none;background:none;padding:7px 2px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--muted);font-weight:700}
+.tab[aria-selected="true"]{background:var(--panel2);color:var(--fg)}
+.tab small{font-family:var(--f-num);font-weight:500;font-size:10.5px;color:var(--muted)}
+.inv{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.card{position:relative;text-align:left;display:flex;flex-direction:column;gap:2px;padding:8px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);border-top:3px solid var(--rc);cursor:pointer;min-width:0}
+.card .top2{display:flex;align-items:center;gap:6px}
+.card .ic{font-size:22px}
+.card .nm{font-weight:700;font-size:13px;line-height:1.15;color:var(--rc)}
+.card .tr{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.card .st{font-size:11.5px;color:var(--fg);opacity:.85}
+.card .lv{position:absolute;top:6px;right:8px;font-family:var(--f-num);font-size:11px;color:var(--gold2)}
+.card.on{background:linear-gradient(180deg,rgba(242,181,58,.14),var(--panel2));border-color:var(--gold)}
+.card.on::after{content:"надето";position:absolute;bottom:6px;right:8px;font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.08em}
+.card.locked{cursor:default;border-top-color:var(--line)}
+.card.locked .ic{filter:grayscale(1) brightness(.35)}
+.card.locked .nm{color:var(--muted)}
+.card:focus-visible,.tab:focus-visible,.sharp:focus-visible,.plus:focus-visible,.ult:focus-visible,.navbtn:focus-visible,.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(6,4,10,.78);display:grid;place-items:center;z-index:50;padding:16px}
+.dialog{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(560px,100%);display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow:auto}
+.dialog h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:24px;color:var(--gold2);text-align:center}
+.loot{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.lootc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:14px 10px;border-radius:12px;background:var(--panel2);border:1px solid var(--rc);box-shadow:0 0 22px -6px var(--rc);animation:reveal .5s backwards}
+.lootc .ic{font-size:44px}
+.lootc .nm{font-weight:800;color:var(--rc)}
+.lootc .tag{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold2)}
+.lootc .st{font-size:12px;color:var(--muted)}
+@keyframes reveal{from{opacity:0;transform:translateY(14px) scale(.9)}}
+.btn{border:1px solid #6b4f1c;background:linear-gradient(180deg,#5a4214,#3a2a0c);color:var(--gold2);font-weight:800;border-radius:10px;padding:10px 18px;cursor:pointer}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.ghost{background:var(--panel2);border-color:var(--line);color:var(--fg)}
+.btn.danger{background:#5a1a1f;border-color:#8a2b33;color:#ffd0d3}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.coin{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;pointer-events:none;z-index:60;background:radial-gradient(circle at 35% 30%,#fff3b8 0 12%,var(--gold2) 22%,var(--gold) 60%,#a86a10 100%);box-shadow:inset 0 0 0 2px rgba(120,70,0,.5),0 0 8px rgba(255,210,90,.6)}
+@media (prefers-reduced-motion:reduce){.mon,.chest,.ult.ready{animation:none}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <h1 class="brand">Монетный Склеп</h1>
+    <div class="purse" id="purse"><span class="coin-ic"></span><b id="gold">0</b></div>
+  </header>
+
+  <main class="grid">
+    <section class="panel hero" aria-label="Герой">
+      <h2>Герой</h2>
+      <div class="lvlrow">
+        <div class="lvlbadge" id="lvl">1</div>
+        <div class="t">
+          <div class="lbl"><span>Опыт</span><span class="num" id="xpt"></span></div>
+          <div class="bar xp"><i id="xpb"></i></div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl"><span>Здоровье</span><span class="num" id="hpt"></span></div>
+        <div class="bar hp" id="hpbar"><i id="hpb"></i></div>
+      </div>
+      <div class="pts" id="pts"></div>
+      <div class="stats" id="stats"></div>
+      <dl class="derived" id="derived"></dl>
+      <div class="foot">
+        <span id="records"></span>
+        <button class="linkbtn" id="resetBtn" type="button">Начать заново</button>
+      </div>
+    </section>
+
+    <section class="arena" id="arena" aria-label="Арена">
+      <div class="hurt" id="hurt"></div>
+      <div class="arena-head">
+        <div class="zone"><span class="z" id="zname"></span><span class="s" id="zsub"></span></div>
+        <div class="nav">
+          <button class="navbtn" id="prev" type="button" aria-label="Предыдущий уровень">‹</button>
+          <div class="stagebox"><span id="stage">1</span></div>
+          <button class="navbtn" id="next" type="button" aria-label="Следующий уровень">›</button>
+        </div>
+      </div>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div class="pips" id="pips"></div>
+        <label class="farm"><input type="checkbox" id="farm"> Остаться на уровне</label>
+      </div>
+      <div class="toasts" id="toasts"></div>
+      <div class="stage-area" id="stageArea">
+        <div class="monname" id="mname"></div>
+        <div class="monbar"><div class="bar"><i id="mhpb"></i><span id="mhpt"></span></div></div>
+        <div class="timer" id="timer" hidden><i id="timerb"></i></div>
+        <div id="monSlot"></div>
+        <div class="floor"></div>
+      </div>
+      <div class="ultbar">
+        <button class="ult" id="ult" type="button" aria-label="Ульта"><span id="ulti"></span><span class="cd" id="ultcd"></span><span class="cdt" id="ultcdt"></span></button>
+        <div class="ultinfo"><b id="ultn"></b><span id="ultd"></span><span>Клавиша <kbd>Пробел</kbd> или <kbd>Q</kbd></span></div>
+        <div class="buffs" id="buffs"></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Снаряжение">
+      <h2>Снаряжение</h2>
+      <div class="slots" id="slots"></div>
+      <h2>Коллекция</h2>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="inv" id="inv"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="chestModal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="chestTitle">
+    <h3 id="chestTitle">Сундук босса</h3>
+    <div class="loot" id="loot"></div>
+    <div class="row"><button class="btn" id="chestClose" type="button">Забрать и в бой</button></div>
+  </div>
+</div>
+<div class="modal" id="resetModal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+    <h3 id="resetTitle">Начать заново?</h3>
+    <p style="margin:0;text-align:center;color:var(--muted)">Уровень героя, золото, предметы и пройденные уровни будут сброшены.</p>
+    <div class="row"><button class="btn ghost" id="resetNo" type="button">Отмена</button><button class="btn danger" id="resetYes" type="button">Сбросить</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const KILLS = 8, BOSS_TIME = 30000, ATK_EVERY = 2000, SAVE_KEY = 'monetny-sklep-v1';
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Предметы ---------- */
+const RAR = ['Обычный','Необычный','Редкий','Эпический','Легендарный'];
+const rarOf = t => Math.min(4, Math.floor((t - 1) / 2));
+const rc = t => `var(--r${rarOf(t)})`;
+const DEFS = {
+  weapon: [
+    {n:'Ржавый меч', i:'🗡️', dmg:2},
+    {n:'Шипастая дубина', i:'🏏', dmg:5},
+    {n:'Боевой топор', i:'🪓', dmg:10},
+    {n:'Стальной палаш', i:'⚔️', dmg:18, crit:.02},
+    {n:'Молот гномов', i:'🔨', dmg:30},
+    {n:'Рунический кинжал', i:'🔪', dmg:50, crit:.04},
+    {n:'Трезубец бури', i:'🔱', dmg:80},
+    {n:'Пламенный меч', i:'🔥', dmg:130, crit:.05},
+    {n:'Громовой молот', i:'⚡', dmg:210, crit:.06},
+    {n:'Клинок Бездны', i:'🌑', dmg:350, crit:.10},
+  ],
+  armor: [
+    {n:'Тряпичная рубаха', i:'👕', hp:10, def:5},
+    {n:'Кожаная куртка', i:'🧥', hp:25, def:12},
+    {n:'Кольчуга', i:'🦺', hp:50, def:22},
+    {n:'Бригантина со щитом', i:'🛡️', hp:90, def:35},
+    {n:'Латы стража', i:'⚜️', hp:150, def:55},
+    {n:'Мифриловая кольчуга', i:'💠', hp:250, def:80},
+    {n:'Драконья чешуя', i:'🐉', hp:400, def:115},
+    {n:'Сияющие латы', i:'🌟', hp:650, def:160},
+    {n:'Теневой доспех', i:'🌘', hp:1000, def:220},
+    {n:'Доспех титана', i:'🗿', hp:1600, def:300},
+  ],
+  amulet: [
+    {n:'Амулет удачи', i:'🍀', crit:.05},
+    {n:'Медальон жадности', i:'🪙', gold:.3},
+    {n:'Талисман мудреца', i:'📿', xp:.35},
+    {n:'Око хищника', i:'👁️', crit:.08, critDmg:.75},
+    {n:'Сердце тролля', i:'💚', regen:.03, hpPct:.2},
+    {n:'Клык вампира', i:'🦷', vamp:.08, dmgPct:.15},
+    {n:'Тотем духа', i:'🪬', auto:.5},
+    {n:'Звезда фортуны', i:'⭐', gold:.7, crit:.08, xp:.3},
+    {n:'Перо феникса', i:'🪶', revive:1, hpPct:.5, regen:.02},
+    {n:'Сердце дракона', i:'❤️‍🔥', dmgPct:.4, crit:.12, gold:.5, auto:.8},
+  ],
+  ult: [
+    {n:'Мощный удар', i:'💥', cd:15, kind:'strike', mult:10},
+    {n:'Град стрел', i:'🏹', cd:20, kind:'multi', mult:4, hits:6},
+    {n:'Ярость берсерка', i:'🩸', cd:40, kind:'rage', mult:3, dur:8},
+    {n:'Золотая лихорадка', i:'💰', cd:60, kind:'goldrush', mult:5, dur:10},
+    {n:'Ледяные оковы', i:'🧊', cd:45, kind:'freeze', mult:5, dur:8},
+    {n:'Цепная молния', i:'🌩️', cd:25, kind:'multi', mult:9, hits:4},
+    {n:'Святое исцеление', i:'✨', cd:40, kind:'heal', dur:6},
+    {n:'Метеоритный дождь', i:'☄️', cd:35, kind:'multi', mult:15, hits:8},
+    {n:'Казнь', i:'⚰️', cd:60, kind:'execute', pct:.25},
+    {n:'Армагеддон', i:'🌋', cd:50, kind:'armageddon', mult:200, rage:2, dur:10},
+  ],
+};
+const TYPES = [['weapon','Оружие','w'],['armor','Броня','a'],['amulet','Амулет','m'],['ult','Ульта','u']];
+const ITEMS = {};
+TYPES.forEach(([type,,p]) => DEFS[type].forEach((o,i) => { o.id = p + (i + 1); o.type = type; o.tier = i + 1; ITEMS[o.id] = o; }));
+
+/* ---------- Зоны и монстры ---------- */
+const ZONES = [
+  {n:'Сырой подвал', h:265, m:[['🐀','Подвальная крыса'],['🦇','Летучая мышь'],['🐌','Слизень']], b:['🐗','Кабан-переросток']},
+  {n:'Паучьи норы', h:300, m:[['🕷️','Пещерный паук'],['🦂','Скорпион'],['🐛','Трупный червь']], b:['🕷️','Паучья матка']},
+  {n:'Забытый склеп', h:200, m:[['💀','Скелет'],['🧟','Зомби'],['👻','Призрак']], b:['🧛','Граф-вампир']},
+  {n:'Тёмный лес', h:130, m:[['🐺','Лютоволк'],['🐻','Бешеный медведь'],['🍄','Ядовитый гриб']], b:['🌳','Древний энт']},
+  {n:'Гоблинские шахты', h:35, m:[['👺','Гоблин-рубака'],['🐗','Свин-наездник'],['🦎','Пещерный варан']], b:['👹','Огр-вождь']},
+  {n:'Затопленный храм', h:185, m:[['🐙','Осьминог'],['🦀','Краб-латник'],['🐊','Аллигатор']], b:['🦑','Кракен']},
+  {n:'Пустыня костей', h:45, m:[['🐍','Гадюка'],['🦂','Песчаный скорпион'],['🐫','Безумный верблюд']], b:['🦖','Костяной ящер']},
+  {n:'Ледяной перевал', h:195, m:[['🐧','Боевой пингвин'],['🦣','Мамонт'],['❄️','Ледяной дух']], b:['☃️','Йети']},
+  {n:'Огненная бездна', h:8, m:[['🔥','Огненный элементаль'],['😈','Бес'],['🦎','Саламандра']], b:['🐲','Огненный дракон']},
+  {n:'Тронный зал тьмы', h:280, m:[['👁️','Око бездны'],['🧙','Тёмный маг'],['👤','Тень']], b:['👿','Повелитель тьмы']},
+];
+const ROMAN = ['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
+const zoneOf = s => { const z = Math.floor((s - 1) / 5); return {zone: ZONES[z % 10], circle: Math.floor(z / 10) + 1}; };
+const isBoss = s => s % 5 === 0;
+const monHp = s => Math.round(8 * 1.22 ** (s - 1));
+const monDmg = s => 2 * 1.16 ** (s - 1);
+const goldFor = s => 3 * 1.2 ** (s - 1);
+const xpFor = s => 4 * 1.18 ** (s - 1);
+const needXp = l => Math.round(15 * 1.24 ** (l - 1));
+const sharpCost = (it, l) => Math.round(12 * (1 + (it.tier - 1) * 0.6) * 1.45 ** l);
+
+/* ---------- Состояние ---------- */
+const fresh = () => ({
+  t: 0, lvl: 1, xp: 0, pts: 0, stats: {str:0, agi:0, vit:0, luck:0}, gold: 0,
+  stage: 1, maxStage: 1, kills: 0, farm: false, hp: null,
+  owned: {w1:0, a1:0, u1:0}, eq: {weapon:'w1', armor:'a1', amulet:null, ult:'u1'},
+  ultReadyAt: 0, reviveAt: 0, chest: null, buffs: {}, totalKills: 0, bossKills: 0, tab: 'weapon',
+});
+let S, mon = null, spawnTimer = 0, last = performance.now(), autoAt = 0;
+
+function load() {
+  try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
+  return fresh();
+}
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------- Формулы ---------- */
+const fmt = n => {
+  n = Math.floor(n);
+  if (n < 10000) return n.toLocaleString('ru-RU');
+  const u = ['', 'тыс', 'млн', 'млрд', 'трлн', 'квдр', 'квнт'];
+  let i = 0, x = n;
+  while (x >= 1000 && i < u.length - 1) { x /= 1000; i++; }
+  return (x < 10 ? x.toFixed(2) : x < 100 ? x.toFixed(1) : x.toFixed(0)).replace('.', ',') + ' ' + u[i];
+};
+const pct = v => Math.round(v * 100) + '%';
+const lvlOf = id => S.owned[id] || 0;
+const wMul = l => 1.12 ** l;
+
+function amuletStats() {
+  const z = {crit:0, critDmg:0, gold:0, xp:0, regen:0, hpPct:0, vamp:0, dmgPct:0, auto:0, revive:0};
+  const a = ITEMS[S.eq.amulet];
+  if (!a) return z;
+  const k = 1 + 0.1 * lvlOf(a.id);
+  for (const key in z) if (a[key]) z[key] = key === 'revive' ? 1 : a[key] * k;
+  return z;
+}
+function derive() {
+  const w = ITEMS[S.eq.weapon], ar = ITEMS[S.eq.armor], am = amuletStats(), st = S.stats;
+  const wl = w ? wMul(lvlOf(w.id)) : 0, al = ar ? wMul(lvlOf(ar.id)) : 0;
+  const dmg = (1 + (S.lvl - 1) + (w ? w.dmg * wl : 0)) * (1 + 0.06 * st.str) * (1 + am.dmgPct);
+  const maxHp = (60 + 12 * (S.lvl - 1) + (ar ? ar.hp * al : 0)) * (1 + 0.08 * st.vit) * (1 + am.hpPct);
+  const def = ar ? ar.def * al : 0;
+  return {
+    dmg, maxHp, def, am,
+    crit: Math.min(.75, .05 + .01 * st.agi + (w && w.crit ? w.crit : 0) + am.crit),
+    critMult: 2 + am.critDmg,
+    defPct: Math.min(.8, def / (def + 40 + 8 * S.stage)),
+    regen: .01 + am.regen,
+    goldMul: (1 + am.gold) * (1 + .04 * st.luck),
+    xpMul: (1 + am.xp) * (1 + .04 * st.luck),
+    auto: am.auto,
+  };
+}
+const buffOn = k => S.buffs[k] && S.buffs[k].until > S.t;
+const rageMul = () => buffOn('rage') ? S.buffs.rage.mult : 1;
+
+function ultNums(u, l) {
+  const k = 1 + 0.15 * l, kb = 1 + 0.08 * l;
+  return {
+    mult: u.mult ? Math.round(u.mult * (u.kind === 'rage' || u.kind === 'goldrush' ? kb : k) * 10) / 10 : 0,
+    dur: (u.dur || 0) + (u.kind === 'heal' ? 0.5 * l : 0),
+    pct: Math.min(.5, (u.pct || 0) + .025 * l),
+    rage: u.rage ? Math.round(u.rage * kb * 10) / 10 : 0,
+  };
+}
+function desc(it, l) {
+  if (it.type === 'weapon') return `Урон +${fmt(it.dmg * wMul(l))}` + (it.crit ? ` · крит +${pct(it.crit)}` : '');
+  if (it.type === 'armor') return `Здоровье +${fmt(it.hp * wMul(l))} · броня ${fmt(it.def * wMul(l))}`;
+  if (it.type === 'amulet') {
+    const k = 1 + 0.1 * l, p = [];
+    if (it.dmgPct) p.push(`урон +${pct(it.dmgPct * k)}`);
+    if (it.crit) p.push(`крит +${pct(it.crit * k)}`);
+    if (it.critDmg) p.push(`крит. урон +${pct(it.critDmg * k)}`);
+    if (it.gold) p.push(`золото +${pct(it.gold * k)}`);
+    if (it.xp) p.push(`опыт +${pct(it.xp * k)}`);
+    if (it.hpPct) p.push(`здоровье +${pct(it.hpPct * k)}`);
+    if (it.regen) p.push(`реген +${(it.regen * k * 100).toFixed(1).replace('.', ',')}%/с`);
+    if (it.vamp) p.push(`вампиризм ${pct(it.vamp * k)}`);
+    if (it.auto) p.push(`дух бьёт ${pct(it.auto * k)} урона клика в секунду`);
+    if (it.revive) p.push('воскрешение раз в 90 с');
+    const s = p.join(' · ');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  const n = ultNums(it, l), cd = ` · КД ${it.cd} с`;
+  switch (it.kind) {
+    case 'strike': return `Удар ×${n.mult} урона клика` + cd;
+    case 'multi': return `${it.hits} ударов по ×${n.mult}` + cd;
+    case 'rage': return `Урон ×${n.mult} на ${n.dur} с` + cd;
+    case 'goldrush': return `Золото ×${n.mult} на ${n.dur} с` + cd;
+    case 'freeze': return `Удар ×${n.mult}, враг и таймер босса замирают на ${n.dur} с` + cd;
+    case 'heal': return `Полное исцеление и неуязвимость ${String(n.dur).replace('.', ',')} с` + cd;
+    case 'execute': return `Убивает обычного монстра, боссу −${pct(n.pct)} здоровья` + cd;
+    case 'armageddon': return `Удар ×${n.mult} и урон ×${n.rage} на ${n.dur} с` + cd;
+  }
+  return '';
+}
+
+/* ---------- Монстры ---------- */
+function spawn() {
+  clearTimeout(spawnTimer);
+  mon = null;
+  if (S.chest) { renderArena(); return; }
+  const s = S.stage, {zone} = zoneOf(s), boss = isBoss(s);
+  const [icon, name] = boss ? zone.b : zone.m[Math.floor(Math.random() * zone.m.length)];
+  const max = monHp(s) * (boss ? 8 : 1);
+  mon = {icon, name, boss, hp: max, max, atkAt: S.t + ATK_EVERY + 400, timerEnd: boss ? S.t + BOSS_TIME : 0};
+  renderArena();
+}
+
+function hitMonster(base, o = {}) {
+  if (!mon || mon.dead) return;
+  const d = derive();
+  let dmg = base * rageMul(), crit = false;
+  if (o.canCrit !== false && Math.random() < d.crit) { dmg *= d.critMult; crit = true; }
+  mon.hp -= dmg;
+  floatNum((crit ? '★ ' : '') + fmt(Math.max(1, dmg)), o.cls || (crit ? 'crit' : ''), o.x, o.y);
+  if (o.click && d.am.vamp) S.hp = Math.min(d.maxHp, S.hp + dmg * d.am.vamp);
+  const el = $('#mon');
+  if (el && !reduceMotion) el.animate([{transform:'scale(1)'},{transform:`scale(${crit ? .82 : .9}) rotate(${(Math.random() - .5) * 10}deg)`},{transform:'scale(1)'}], {duration:140});
+  if (mon.hp <= 0) killMonster(); else renderMonHp();
+}
+
+function killMonster() {
+  const d = derive(), s = S.stage, boss = mon.boss;
+  mon.dead = true;
+  const gm = buffOn('gold') ? S.buffs.gold.mult : 1;
+  const g = Math.max(1, Math.round(goldFor(s) * (boss ? 12 : 1) * d.goldMul * gm));
+  const xp = xpFor(s) * (boss ? 10 : 1) * d.xpMul;
+  const el = $('#mon');
+  spawnCoins(g, el, boss);
+  addXp(xp);
+  S.totalKills++;
+  if (el && !reduceMotion) el.animate([{opacity:1, transform:'scale(1)'},{opacity:0, transform:'scale(.3) translateY(40px)'}], {duration:280, fill:'forwards'});
+  if (boss) {
+    S.bossKills++;
+    S.chest = rollChest(s);
+    S.stage = s + 1; S.kills = 0;
+    S.maxStage = Math.max(S.maxStage, S.stage);
+    toast(`${mon.name} повержен! Выпал сундук`, 'good');
+  } else {
+    S.kills = Math.min(KILLS, S.kills + 1);
+    if (S.kills >= KILLS) {
+      S.maxStage = Math.max(S.maxStage, s + 1);
+      if (!S.farm) { S.stage = s + 1; S.kills = 0; }
+    }
+  }
+  save();
+  spawnTimer = setTimeout(spawn, reduceMotion ? 120 : 320);
+  renderHero(); renderArenaHead();
+}
+
+function addXp(x) {
+  S.xp += x;
+  let up = false;
+  while (S.xp >= needXp(S.lvl)) { S.xp -= needXp(S.lvl); S.lvl++; S.pts += 2; up = true; }
+  if (up) { S.hp = derive().maxHp; toast(`Уровень ${S.lvl}! +2 очка характеристик`, 'good'); renderAll(); }
+}
+
+function rollChest(stage) {
+  const n = Math.ceil(stage / 5);
+  const count = 2 + (Math.random() < .3 ? 1 : 0);
+  const shifts = [-2, -1, -1, 0, 0, 0, 1, 1, 2];
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    let type = TYPES[Math.floor(Math.random() * 4)][0];
+    if (i === 0 && !S.eq.amulet && !Object.keys(S.owned).some(id => id[0] === 'm')) type = 'amulet';
+    const tier = Math.max(1, Math.min(10, n + shifts[Math.floor(Math.random() * shifts.length)]));
+    out.push(TYPES.find(t => t[0] === type)[2] + tier);
+  }
+  return out;
+}
+
+function heroHit() {
+  const d = derive();
+  if (buffOn('shield') || buffOn('freeze')) return;
+  const dmg = monDmg(S.stage) * (mon.boss ? 1.8 : 1) * (1 - d.defPct);
+  S.hp -= dmg;
+  if (!reduceMotion) $('#hurt').animate([{opacity:.9},{opacity:0}], {duration:380});
+  if (S.hp <= 0) die(d);
+}
+function die(d) {
+  if (d.am.revive && S.t >= S.reviveAt) {
+    S.hp = d.maxHp * .5; S.reviveAt = S.t + 90000;
+    toast('Перо феникса вернуло вас к жизни', 'good');
+    return;
+  }
+  S.hp = d.maxHp;
+  S.farm = true;
+  const to = Math.max(1, S.stage - 1);
+  toast(`Вы пали. Отступаем на уровень ${to}`, 'bad');
+  goStage(to);
+}
+function goStage(s) {
+  S.stage = s; S.kills = 0;
+  save(); spawn(); renderAll();
+}
+
+/* ---------- Ульта ---------- */
+function castUlt() {
+  const u = ITEMS[S.eq.ult];
+  if (!u || S.t < S.ultReadyAt || !mon || mon.dead) return;
+  const d = derive(), n = ultNums(u, lvlOf(u.id));
+  S.ultReadyAt = S.t + u.cd * 1000;
+  const btn = $('#ult');
+  if (!reduceMotion) btn.animate([{transform:'scale(1.15)'},{transform:'scale(1)'}], {duration:250});
+  switch (u.kind) {
+    case 'strike': hitMonster(d.dmg * n.mult, {cls:'ult'}); break;
+    case 'multi':
+      for (let i = 0; i < u.hits; i++) setTimeout(() => hitMonster(d.dmg * n.mult, {cls:'ult'}), i * 110);
+      break;
+    case 'rage': S.buffs.rage = {until: S.t + n.dur * 1000, mult: n.mult}; toast(`Ярость: урон ×${n.mult}`); break;
+    case 'goldrush': S.buffs.gold = {until: S.t + n.dur * 1000, mult: n.mult}; toast(`Золото ×${n.mult}`); break;
+    case 'freeze':
+      S.buffs.freeze = {until: S.t + n.dur * 1000};
+      hitMonster(d.dmg * n.mult, {cls:'ult'}); break;
+    case 'heal':
+      S.hp = d.maxHp; S.buffs.shield = {until: S.t + n.dur * 1000};
+      floatNum('+' + fmt(d.maxHp), 'heal'); break;
+    case 'execute':
+      if (!mon.boss) hitMonster(mon.hp + 1, {cls:'ult', canCrit:false});
+      else hitMonster(mon.max * n.pct / rageMul(), {cls:'ult', canCrit:false});
+      break;
+    case 'armageddon':
+      hitMonster(d.dmg * n.mult, {cls:'ult'});
+      S.buffs.rage = {until: S.t + n.dur * 1000, mult: n.rage};
+      break;
+  }
+  renderLive();
+}
+
+/* ---------- Эффекты ---------- */
+function floatNum(text, cls, x, y) {
+  const area = $('#stageArea'), r = area.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'dmg ' + (cls || '');
+  el.textContent = text;
+  const px = x != null ? x - r.left : r.width / 2 + (Math.random() - .5) * 120;
+  const py = y != null ? y - r.top : r.height * .45 + (Math.random() - .5) * 60;
+  el.style.left = px + 'px'; el.style.top = py + 'px';
+  area.appendChild(el);
+  if (reduceMotion) { setTimeout(() => el.remove(), 500); return; }
+  el.animate([{transform:'translate(-50%,-50%) scale(.7)', opacity:1},{transform:'translate(-50%,-150%) scale(1.1)', opacity:1, offset:.3},{transform:`translate(${-50 + (Math.random() - .5) * 60}%,-320%)`, opacity:0}], {duration:850, easing:'ease-out'}).onfinish = () => el.remove();
+}
+
+function spawnCoins(total, fromEl, boss) {
+  const target = $('#purse .coin-ic').getBoundingClientRect();
+  const src = (fromEl || $('#stageArea')).getBoundingClientRect();
+  if (reduceMotion || !document.body.animate) { S.gold += total; renderGold(); return; }
+  const n = boss ? 16 : Math.min(7, 3 + Math.floor(Math.log10(total + 1)));
+  const per = Math.floor(total / n);
+  let rest = total - per * n;
+  const sx = src.left + src.width / 2, sy = src.top + src.height / 2;
+  const tx = target.left + target.width / 2, ty = target.top + target.height / 2;
+  for (let i = 0; i < n; i++) {
+    const v = per + (i === n - 1 ? rest : 0);
+    const c = document.createElement('div');
+    c.className = 'coin';
+    document.body.appendChild(c);
+    const ang = Math.random() * Math.PI * 2, dist = 40 + Math.random() * (boss ? 120 : 70);
+    const bx = sx + Math.cos(ang) * dist, by = sy + Math.sin(ang) * dist * .6 + 30;
+    c.animate([
+      {transform:`translate(${sx}px,${sy}px) scale(.4)`},
+      {transform:`translate(${bx}px,${by - 50}px) scale(1.1)`, offset:.25},
+      {transform:`translate(${bx}px,${by}px) scale(1)`, offset:.45},
+      {transform:`translate(${tx}px,${ty}px) scale(.7)`},
+    ], {duration:900 + Math.random() * 250, delay:i * 35, easing:'cubic-bezier(.3,.1,.4,1)', fill:'both'}).onfinish = () => {
+      c.remove(); S.gold += v; renderGold();
+      const p = $('#purse'); p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop');
+    };
+  }
+}
+
+function toast(msg, kind) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (kind || '');
+  t.textContent = msg;
+  const box = $('#toasts');
+  box.appendChild(t);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => { if (reduceMotion) t.remove(); else t.animate([{opacity:1},{opacity:0}], {duration:300}).onfinish = () => t.remove(); }, 2200);
+}
+
+/* ---------- Сундук ---------- */
+function openChest() {
+  if (!S.chest) return;
+  const ids = S.chest;
+  S.chest = null;
+  const loot = $('#loot');
+  loot.innerHTML = '';
+  ids.forEach((id, i) => {
+    const it = ITEMS[id];
+    const isNew = !(id in S.owned);
+    if (isNew) S.owned[id] = 0; else S.owned[id]++;
+    if (!S.eq[it.type]) S.eq[it.type] = id;
+    const c = document.createElement('div');
+    c.className = 'lootc';
+    c.style.setProperty('--rc', rc(it.tier));
+    c.style.animationDelay = (i * 0.18) + 's';
+    c.innerHTML = `<span class="ic">${it.i}</span><span class="tag">${isNew ? 'Новый!' : 'Повтор: заточка +1'}</span>
+      <span class="nm">${it.name || it.n}</span><span class="st">${TYPES.find(t => t[0] === it.type)[1]} · тир ${it.tier} · ${RAR[rarOf(it.tier)]}</span>
+      <span class="st">${desc(it, lvlOf(id))}</span>`;
+    if (S.eq[it.type] !== id) {
+      const b = document.createElement('button');
+      b.className = 'btn sm'; b.type = 'button'; b.textContent = 'Надеть';
+      b.onclick = () => { S.eq[it.type] = id; b.replaceWith(Object.assign(document.createElement('span'), {className:'tag', textContent:'Надето'})); save(); renderAll(); };
+      c.appendChild(b);
+    } else {
+      c.appendChild(Object.assign(document.createElement('span'), {className:'tag', textContent:'Надето'}));
+    }
+    loot.appendChild(c);
+  });
+  save();
+  renderAll();
+  $('#chestModal').hidden = false;
+  $('#chestClose').focus();
+}
+function closeChest() { $('#chestModal').hidden = true; spawn(); }
+
+/* ---------- Рендер ---------- */
+function renderGold() { $('#gold').textContent = fmt(S.gold); }
+
+const STATS = [
+  ['str','Сила','+6% урона'],
+  ['agi','Ловкость','+1% шанса крита'],
+  ['vit','Живучесть','+8% здоровья'],
+  ['luck','Удача','+4% золота и опыта'],
+];
+function renderHero() {
+  const d = derive();
+  $('#lvl').textContent = S.lvl;
+  $('#pts').textContent = S.pts ? `Свободных очков: ${S.pts}` : 'Очки характеристик дают за каждый уровень';
+  $('#stats').innerHTML = STATS.map(([k, n, h]) =>
+    `<div class="stat"><span><span class="n">${n}</span><span class="h">${h}</span></span><span class="num">${S.stats[k]}</span><button class="plus" type="button" data-stat="${k}" aria-label="Повысить: ${n}" ${S.pts ? '' : 'disabled'}>+</button></div>`).join('');
+  const rows = [
+    ['Урон клика', fmt(d.dmg)],
+    ['Шанс крита', pct(d.crit)],
+    ['Крит. урон', '×' + d.critMult.toFixed(2).replace('.', ',')],
+    ['Здоровье', fmt(d.maxHp)],
+    ['Снижение урона', pct(d.defPct)],
+    ['Регенерация', fmt(d.maxHp * d.regen) + '/с'],
+    ['Золото', '×' + d.goldMul.toFixed(2).replace('.', ',')],
+    ['Опыт', '×' + d.xpMul.toFixed(2).replace('.', ',')],
+  ];
+  if (d.auto) rows.push(['Дух-помощник', fmt(d.dmg * d.auto) + '/с']);
+  if (d.am.vamp) rows.push(['Вампиризм', pct(d.am.vamp)]);
+  $('#derived').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+  $('#records').textContent = `Убито монстров: ${fmt(S.totalKills)} · боссов: ${S.bossKills} · рекорд: уровень ${S.maxStage}`;
+  renderGold();
+  renderLive();
+}
+
+function renderArenaHead() {
+  const {zone, circle} = zoneOf(S.stage);
+  document.documentElement.style.setProperty('--zh', zone.h);
+  $('#zname').textContent = zone.n;
+  const inZone = (S.stage - 1) % 5 + 1;
+  $('#zsub').textContent = (circle > 1 ? `Круг ${ROMAN[circle] || circle} · ` : '') + `Этаж ${inZone} из 5`;
+  $('#stage').textContent = S.stage;
+  $('#prev').disabled = S.stage <= 1;
+  $('#next').disabled = S.stage >= S.maxStage;
+  $('#farm').checked = S.farm;
+  $('#pips').innerHTML = isBoss(S.stage)
+    ? '<span class="bosstag">Босс</span>'
+    : Array.from({length: KILLS}, (_, i) => `<span class="pip ${i < S.kills ? 'on' : ''}"></span>`).join('');
+}
+
+function renderArena() {
+  renderArenaHead();
+  const slot = $('#monSlot');
+  if (S.chest) {
+    $('#mname').textContent = 'Сундук босса';
+    $('#mname').className = 'monname boss';
+    $('.monbar').style.visibility = 'hidden';
+    $('#timer').hidden = true;
+    slot.innerHTML = `<button class="chest" id="chestBtn" type="button" aria-label="Открыть сундук"><span class="lid"></span><span class="body"><span class="band" style="left:22px"></span><span class="band" style="right:22px"></span></span><span class="lock"></span></button><div class="chest-hint" style="text-align:center;margin-top:10px">Нажмите, чтобы открыть</div>`;
+    $('#chestBtn').onclick = openChest;
+    return;
+  }
+  $('.monbar').style.visibility = mon ? 'visible' : 'hidden';
+  if (!mon) { slot.innerHTML = ''; $('#mname').textContent = ''; return; }
+  $('#mname').textContent = mon.name;
+  $('#mname').className = 'monname' + (mon.boss ? ' boss' : '');
+  $('#timer').hidden = !mon.boss;
+  slot.innerHTML = `<div class="mon ${mon.boss ? 'boss' : ''}" id="mon" role="button" tabindex="0" aria-label="Атаковать: ${mon.name}">${mon.boss ? '<span class="crown">👑</span>' : ''}${mon.icon}</div>`;
+  const el = $('#mon');
+  el.addEventListener('pointerdown', e => { e.preventDefault(); hitMonster(derive().dmg, {click:true, x:e.clientX, y:e.clientY}); });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); hitMonster(derive().dmg, {click:true}); } });
+  if (!reduceMotion) el.animate([{opacity:0, transform:'translateY(-30px) scale(.8)'},{opacity:1, transform:'none'}], {duration:260, easing:'ease-out'});
+  renderMonHp();
+}
+function renderMonHp() {
+  if (!mon) return;
+  $('#mhpb').style.width = Math.max(0, mon.hp / mon.max * 100) + '%';
+  $('#mhpt').textContent = `${fmt(Math.max(0, mon.hp))} / ${fmt(mon.max)}`;
+}
+
+function renderLive() {
+  const d = derive();
+  if (S.hp == null || S.hp > d.maxHp) S.hp = Math.min(S.hp == null ? d.maxHp : S.hp, d.maxHp);
+  $('#hpb').style.width = Math.max(0, S.hp / d.maxHp * 100) + '%';
+  $('#hpbar').classList.toggle('shield', buffOn('shield'));
+  $('#hpt').textContent = `${fmt(Math.max(0, S.hp))} / ${fmt(d.maxHp)}`;
+  const need = needXp(S.lvl);
+  $('#xpb').style.width = (S.xp / need * 100) + '%';
+  $('#xpt').textContent = `${fmt(S.xp)} / ${fmt(need)}`;
+  if (mon && mon.boss) {
+    const left = Math.max(0, mon.timerEnd - S.t);
+    $('#timerb').style.width = (left / BOSS_TIME * 100) + '%';
+    $('#timer').classList.toggle('frozen', buffOn('freeze'));
+  }
+  const m = $('#mon'); if (m) m.classList.toggle('frozen', buffOn('freeze'));
+  // ульта
+  const u = ITEMS[S.eq.ult], btn = $('#ult');
+  if (u) {
+    const left = Math.max(0, S.ultReadyAt - S.t);
+    btn.disabled = false;
+    $('#ulti').textContent = u.i;
+    $('#ultn').textContent = u.n + (lvlOf(u.id) ? ` +${lvlOf(u.id)}` : '');
+    $('#ultd').textContent = desc(u, lvlOf(u.id));
+    $('#ultcd').style.setProperty('--p', (left / (u.cd * 1000) * 100) + '%');
+    $('#ultcdt').textContent = left > 0 ? Math.ceil(left / 1000) : '';
+    btn.classList.toggle('ready', left <= 0);
+  } else { btn.disabled = true; $('#ulti').textContent = ''; $('#ultn').textContent = 'Нет ульты'; $('#ultd').textContent = ''; }
+  const bl = [];
+  if (buffOn('rage')) bl.push(`🩸 ×${S.buffs.rage.mult} · ${Math.ceil((S.buffs.rage.until - S.t) / 1000)} с`);
+  if (buffOn('gold')) bl.push(`💰 ×${S.buffs.gold.mult} · ${Math.ceil((S.buffs.gold.until - S.t) / 1000)} с`);
+  if (buffOn('freeze')) bl.push(`🧊 ${Math.ceil((S.buffs.freeze.until - S.t) / 1000)} с`);
+  if (buffOn('shield')) bl.push(`✨ щит ${Math.ceil((S.buffs.shield.until - S.t) / 1000)} с`);
+  if (d.am.revive) bl.push(S.t >= S.reviveAt ? '🪶 готово' : `🪶 ${Math.ceil((S.reviveAt - S.t) / 1000)} с`);
+  const html = bl.map(b => `<span class="buff">${b}</span>`).join('');
+  if ($('#buffs').innerHTML !== html) $('#buffs').innerHTML = html;
+}
+
+function renderGear() {
+  $('#slots').innerHTML = TYPES.map(([type, label]) => {
+    const it = ITEMS[S.eq[type]];
+    if (!it) return `<div class="slot"><span class="ic" style="opacity:.3">◇</span><span><span class="k">${label}</span><span class="nm" style="display:block;color:var(--muted)">Пусто</span><span class="ds">Выпадает из сундука босса</span></span><span></span></div>`;
+    const l = lvlOf(it.id), cost = sharpCost(it, l);
+    return `<div class="slot" style="--rc:${rc(it.tier)}"><span class="ic">${it.i}</span>
+      <span style="min-width:0"><span class="k">${label} · тир ${it.tier}</span><span class="nm" style="display:block">${it.n}${l ? ' +' + l : ''}</span><span class="ds">${desc(it, l)}</span></span>
+      <button class="sharp" type="button" data-sharp="${it.id}" ${S.gold >= cost ? '' : 'disabled'}><span>Заточить</span><span class="c"><span class="coin-ic sm"></span> ${fmt(cost)}</span></button></div>`;
+  }).join('');
+  $('#tabs').innerHTML = TYPES.map(([type, label]) => {
+    const have = DEFS[type].filter(it => it.id in S.owned).length;
+    return `<button class="tab" role="tab" type="button" data-tab="${type}" aria-selected="${S.tab === type}">${label}<br><small>${have}/10</small></button>`;
+  }).join('');
+  $('#inv').innerHTML = DEFS[S.tab].map(it => {
+    const owned = it.id in S.owned, l = lvlOf(it.id), on = S.eq[it.type] === it.id;
+    if (!owned) return `<div class="card locked" style="--rc:${rc(it.tier)}"><span class="top2"><span class="ic">${it.i}</span><span class="nm">${it.n}</span></span><span class="tr">Тир ${it.tier} · ${RAR[rarOf(it.tier)]}</span><span class="st">Не найден. Чаще с босса уровня ${it.tier * 5}</span></div>`;
+    return `<button class="card ${on ? 'on' : ''}" type="button" data-equip="${it.id}" style="--rc:${rc(it.tier)}">${l ? `<span class="lv">+${l}</span>` : ''}<span class="top2"><span class="ic">${it.i}</span><span class="nm">${it.n}</span></span><span class="tr">Тир ${it.tier} · ${RAR[rarOf(it.tier)]}</span><span class="st">${desc(it, l)}</span></button>`;
+  }).join('');
+}
+
+let lastGearGold = -1;
+function renderAll() { renderHero(); renderArenaHead(); renderGear(); renderLive(); }
+
+/* ---------- События ---------- */
+document.addEventListener('click', e => {
+  const st = e.target.closest('[data-stat]');
+  if (st && S.pts > 0) { S.stats[st.dataset.stat]++; S.pts--; save(); renderAll(); return; }
+  const sh = e.target.closest('[data-sharp]');
+  if (sh) {
+    const it = ITEMS[sh.dataset.sharp], cost = sharpCost(it, lvlOf(it.id));
+    if (S.gold >= cost) { S.gold -= cost; S.owned[it.id]++; toast(`${it.n} заточен до +${S.owned[it.id]}`, 'good'); save(); renderAll(); }
+    return;
+  }
+  const tb = e.target.closest('[data-tab]');
+  if (tb) { S.tab = tb.dataset.tab; renderGear(); return; }
+  const eq = e.target.closest('[data-equip]');
+  if (eq) { const it = ITEMS[eq.dataset.equip]; S.eq[it.type] = it.id; save(); renderAll(); }
+});
+$('#ult').addEventListener('click', castUlt);
+document.addEventListener('keydown', e => {
+  if (!$('#chestModal').hidden || !$('#resetModal').hidden) return;
+  if (e.code === 'Space' || e.code === 'KeyQ') {
+    if (e.target.closest && e.target.closest('input,textarea')) return;
+    e.preventDefault(); castUlt();
+  }
+});
+$('#prev').onclick = () => { if (S.stage > 1) goStage(S.stage - 1); };
+$('#next').onclick = () => { if (S.stage < S.maxStage) goStage(S.stage + 1); };
+$('#farm').onchange = e => {
+  S.farm = e.target.checked;
+  if (!S.farm && S.kills >= KILLS && !isBoss(S.stage)) goStage(S.stage + 1); else save();
+};
+$('#chestClose').onclick = closeChest;
+$('#resetBtn').onclick = () => { $('#resetModal').hidden = false; $('#resetNo').focus(); };
+$('#resetNo').onclick = () => { $('#resetModal').hidden = true; };
+$('#resetYes').onclick = () => { S = fresh(); S.hp = derive().maxHp; $('#resetModal').hidden = true; save(); spawn(); renderAll(); };
+
+/* ---------- Игровой цикл ---------- */
+function tick() {
+  const now = performance.now(), dt = Math.min(250, now - last);
+  last = now;
+  if (document.hidden || !$('#chestModal').hidden || !$('#resetModal').hidden) return;
+  S.t += dt;
+  const d = derive();
+  S.hp = Math.min(d.maxHp, S.hp + d.maxHp * d.regen * dt / 1000);
+  if (mon && !mon.dead) {
+    if (buffOn('freeze')) { mon.atkAt += dt; if (mon.boss) mon.timerEnd += dt; }
+    if (S.t >= mon.atkAt) { mon.atkAt = S.t + ATK_EVERY; heroHit(); }
+    if (mon && mon.boss && !mon.dead && S.t >= mon.timerEnd) {
+      S.farm = true;
+      toast(`Время вышло: ${mon.name} не побеждён. Усильтесь и вернитесь`, 'bad');
+      goStage(Math.max(1, S.stage - 1));
+      return;
+    }
+    if (d.auto && S.t >= autoAt) {
+      autoAt = S.t + 1000;
+      hitMonster(d.dmg * d.auto, {cls:'auto', canCrit:false});
+    }
+  }
+  renderLive();
+  // кнопки заточки зависят от золота
+  if (Math.floor(S.t / 500) !== lastGearGold) { lastGearGold = Math.floor(S.t / 500); refreshSharpButtons(); }
+}
+function refreshSharpButtons() {
+  document.querySelectorAll('[data-sharp]').forEach(b => {
+    const it = ITEMS[b.dataset.sharp];
+    b.disabled = S.gold < sharpCost(it, lvlOf(it.id));
+  });
+}
+
+function start(data) {
+  S = data && data.S ? data.S : load();
+  if (S.hp == null) S.hp = derive().maxHp;
+  if (!DEFS[S.tab]) S.tab = 'weapon';
+  window.claude?.hot?.snapshot?.(() => ({S}));
+  spawn();
+  renderAll();
+  setInterval(tick, 100);
+  setInterval(save, 4000);
+  addEventListener('pagehide', save);
+}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body></html>

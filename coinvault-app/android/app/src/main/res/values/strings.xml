@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Монетный склеп</string>
+    <string name="title_activity_main">Монетный склеп</string>
+    <string name="package_name">io.github.appalupvladimir.coinvault</string>
+    <string name="custom_url_scheme">io.github.appalupvladimir.coinvault</string>
+</resources>
