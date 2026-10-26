@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Центр крови О.К. Гаврилова — как происходит донация</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  :root {
+    --page-w: 1078px;
+    --page-h: 787px;
+    --violet: #777cfe;
+    --pink: #ef717a;
+    --ink: #0b0b0d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #fff; overflow: hidden; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  /* Сцена фиксированного размера, масштабируется целиком (без обрезки) */
+  #stage {
+    position: relative; flex: none;
+    width: var(--page-w); height: var(--page-h);
+    background: #fff; overflow: hidden;
+    transform-origin: 50% 50%;
+  }
+
+  /* ---------- Шапка ---------- */
+  .logo { position: absolute; left: 26px; top: 28px; display: flex; align-items: center; }
+  .logo svg { width: 54px; height: 52px; display: block; }
+  .logo-text {
+    position: absolute; left: 58px; top: 7px; white-space: nowrap;
+    font-size: 16.4px; line-height: 17px; letter-spacing: -0.1px; font-weight: 400;
+  }
+  .nav {
+    position: absolute; left: 271px; top: 35px; width: 489px; height: 40px;
+    border-radius: 20px; background: #ebebeb;
+    display: flex; align-items: center; font-size: 16.2px; letter-spacing: -0.1px;
+  }
+  .nav span { padding: 0 13px; white-space: nowrap; }
+  .nav .active {
+    height: 40px; width: 240px; border-radius: 20px; background: var(--violet); color: #fff;
+    display: flex; align-items: center; justify-content: center; padding: 0; margin-right: 0;
+  }
+  .nav .item1 { margin-left: 0; }
+  .signup {
+    position: absolute; left: 851px; top: 37px; width: 145px; height: 38px; border-radius: 19px;
+    background: var(--violet); color: #fff; font-size: 16.2px; letter-spacing: -0.1px;
+    display: flex; align-items: center; justify-content: center; gap: 9px; white-space: nowrap;
+  }
+  .signup svg { width: 8px; height: 13px; margin-top: 1px; }
+
+  /* ---------- Заголовок ---------- */
+  .h1 {
+    position: absolute; left: 56px; top: 119px;
+    font-size: 75.5px; line-height: 68px; font-weight: 400; letter-spacing: 0.95px; white-space: nowrap;
+  }
+  .h1 .pink { color: var(--pink); letter-spacing: 1.95px; }
+  .h1 .q { position: relative; display: inline-block; }
+  .h1 .q b { font-weight: 400; position: absolute; left: 0; top: 0; color: var(--pink); opacity: 0; }
+
+  /* ---------- Декоративная линия ---------- */
+  #ribbon { position: absolute; left: 0; top: 0; width: var(--page-w); height: var(--page-h); pointer-events: none; }
+  #ribbon path.fill { fill: #ef6c78; }
+
+  /* ---------- Лента карточек ---------- */
+  .viewport { position: absolute; left: 47px; top: 277px; width: 989px; height: 264px; overflow: hidden; }
+  .track { position: absolute; left: 0; top: 0; height: 264px; display: flex; gap: 11px; will-change: transform; }
+  .card {
+    position: relative; flex: none; height: 264px; border-radius: 26px; overflow: hidden;
+    color: #fff; isolation: isolate; contain: layout paint;
+  }
+  .card .bg { position: absolute; inset: 0; opacity: 0; }
+  .card .bg.on { opacity: 1; }
+  .card .panel {
+    position: absolute; left: 15px; top: 15px; width: 156px; bottom: 20px; border-radius: 20px;
+    background: rgba(255,255,255,0.13);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .card .mountain {
+    position: absolute; left: 150px; top: 60px; width: 420px; height: 260px;
+    background: linear-gradient(180deg, #ff8676 0%, rgba(255,132,118,0.55) 40%, rgba(255,128,116,0) 85%);
+    clip-path: polygon(52% 0, 100% 58%, 100% 100%, 0 100%, 0 66%);
+    filter: blur(20px); opacity: 0.9;
+  }
+  .card .layer { position: absolute; inset: 0; opacity: 0; will-change: opacity; }
+
+  /* вертикальная подпись узкой карточки */
+  .card .vlabel {
+    position: absolute; left: 0; bottom: 48px; width: 53px; height: 0;
+  }
+  .card .vlabel span {
+    position: absolute; left: 37px; bottom: 0; transform-origin: 0 100%;
+    transform: rotate(-90deg);
+    white-space: nowrap; font-size: 16.4px; font-weight: 300; letter-spacing: -0.1px; line-height: 20px;
+    color: rgba(255,255,255,0.95);
+  }
+
+  /* большая карточка */
+  .big .pill {
+    position: absolute; height: 51px; border-radius: 26px; background: rgba(255,255,255,0.2);
+    font-family: Arial, 'Liberation Sans', Helvetica, sans-serif; font-weight: 700; font-size: 41.2px;
+    line-height: 51px; letter-spacing: 0.1px; white-space: nowrap; color: #fff;
+  }
+  .big .text { position: absolute; white-space: nowrap; color: rgba(255,255,255,0.93); }
+  .big .text b { font-family: Montserrat, sans-serif; font-weight: 700; color: #fff; }
+
+  /* компактная карточка */
+  .compact .title {
+    position: absolute; font-family: Arial, 'Liberation Sans', Helvetica, sans-serif;
+    font-weight: 700; font-size: 19.6px; line-height: 20px; white-space: nowrap; color: #fff;
+  }
+  .compact .text { position: absolute; white-space: nowrap; }
+
+  /* номер этапа */
+  .card .num {
+    position: absolute; width: 27px; height: 27px; border-radius: 50%; background: #fff; color: #111;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif; font-weight: 400; font-size: 20.5px; line-height: 1; letter-spacing: -0.3px;
+    padding-top: 1px; z-index: 5;
+  }
+
+  /* ---------- Кнопка ---------- */
+  .cta {
+    position: absolute; left: 47px; top: 563px; width: 989px; height: 52px; border-radius: 26px;
+    background: linear-gradient(90deg, #e2727f 0%, #c86589 30%, #b05b95 52%, #9450a0 76%, #8446a0 100%);
+    color: #fff; font-weight: 300; font-size: 20.4px; letter-spacing: 0.75px; white-space: nowrap;
+  }
+  .cta .label { position: absolute; left: 294px; top: 0; line-height: 52px; }
+  .cta .chev { position: absolute; left: 954px; top: 16px; width: 12px; height: 20px; }
+  .cta .arrow { position: absolute; left: 707px; top: 19px; width: 22px; height: 16px; opacity: 0; }
+
+  /* ---------- Статистика ---------- */
+  .stat { position: absolute; top: 641px; }
+  .stat .value {
+    height: 50px; display: flex; align-items: center; white-space: nowrap;
+    font-size: 42px; font-weight: 500; letter-spacing: -0.9px; line-height: 50px;
+  }
+  .stat .cap { margin-top: 0px; font-size: 17.2px; line-height: 22px; letter-spacing: 0.5px; color: #1d1d1f; font-weight: 400; }
+  .odo { display: inline-flex; height: 50px; overflow: hidden; }
+  .odo .col { display: inline-block; height: 50px; overflow: hidden; position: relative; }
+  .odo .strip { display: flex; flex-direction: column; will-change: transform; }
+  .odo .strip span { height: 50px; line-height: 50px; text-align: center; }
+  .odo .gap { display: inline-block; width: 0.27em; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- Шапка -->
+  <div class="logo">
+    <svg viewBox="0 0 54 52" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4.2,16.6 C9.4,13.2 16.6,8.9 22.8,7.4 C21.4,10.6 17.2,12.7 12.3,14.3 C9.2,15.3 6.4,16.2 4.2,16.6 Z" fill="#000" stroke="none"/>
+      <path d="M4.8,16.1 C10.6,11.5 17.6,5.9 23.4,4.4 C27.4,3.4 29.6,5.9 28.6,9.1 C28,11.1 26.3,12.1 24.6,12.7" stroke-width="2.1"/>
+      <path d="M18.2,16.6 C13.9,19.4 13.4,25.4 16.2,30.2 C19.2,35.2 27.2,38.2 34.2,40 C40.4,41.6 45.2,43.4 49,45.6" stroke-width="2.4"/>
+      <path d="M24.6,12.7 C21.2,15.2 21.1,19.4 23.2,22.6 C25.4,21.2 30.2,21.4 33.6,25.2 C37,29 40,35 44.2,40.6" stroke-width="1.8"/>
+      <path d="M34.2,27.4 C37.4,31.2 39.2,36.2 43.4,39.8 C40.6,40.2 37.8,37.8 36,34.6 C35,32.6 34.4,30 34.2,27.4 Z" fill="#000" stroke="none"/>
+      <path d="M31.2,38.6 C32.6,41.2 31.6,44.2 29.2,45.6" stroke-width="1.9"/>
+      <path d="M23.4,46.6 L32.2,46.6" stroke-width="1.9"/>
+    </svg>
+    <div class="logo-text">Центр крови<br>О.К. Гаврилова</div>
+  </div>
+
+  <nav class="nav">
+    <span class="active">как происходит донация?</span>
+    <span class="item1">я донор</span>
+    <span>о нас</span>
+    <span>новости</span>
+  </nav>
+
+  <div class="signup">записаться
+    <svg viewBox="0 0 8 13"><path d="M1.5 1.5 L6.5 6.5 L1.5 11.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+
+  <h1 class="h1">Как происходит<br><span class="pink">донация</span><span class="q">?<b>?</b></span></h1>
+
+  <!-- Декоративная линия (за карточками) -->
+  <svg id="ribbon" viewBox="0 0 1078 787" aria-hidden="true">
+    <path id="guideA" fill="none" stroke="none" d="M735,332 C703,336 678,306 672,279 C682,222 732,98 772,99 C801,100 794,160 790,198 C787,233 770,253 766,239 C761,220 798,190 840,172 C902,146 985,124 1036,134 C1066,143 1052,190 1020,214 C990,238 948,266 903,292"/>
+    <path id="guideB" fill="none" stroke="none" d="M1082,390 C1020,378 962,364 902,346 C850,330 808,306 787,292 C748,262 705,228 685,197 C670,172 698,152 742,141 C804,128 880,158 940,194 C980,220 1004,258 1003,280 C1002,296 986,290 978,264 C968,228 972,158 989,124 C1004,98 1024,124 1044,163 C1059,193 1071,214 1086,234"/>
+    <path id="ribbonA" class="fill"/>
+    <path id="ribbonB" class="fill"/>
+  </svg>
+
+  <!-- Карточки -->
+  <div class="viewport"><div class="track" id="track"></div></div>
+
+  <!-- Кнопка -->
+  <div class="cta">
+    <span class="label">Узнай, можешь ли ты стать донором?</span>
+    <svg class="chev" viewBox="0 0 12 20"><path d="M2 2 L10 10 L2 18" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="arrow" viewBox="0 0 22 16"><path d="M1 8 H20 M13.5 1.5 L20.2 8 L13.5 14.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+
+  <!-- Статистика -->
+  <div class="stat" style="left:112px"><div class="value" data-counter="120000" data-prefix="+ "></div><div class="cap">Доноров по всей Москве</div></div>
+  <div class="stat" style="left:461px"><div class="value" data-counter="3" data-prefix="до "></div><div class="cap">Человек могут получить<br>помощь благодаря одной<br>донации</div></div>
+  <div class="stat" style="left:794px"><div class="value" style="margin-left:-5px" data-counter="13000" data-prefix=""></div><div class="cap">Донации на выездных<br>акциях</div></div>
+</div>
+
+<script>
+/* =====================================================================
+   ДАННЫЕ КАРТОЧЕК (отдельно от анимации)
+   ===================================================================== */
+const SIZE = { narrow: 53, big: 536, compact: 186, gap: 11 };
+
+const CARDS = [
+  { n: 1, label: 'ознакомься',
+    narrow: 'linear-gradient(180deg, #da6a7b 0%, #d96d7e 60%, #d6808f 100%)',
+    big: {
+      bg: `radial-gradient(120% 95% at 102% -4%, #6c43c3 0%, rgba(118,70,190,0.85) 16%, rgba(170,88,160,0) 52%),
+           radial-gradient(70% 70% at 88% 105%, rgba(176,92,140,0.85) 0%, rgba(176,92,140,0) 70%),
+           linear-gradient(98deg, #f4618c 0%, #f06686 30%, #ec7280 55%, #e2717b 75%, #c8617c 100%)`,
+      mountain: true,
+      pill: { x: 19, y: 35, w: 274, pad: 13 }, title: 'Ознакомься',
+      text: { x: 30, y: 86, font: "300 25.3px/31.2px 'Montserrat Alternates', Montserrat, sans-serif", ls: 0.6,
+              html: 'с перечнем<br>противопоказаний<br>и донорским<br>светофором' } } },
+  { n: 2, label: 'запишись на прием',
+    narrow: 'linear-gradient(180deg, #777cff 0%, #7f82fb 45%, #9c9cef 100%)',
+    big: {
+      bg: `radial-gradient(60% 80% at 100% 100%, rgba(146,80,156,0.95) 0%, rgba(146,80,156,0) 70%),
+           linear-gradient(100deg, #a796de 0%, #8a86ec 22%, #7b7cf6 38%, #7a6be6 58%, #7350cc 80%, #6c43bb 100%)`,
+      pill: { x: 25, y: 32, w: 250, pad: 17 }, title: 'Запишись',
+      text: { x: 25, y: 100, font: "400 25.2px/31.3px Montserrat, sans-serif", ls: 1.0,
+              html: 'прием на донацию крови<br>проходит без записи<br>ежедневно с 8:00 до 13:30<br>Запись на тромбоциты <b>здесь</b>' } } },
+  { n: 3, label: 'подготовься к донации',
+    narrow: 'linear-gradient(180deg, #a7b5fe 0%, #adbafc 55%, #bec5f8 100%)',
+    big: {
+      bg: `radial-gradient(70% 90% at 100% 0%, rgba(92,120,240,0.95) 0%, rgba(92,120,240,0) 70%),
+           radial-gradient(60% 70% at 0% 100%, rgba(150,200,250,0.9) 0%, rgba(150,200,250,0) 70%),
+           linear-gradient(105deg, #b6a9f4 0%, #a6b2fc 35%, #8fb0f6 62%, #6f95f0 100%)`,
+      pill: { x: 25, y: 28, w: 288, pad: 17 }, title: 'Подготовься',
+      text: { x: 25, y: 90, font: "400 23px/28.6px Montserrat, sans-serif", ls: 0.1,
+              html: 'соблюдай диету донора,<br>возьми с собой паспорт,<br>приезжай за 10–15 минут<br>до назначенного времени<br>в выбранное отделение' } } },
+  { n: 4, label: 'заполни анкету',
+    narrow: 'linear-gradient(180deg, #4387f2 0%, #4a8cf2 45%, #8cb9f4 100%)',
+    compact: {
+      bg: `radial-gradient(45% 55% at -6% 58%, #ff6c8c 0%, rgba(255,108,140,0.55) 40%, rgba(255,108,140,0) 100%),
+           radial-gradient(70% 50% at 100% 0%, #4f9df0 0%, rgba(79,157,240,0) 85%),
+           linear-gradient(170deg, #c088a6 0%, #a88cc0 38%, #8f88d8 70%, #7783f0 100%)`,
+      panel: true, title: 'Заполни', tx: 33, ty: 33,
+      text: { x: 32, y: 66, font: "400 14.6px/18.6px Montserrat, sans-serif", ls: 0.15, color: 'rgba(255,255,255,0.78)',
+              html: 'анкету донора<br>согласие на<br>обследование<br>согласие на<br>обработку<br>персональных<br>данных' } },
+    big: {
+      bg: `linear-gradient(108deg, #3f8af2 0%, #4677ec 25%, #4a5fe6 48%, #4d48dc 72%, #5033d0 100%)`,
+      pill: { x: 35, y: 24, w: 217, pad: 22 }, title: 'Заполни',
+      text: { x: 36, y: 85, font: "400 25.2px/31.3px Montserrat, sans-serif", ls: 0.75,
+              html: 'анкету донора<br>согласие на обследование<br>согласие на обработку<br>персональных данных' } } },
+  { n: 5, label: 'выбери меру поддержки',
+    narrow: 'linear-gradient(180deg, #4187f2 0%, #4b8df0 50%, #79a9e8 100%)',
+    narrowFinal: 'linear-gradient(180deg, #8bbde9 0%, #96c6ec 50%, #c3e0f3 100%)',
+    compact: {
+      bg: `radial-gradient(80% 45% at 100% 100%, rgba(124,194,222,0.9) 0%, rgba(124,194,222,0) 100%),
+           linear-gradient(180deg, #7284fd 0%, #6c92f4 30%, #61a4e6 65%, #4fb1da 100%)`,
+      panel: true, title: 'Выбери', tx: 35, ty: 36,
+      text: { x: 35, y: 67, font: "400 14.6px/18.6px Montserrat, sans-serif", ls: 0.15, color: 'rgba(255,255,255,0.78)',
+              html: 'меру<br>социальной<br>поддержки' } } },
+  { n: 6, label: 'пройди обследование',
+    narrow: 'linear-gradient(180deg, #a7b5fe 0%, #adbafc 55%, #bec5f8 100%)',
+    compact: {
+      bg: `radial-gradient(80% 50% at 0% 100%, rgba(170,214,246,0.95) 0%, rgba(170,214,246,0) 100%),
+           linear-gradient(180deg, #9fa9fb 0%, #a3b4fb 40%, #98bdf4 100%)`,
+      panel: true, title: 'Пройди', tx: 35, ty: 36,
+      text: { x: 35, y: 67, font: "400 14.6px/18.6px Montserrat, sans-serif", ls: 0.15, color: 'rgba(255,255,255,0.85)',
+              html: 'медицинское<br>обследование' } } },
+  { n: 7, label: 'получи допуск',
+    narrow: 'linear-gradient(180deg, #e6717c 0%, #d4687e 100%)',
+    compact: {
+      bg: `radial-gradient(60% 55% at 100% 100%, rgba(194,130,158,0.9) 0%, rgba(194,130,158,0) 100%),
+           linear-gradient(118deg, #e8727c 0%, #de6a7a 30%, #c8627f 55%, #a95496 82%, #974fa3 100%)`,
+      panel: false, title: 'Получи', tx: 35, ty: 36,
+      text: { x: 44, y: 66, font: "300 16px/19.6px Inter, sans-serif", ls: -0.1, color: 'rgba(255,255,255,0.86)',
+              html: 'допуск к<br>процедуре от<br>врача-<br>трансфузиолога' } } },
+];
+
+/* Четыре ключевых состояния: какие карточки раскрыты и сдвиг ленты */
+const STATES = [
+  { open: { 1: 'big', 4: 'compact' }, shift: 0 },
+  { open: { 2: 'big', 5: 'compact' }, shift: 0 },
+  { open: { 3: 'big', 6: 'compact' }, shift: 0 },
+  { open: { 4: 'big', 7: 'compact' }, shift: -(SIZE.narrow + SIZE.gap) },
+];
+
+/* Таймлайн (секунды) */
+const T = {
+  countFrom: 0.3, countTo: 2.2,
+  transitions: [ [3.0, 4.1], [5.1, 6.2], [7.2, 8.4] ],
+  end: 10.6,
+};
+
+/* =====================================================================
+   УТИЛИТЫ
+   ===================================================================== */
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = t => ((ax * t + bx) * t + cx) * t;
+  const sy = t => ((ay * t + by) * t + cy) * t;
+  const dx = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => {
+    if (x <= 0) return 0; if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) { const e = sx(t) - x; const d = dx(t); if (Math.abs(e) < 1e-7) break; if (Math.abs(d) < 1e-6) break; t -= e / d; }
+    let lo = 0, hi = 1;
+    if (Math.abs(sx(t) - x) > 1e-5) { t = x; while (hi - lo > 1e-7) { if (sx(t) < x) lo = t; else hi = t; t = (lo + hi) / 2; } }
+    return sy(t);
+  };
+}
+const easeCards = bezier(0.76, 0, 0.24, 1);
+const easeCount = bezier(0.16, 1, 0.3, 1);
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/* =====================================================================
+   ПОСТРОЕНИЕ DOM
+   ===================================================================== */
+const track = document.getElementById('track');
+const view = {};   // ссылки на элементы карточек
+
+function el(tag, cls, parent, html) {
+  const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (parent) parent.appendChild(e); return e;
+}
+function textBlock(parent, t) {
+  const d = el('div', 'text', parent, t.html);
+  d.style.left = t.x + 'px'; d.style.top = t.y + 'px'; d.style.font = t.font; d.style.letterSpacing = t.ls + 'px';
+  if (t.color) d.style.color = t.color;
+  return d;
+}
+
+CARDS.forEach(c => {
+  const card = el('div', 'card', track);
+  const v = { card, bg: {}, layer: {} };
+
+  // фоны: узкий / компактный / большой
+  v.bg.narrow = el('div', 'bg', card); v.bg.narrow.style.background = c.narrow;
+  if (c.narrowFinal) { v.bg.narrowFinal = el('div', 'bg', card); v.bg.narrowFinal.style.background = c.narrowFinal; }
+  if (c.compact) { v.bg.compact = el('div', 'bg', card); v.bg.compact.style.background = c.compact.bg;
+                   if (c.compact.panel) el('div', 'panel', v.bg.compact); }
+  if (c.big) { v.bg.big = el('div', 'bg', card); v.bg.big.style.background = c.big.bg;
+               if (c.big.mountain) el('div', 'mountain', v.bg.big); }
+
+  // содержимое
+  v.layer.narrow = el('div', 'layer narrow', card);
+  el('div', 'vlabel', v.layer.narrow, `<span>${c.label}</span>`);
+  if (c.big) {
+    const L = v.layer.big = el('div', 'layer big', card);
+    const p = el('div', 'pill', L, c.big.title);
+    p.style.left = c.big.pill.x + 'px'; p.style.top = c.big.pill.y + 'px'; p.style.width = c.big.pill.w + 'px'; p.style.paddingLeft = c.big.pill.pad + 'px';
+    textBlock(L, c.big.text);
+  }
+  if (c.compact) {
+    const L = v.layer.compact = el('div', 'layer compact', card);
+    const t = el('div', 'title', L, c.compact.title); t.style.left = c.compact.tx + 'px'; t.style.top = c.compact.ty + 'px';
+    textBlock(L, c.compact.text);
+  }
+  v.num = el('div', 'num', card, String(c.n));
+  view[c.n] = v;
+});
+
+/* Геометрия номера в каждом виде (left/top внутри карточки) */
+function numPos(mode, w) {
+  if (mode === 'compact') return { x: w - 27 - 27, y: 25 };
+  if (mode === 'big') return { x: w - 27 - 14.5, y: 264 - 27 - 13 };
+  return { x: (w - 27) / 2, y: 264 - 27 - 13 };
+}
+
+/* Режим карточки в состоянии s, и вариант узкого фона */
+function modeOf(s, n) { return STATES[s].open[n] || 'narrow'; }
+function narrowKey(s, n) { return (n === 5 && s === 3 && view[5].bg.narrowFinal) ? 'narrowFinal' : 'narrow'; }
+
+/* =====================================================================
+   ОТРИСОВКА КАДРА ПО ВРЕМЕНИ t (детерминированно)
+   ===================================================================== */
+function cardsAt(t) {
+  // какой переход идёт / какое состояние
+  let from = 0, to = 0, p = 0;
+  for (let i = 0; i < T.transitions.length; i++) {
+    const [a, b] = T.transitions[i];
+    if (t >= b) { from = to = i + 1; p = 0; }
+    else if (t > a) { from = i; to = i + 1; p = (t - a) / (b - a); break; }
+    else break;
+  }
+  const e = easeCards(p);
+
+  CARDS.forEach(c => {
+    const v = view[c.n];
+    const m0 = modeOf(from, c.n), m1 = modeOf(to, c.n);
+    const w0 = SIZE[m0], w1 = SIZE[m1];
+    const w = lerp(w0, w1, e);
+    v.card.style.width = w.toFixed(3) + 'px';
+
+    // фоны движутся вместе с карточкой, плавный перелив
+    const k0 = m0 === 'narrow' ? narrowKey(from, c.n) : m0;
+    const k1 = m1 === 'narrow' ? narrowKey(to, c.n) : m1;
+    // нижний (по порядку в DOM) фон непрозрачен, верхний проявляется/гаснет поверх —
+    // карточка ни в какой момент не становится полупрозрачной
+    const keys = Object.keys(v.bg), i0 = keys.indexOf(k0), i1 = keys.indexOf(k1);
+    for (const key of keys) {
+      let o = 0;
+      if (k0 === k1) o = key === k0 ? 1 : 0;
+      else if (i0 < i1) o = key === k0 ? 1 : key === k1 ? e : 0;
+      else o = key === k1 ? 1 : key === k0 ? 1 - e : 0;
+      v.bg[key].style.opacity = o.toFixed(4);
+    }
+
+    // содержимое: уходящее гаснет рано, новое проявляется с задержкой
+    for (const key in v.layer) {
+      let o = 0;
+      if (m0 === m1) o = key === m0 ? 1 : 0;
+      else {
+        if (key === m0) o = 1 - smooth(0.0, 0.3, p);
+        if (key === m1) o = Math.max(o, smooth(0.42, 0.9, p));
+      }
+      v.layer[key].style.opacity = o.toFixed(4);
+      v.layer[key].style.visibility = o > 0.001 ? 'visible' : 'hidden';
+    }
+
+    // номер этапа
+    const a = numPos(m0, w), b = numPos(m1, w);
+    const x = lerp(a.x, b.x, e), y = lerp(a.y, b.y, e);
+    v.num.style.transform = `translate(${x.toFixed(3)}px, ${y.toFixed(3)}px)`;
+  });
+
+  const shift = lerp(STATES[from].shift, STATES[to].shift, e);
+  track.style.transform = `translate3d(${shift.toFixed(3)}px,0,0)`;
+
+  // мелкие различия референсов: стрелка в кнопке (1→2) и цвет «?» (2→3)
+  const p1 = transitionProgress(t, 0), p2 = transitionProgress(t, 1);
+  document.querySelector('.cta .chev').style.opacity = (1 - smooth(0.1, 0.6, p1)).toFixed(4);
+  document.querySelector('.cta .arrow').style.opacity = smooth(0.4, 0.9, p1).toFixed(4);
+  document.querySelector('.h1 .q b').style.opacity = easeCards(p2).toFixed(4);
+}
+function transitionProgress(t, i) { const [a, b] = T.transitions[i]; return clamp01((t - a) / (b - a)); }
+
+/* ---------- Лента-линия с переменной толщиной ---------- */
+const ribbons = {
+  A: { guide: document.getElementById('guideA'), out: document.getElementById('ribbonA'),
+       widths: [[0, 1.4], [0.1, 2.2], [0.2, 3.0], [0.3, 4.2], [0.42, 5.0], [0.5, 5.6], [0.7, 8.0], [0.82, 7.4], [0.92, 5.4], [1, 4.2]] },
+  B: { guide: document.getElementById('guideB'), out: document.getElementById('ribbonB'),
+       widths: [[0, 1.6], [0.14, 2.0], [0.2, 3.6], [0.3, 8.2], [0.45, 8.6], [0.6, 7.2], [0.72, 5.6], [0.84, 4.8], [1, 3.8]] },
+};
+function widthAt(table, u) {
+  for (let i = 1; i < table.length; i++) if (u <= table[i][0]) {
+    const [u0, w0] = table[i - 1], [u1, w1] = table[i]; const k = (u - u0) / (u1 - u0);
+    return lerp(w0, w1, k * k * (3 - 2 * k));
+  }
+  return table[table.length - 1][1];
+}
+for (const r of Object.values(ribbons)) {
+  const L = r.guide.getTotalLength(), N = 700; r.pts = [];
+  for (let i = 0; i <= N; i++) {
+    const s = (i / N) * L, p = r.guide.getPointAtLength(s);
+    const q = r.guide.getPointAtLength(Math.min(L, s + 0.5)), q0 = r.guide.getPointAtLength(Math.max(0, s - 0.5));
+    let tx = q.x - q0.x, ty = q.y - q0.y; const len = Math.hypot(tx, ty) || 1; tx /= len; ty /= len;
+    r.pts.push({ x: p.x, y: p.y, nx: -ty, ny: tx, w: widthAt(r.widths, i / N) });
+  }
+}
+function drawRibbon(r, u0, u1) {
+  if (u1 - u0 <= 0.0005) { r.out.setAttribute('d', ''); return; }
+  const N = r.pts.length - 1, i0 = Math.floor(u0 * N), i1 = Math.ceil(u1 * N);
+  const left = [], right = [];
+  for (let i = i0; i <= i1; i++) {
+    const p = r.pts[i];
+    // скругляем кончики при прорисовке
+    const tip = Math.min(1, (i - i0) / 6, (i1 - i) / 6);
+    const hw = p.w / 2 * (0.35 + 0.65 * tip);
+    left.push(`${(p.x + p.nx * hw).toFixed(2)},${(p.y + p.ny * hw).toFixed(2)}`);
+    right.push(`${(p.x - p.nx * hw).toFixed(2)},${(p.y - p.ny * hw).toFixed(2)}`);
+  }
+  r.out.setAttribute('d', 'M' + left.join('L') + 'L' + right.reverse().join('L') + 'Z');
+}
+function ribbonAt(t) {
+  const p1 = transitionProgress(t, 0), p2 = transitionProgress(t, 1);
+  // 1→2: линия A «стирается» вдоль пути, линия B прорисовывается
+  const ea = easeCards(clamp01(p1 / 0.85)), eb = easeCards(clamp01((p1 - 0.15) / 0.85));
+  drawRibbon(ribbons.A, ea, 1);
+  // 2→3: линия B мягко уходит вдоль своего пути за правый край
+  const ec = easeCards(p2);
+  drawRibbon(ribbons.B, ec, eb);
+}
+
+/* ---------- Счётчики-одометры ---------- */
+const counters = [...document.querySelectorAll('[data-counter]')].map(node => {
+  const target = +node.dataset.counter, digits = String(target).length;
+  node.innerHTML = '';
+  if (node.dataset.prefix) node.appendChild(document.createTextNode(node.dataset.prefix.replace(' ', ' ')));
+  const odo = el('span', 'odo', node);
+  const cols = [];
+  for (let k = digits - 1; k >= 0; k--) {
+    const col = el('span', 'col', odo);
+    const strip = el('span', 'strip', col, Array.from({ length: 11 }, (_, i) => `<span>${i % 10}</span>`).join(''));
+    cols.push({ k, col, strip });
+    if (k % 3 === 0 && k > 0) cols.push({ gapFor: k, node: el('span', 'gap', odo) });
+  }
+  // ширина цифры (табличные цифры у Inter одинаковы)
+  return { target, cols, odo };
+});
+function countersAt(t) {
+  const p = easeCount(clamp01((t - T.countFrom) / (T.countTo - T.countFrom)));
+  counters.forEach(c => {
+    const v = c.target * p;
+    const shown = Math.max(1, String(Math.floor(v)).length);
+    c.cols.forEach(o => {
+      if (o.gapFor != null) { o.node.style.display = o.gapFor < shown ? '' : 'none'; return; }
+      const { k } = o, P = Math.pow(10, k);
+      o.col.style.display = k < shown ? '' : 'none';
+      let pos;
+      if (k === 0) pos = v % 10;
+      else { const base = Math.floor(v / P) % 10; const lower = v % P; pos = base + clamp01(lower - (P - 1)); }
+      o.strip.style.transform = `translate3d(0, ${(-pos * 50).toFixed(3)}px, 0)`;
+    });
+  });
+}
+
+/* ---------- Кадр ---------- */
+function render(t) { countersAt(t); cardsAt(t); ribbonAt(t); }
+
+/* масштаб сцены под окно (без обрезки и растягивания) */
+function fit() {
+  const s = Math.min(innerWidth / 1078, innerHeight / 787);
+  document.getElementById('stage').style.transform = `scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+
+/* Запись: ?record — время задаётся извне через window.__render(t) */
+window.__render = render;
+window.__duration = T.end;
+render(0);
+document.fonts.ready.then(() => {
+  render(0);
+  window.__ready = true;
+  if (new URLSearchParams(location.search).has('record')) return;
+  const start = performance.now();
+  const loop = now => {
+    const t = (now - start) / 1000;
+    render(Math.min(t, T.end));
+    if (t < T.end) requestAnimationFrame(loop);   // финал остаётся на экране, без зацикливания
+  };
+  requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>
