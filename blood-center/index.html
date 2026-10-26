@@ -134,13 +134,12 @@
   }
   .cta .label { position: absolute; left: 294px; top: 0; line-height: 52px; }
   .cta .chev { position: absolute; left: 954px; top: 16px; width: 12px; height: 20px; }
-  .cta .arrow { position: absolute; left: 707px; top: 19px; width: 22px; height: 16px; opacity: 0; }
 
   /* ---------- Статистика ---------- */
   .stat { position: absolute; top: 641px; }
   .stat .value {
     height: 50px; display: flex; align-items: center; white-space: nowrap;
-    font-size: 42px; font-weight: 500; letter-spacing: -0.9px; line-height: 50px;
+    font-size: 42px; font-weight: 700; letter-spacing: -0.9px; line-height: 50px;
   }
   .stat .cap { margin-top: 0px; font-size: 17.2px; line-height: 22px; letter-spacing: 0.5px; color: #1d1d1f; font-weight: 400; }
   .odo { display: inline-flex; height: 50px; overflow: hidden; }
@@ -183,9 +182,7 @@
   <!-- Декоративная линия (за карточками) -->
   <svg id="ribbon" viewBox="0 0 1078 787" aria-hidden="true">
     <path id="guideA" fill="none" stroke="none" d="M735,332 C703,336 678,306 672,279 C682,222 732,98 772,99 C801,100 794,160 790,198 C787,233 770,253 766,239 C761,220 798,190 840,172 C902,146 985,124 1036,134 C1066,143 1052,190 1020,214 C990,238 948,266 903,292"/>
-    <path id="guideB" fill="none" stroke="none" d="M1082,390 C1020,378 962,364 902,346 C850,330 808,306 787,292 C748,262 705,228 685,197 C670,172 698,152 742,141 C804,128 880,158 940,194 C980,220 1004,258 1003,280 C1002,296 986,290 978,264 C968,228 972,158 989,124 C1004,98 1024,124 1044,163 C1059,193 1071,214 1086,234"/>
     <path id="ribbonA" class="fill"/>
-    <path id="ribbonB" class="fill"/>
   </svg>
 
   <!-- Карточки -->
@@ -195,7 +192,6 @@
   <div class="cta">
     <span class="label">Узнай, можешь ли ты стать донором?</span>
     <svg class="chev" viewBox="0 0 12 20"><path d="M2 2 L10 10 L2 18" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <svg class="arrow" viewBox="0 0 22 16"><path d="M1 8 H20 M13.5 1.5 L20.2 8 L13.5 14.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 
   <!-- Статистика -->
@@ -431,10 +427,8 @@ function cardsAt(t) {
   const shift = lerp(STATES[from].shift, STATES[to].shift, e);
   track.style.transform = `translate3d(${shift.toFixed(3)}px,0,0)`;
 
-  // мелкие различия референсов: стрелка в кнопке (1→2) и цвет «?» (2→3)
-  const p1 = transitionProgress(t, 0), p2 = transitionProgress(t, 1);
-  document.querySelector('.cta .chev').style.opacity = (1 - smooth(0.1, 0.6, p1)).toFixed(4);
-  document.querySelector('.cta .arrow').style.opacity = smooth(0.4, 0.9, p1).toFixed(4);
+  // цвет «?» меняется при переходе 2→3, как на референсах
+  const p2 = transitionProgress(t, 1);
   document.querySelector('.h1 .q b').style.opacity = easeCards(p2).toFixed(4);
 }
 function transitionProgress(t, i) { const [a, b] = T.transitions[i]; return clamp01((t - a) / (b - a)); }
@@ -443,8 +437,6 @@ function transitionProgress(t, i) { const [a, b] = T.transitions[i]; return clam
 const ribbons = {
   A: { guide: document.getElementById('guideA'), out: document.getElementById('ribbonA'),
        widths: [[0, 1.4], [0.1, 2.2], [0.2, 3.0], [0.3, 4.2], [0.42, 5.0], [0.5, 5.6], [0.7, 8.0], [0.82, 7.4], [0.92, 5.4], [1, 4.2]] },
-  B: { guide: document.getElementById('guideB'), out: document.getElementById('ribbonB'),
-       widths: [[0, 1.6], [0.14, 2.0], [0.2, 3.6], [0.3, 8.2], [0.45, 8.6], [0.6, 7.2], [0.72, 5.6], [0.84, 4.8], [1, 3.8]] },
 };
 function widthAt(table, u) {
   for (let i = 1; i < table.length; i++) if (u <= table[i][0]) {
@@ -477,13 +469,8 @@ function drawRibbon(r, u0, u1) {
   r.out.setAttribute('d', 'M' + left.join('L') + 'L' + right.reverse().join('L') + 'Z');
 }
 function ribbonAt(t) {
-  const p1 = transitionProgress(t, 0), p2 = transitionProgress(t, 1);
-  // 1→2: линия A «стирается» вдоль пути, линия B прорисовывается
-  const ea = easeCards(clamp01(p1 / 0.85)), eb = easeCards(clamp01((p1 - 0.15) / 0.85));
-  drawRibbon(ribbons.A, ea, 1);
-  // 2→3: линия B мягко уходит вдоль своего пути за правый край
-  const ec = easeCards(p2);
-  drawRibbon(ribbons.B, ec, eb);
+  // 1→2: линия «стирается» вдоль своего пути и больше не появляется
+  drawRibbon(ribbons.A, easeCards(transitionProgress(t, 0)), 1);
 }
 
 /* ---------- Счётчики-одометры ---------- */
