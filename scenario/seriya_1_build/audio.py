@@ -6,25 +6,39 @@ N = int(SR * D)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 rng = np.random.default_rng(7)
 
-# (id, start, voice, rate, pitch, text, subtitle, filter)
+# (id, start, voice, length_scale, pitch_semitones, text ('|' = пауза), subtitle, filter)
+MODELS = '../models'
 LINES = [
-    ('n1', 0.4, 'aleksandr-hq', 85, 45, 'Я запомнил это утро по секундам. Семь сорок две.', 'Я запомнил это утро по секундам. 7:42.', None),
-    ('l1', 11.0, 'anna', 115, 60, 'Что это было?!', '— Что это было?!', None),
-    ('n2', 15.4, 'aleksandr-hq', 92, 45, 'Город Зет. Миллион человек. Через час здесь будет ад. Нам надо в Сосновку, к родителям. Сто сорок километров.',
+    ('n1', 0.4, 'denis', 1.12, 0, 'Я запомнил это утро по секундам.|Семь сорок две.', 'Я запомнил это утро по секундам. 7:42.', None),
+    ('l1', 10.9, 'irina', 0.92, 1, 'Что это было?!', '— Что это было?!', None),
+    ('n2', 15.3, 'denis', 1.08, 0, 'Город Зэт.|Миллион человек.|Через час здесь будет ад.|Нам надо в Сосновку, к родителям.|Сто сорок километров.',
      'Город Z. Миллион человек. Через час здесь будет ад. Нам надо в Сосновку, к родителям. 140 километров.', None),
-    ('s1', 28.5, 'yuriy', 80, 30, 'Не учения это, сынок. Окна заклей.', '— Не учения это, сынок. Окна заклей.', None),
-    ('m1', 39.6, 'tatiana', 112, 55, 'Сынок! Слушай! Не езжайте по трассе! Там', '— Сынок! Слушай! Не езжайте по трассе! Там…', 'phone'),
-    ('n3', 51.9, 'aleksandr-hq', 95, 40, 'В тот момент я ещё не знал, что это был её последний звонок.', 'В тот момент я ещё не знал, что это был её последний звонок.', None),
+    ('s1', 28.5, 'dmitri', 1.18, -3, 'Не учения это, сынок.|Окна заклей.', '— Не учения это, сынок. Окна заклей.', None),
+    ('m1', 40.9, 'irina', 0.95, -2, 'Сынок!|Слушай!|Не езжайте по трассе!|Там', '— Сынок! Слушай! Не езжайте по трассе! Там…', 'phone'),
+    ('n3', 52.0, 'denis', 1.1, 0, 'В тот момент я ещё не знал,|что это был её последний звонок.', 'В тот момент я ещё не знал, что это был её последний звонок.', None),
 ]
-
-def tts(i, voice, rate, pitch, text, flt):
+from piper import PiperVoice
+from piper.config import SynthesisConfig
+_V = {}
+def tts(i, voice, ls, semi, text, flt):
+    if voice not in _V:
+        _V[voice] = PiperVoice.load(f'{MODELS}/vits-piper-ru_RU-{voice}-medium/ru_RU-{voice}-medium.onnx')
+    v = _V[voice]; sr = v.config.sample_rate; parts = []
+    cfg = SynthesisConfig(length_scale=ls, noise_scale=0.75, noise_w_scale=0.9)
+    pause = 0.25 if flt == 'phone' else 0.45
+    for k, seg in enumerate(text.split('|')):
+        audio = np.concatenate([c.audio_float_array for c in v.synthesize(seg, syn_config=cfg)])
+        parts += [audio, np.zeros(int(sr * pause))]
     raw, out = f'{i}_raw.wav', f'{i}.wav'
-    subprocess.run(['RHVoice-test', '-p', voice, '-r', str(rate), '-t', str(pitch), '-o', raw], input=text.encode(), check=True)
-    af = 'highpass=f=350,lowpass=f=2800,volume=1.6' if flt == 'phone' else 'acompressor=threshold=-18dB:ratio=3,bass=g=3'
+    a = np.concatenate(parts[:-1])
+    with wave.open(raw, 'wb') as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes((np.clip(a, -1, 1) * 32767).astype(np.int16).tobytes())
+    f = 2 ** (semi / 12)
+    af = f'asetrate={int(sr * f)},aresample={sr},atempo={1 / f:.4f},' if semi else ''
+    af += 'highpass=f=350,lowpass=f=2800,volume=1.6' if flt == 'phone' else 'highpass=f=70,acompressor=threshold=-20dB:ratio=2.5,bass=g=2,aecho=0.8:0.6:20:0.06'
     subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', raw, '-af', af, '-ar', str(SR), '-ac', '1', out], check=True)
     with wave.open(out) as w:
-        a = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
-    return a
+        return np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
 
 def t2i(t): return int(t * SR)
 def env(n, a=0.01, r=0.1):

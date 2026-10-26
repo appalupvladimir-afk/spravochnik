@@ -165,7 +165,6 @@ def finish(im, t, shake=0.0, white=0.0, dark=0.0):
         yy, xx = np.mgrid[0:H, 0:W]; r = np.sqrt(((xx - W / 2) / (W * .75)) ** 2 + ((yy - H / 2) / (H * .7)) ** 2)
         VIG = np.clip(1.15 - r * 0.75, 0.25, 1)[..., None]
     a = a * VIG * (1 - dark)
-    a += rng.normal(0, 7, (H // 2, W // 2, 1)).repeat(2, 0).repeat(2, 1)
     a = a * (1 - white) + 255 * white
     im = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
     return subtitle(im, t)
