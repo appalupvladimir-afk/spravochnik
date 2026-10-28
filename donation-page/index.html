@@ -402,6 +402,7 @@ window.startDemo = startDemo;
 window.stopDemo = stopDemo;
 // служебный доступ для покадровой проверки: зафиксировать время и отрисовать кадр
 window.__renderAt = t => { external = true; frame(t); };
+window.__demo = demo;
 
 document.fonts.ready.then(() => {
   requestAnimationFrame(loop);
