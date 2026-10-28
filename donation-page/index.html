@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как происходит донация — Центр крови О.К. Гаврилова</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  /* Эталон — десктопные скриншоты шириной 1750 px. Каждая секция свёрстана
+     в координатах эталона и целиком масштабируется под ширину окна (--k). */
+  :root { --k: 1; --pink: #fca3a1; --ink: #000; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #fff; }
+  body { background: #fff; color: var(--ink); overflow-x: hidden;
+         font-family: 'Montserrat', sans-serif; font-weight: 500;
+         -webkit-font-smoothing: antialiased; }
+
+  .section { position: relative; width: 100%; height: calc(var(--h) * var(--k) * 1px); overflow: hidden; }
+  .frame { position: absolute; left: 0; top: 0; width: 1750px; height: calc(var(--h) * 1px);
+           transform: scale(var(--k)); transform-origin: 0 0; }
+  .abs { position: absolute; }
+  .layer { position: absolute; display: block; }
+
+  /* ---------- Шапка ---------- */
+  .logo { left: 20px; top: 25px; width: 330px; height: 110px; }
+  .nav-pill { left: 377px; top: 44px; width: 491px; height: 63px; border-radius: 14px; background: var(--pink); }
+  .nav-item { top: 52px; font-size: 32px; line-height: 44px; letter-spacing: 0.6px; white-space: nowrap; }
+
+  /* ---------- Hero ---------- */
+  .hero-title { left: 24px; top: 279px; font-family: 'Montserrat Alternates', 'Montserrat', sans-serif;
+                font-weight: 800; font-size: 165px; line-height: 164px; letter-spacing: 2.6px; white-space: nowrap; }
+  .hero-line { left: 0; top: 0; width: 1750px; height: 890px; }
+  .hero-border { left: 0; top: 886px; width: 1750px; height: 4px; background: #484848; }
+
+  /* ---------- Шаги ---------- */
+  .outline { left: 0; top: 0; overflow: visible; }
+  .step-num { font-family: 'Belanosima', sans-serif; font-weight: 400; color: #000; white-space: nowrap; }
+  .step-text { white-space: nowrap; color: #000; }
+  .step-text h2 { font-weight: 800; }
+  .step-text p { font-weight: 500; }
+  .step-text b, .step-text a { font-weight: 800; }
+  .step-text a { color: inherit; text-decoration: none; }
+
+  /* Появление элементов секции (значения пишет JS) */
+  .reveal { will-change: opacity, transform; }
+  .char-canvas { position: absolute; display: block; }
+</style>
+</head>
+<body>
+<main id="page"></main>
+
+<script>
+'use strict';
+/* =====================================================================
+   КОНФИГУРАЦИЯ: геометрия эталонов (px в координатах скриншотов 1750 px)
+   ===================================================================== */
+const DESIGN_W = 1750;
+
+const HERO = {
+  h: 890,
+  logo: { src: 'assets/logo.png', x: 20, y: 25, w: 330, h: 110 },
+  nav: [
+    { text: 'как происходит донация?', x: 391 },
+    { text: 'я донор', x: 900 },
+    { text: 'о нас', x: 1087 },
+    { text: 'новости', x: 1227 },
+  ],
+  // эритроциты: порядок слоёв — от дальнего к ближнему
+  cells: [
+    { id: 'A', x: 1138, y: 216, w: 320, h: 303, float: { ax: 4, ay: 7, rot: 1.2, sc: 0.006, px: 9.2, py: 7.4, pr: 10.6, ph: 0.0 } },
+    { id: 'B', x: 1465, y: 175, w: 245, h: 236, float: { ax: 3, ay: 6, rot: 1.4, sc: 0.007, px: 7.8, py: 6.3, pr: 8.9,  ph: 1.7 } },
+    { id: 'D', x: 1081, y: 591, w: 301, h: 290, float: { ax: 5, ay: 8, rot: 1.0, sc: 0.005, px: 10.4, py: 8.6, pr: 9.7, ph: 3.1 } },
+    { id: 'C', x: 1287, y: 395, w: 458, h: 373, float: { ax: 3, ay: 5, rot: 0.8, sc: 0.004, px: 11.0, py: 9.4, pr: 10.2, ph: 4.4 } },
+  ],
+  // наклонная линия (центр штриха), уходит под клетки
+  line: { x1: 60, y1: 723.2, x2: 1320, y2: 654, w: 12.6 },
+};
+
+const STEPS = [
+  { n: 1, h: 886,
+    blob: { src: 'assets/step1-blob.png', x: 431, y: 25, w: 1229, h: 812 },
+    char: { src: 'assets/step1-char.png', x: 63, y: 40, w: 395, h: 806 },
+    ellipse: { cx: 976.5, cy: 436.5, rx: 403.5, ry: 911.0, angle: 81.42, front: [] },
+    num: { x: 424, y: 55, size: 287 },
+    text: { x: 572, y: 232,
+      html: '<h2 style="font-size:77.5px;line-height:84px">Ознакомься</h2>' +
+            '<p style="font-size:63.4px;line-height:80px;margin-top:6px">с перечнем<br>противопоказаний<br>и донорским светофором</p>' },
+    rig: [ // микродвижения: центр/радиус влияния, ось поворота, амплитуды, период (с), фаза
+      { c: [220, 140], r: 105, pivot: [205, 268], rot: 1.5, tx: 0.8, ty: 0.6, period: 6.6, phase: 0.0 },          // голова «вчитывается»
+      { c: [368, 300], r: 92, pivot: [330, 410], rot: 1.6, tx: 2.6, ty: 2.0, period: 5.3, phase: 1.3 },            // рука с листом
+      { c: [226, 240], r: 40, pivot: [205, 300], rot: 1.0, tx: 1.2, ty: 1.0, period: 4.4, phase: 2.6 },            // рука у подбородка
+      { c: [205, 390], r: 125, pivot: [205, 840], rot: 0.0, tx: 0.0, ty: -1.2, period: 4.8, phase: 0.7 },          // дыхание
+    ] },
+  { n: 2, h: 932,
+    blob: { src: 'assets/step2-blob.png', x: 99, y: 112, w: 1097, h: 655 },
+    char: { src: 'assets/step2-char.png', x: 1152, y: 130, w: 508, h: 722 },
+    ellipse: { cx: 841.2, cy: 440.5, rx: 406.9, ry: 904.4, angle: 91.56, front: [] },
+    num: { x: 98, y: 66, size: 342 },
+    text: { x: 304, y: 232,
+      html: '<h2 style="font-size:77.3px;line-height:84px">Запишись</h2>' +
+            '<p style="font-size:56.5px;line-height:68px;margin-top:5px">прием на донацию крови<br>проходит без записи<br>ежедневно с 8:00 до 13:30<br>Запись на тромбоциты<br><a>здесь</a></p>' },
+    rig: [
+      { c: [1440, 270], r: 160, pivot: [1420, 470], rot: 1.2, tx: 0.6, ty: 0.5, period: 6.8, phase: 0.4 },         // голова
+      { c: [1428, 498], r: 44, pivot: [1460, 560], rot: 2.0, tx: 2.4, ty: 1.4, period: 1.35, phase: 0, write: 5.6 }, // рука с ручкой «пишет»
+      { c: [1288, 562], r: 100, pivot: [1300, 680], rot: 1.0, tx: 1.6, ty: 1.2, period: 5.7, phase: 2.0 },         // рука с листом
+      { c: [1420, 560], r: 140, pivot: [1420, 840], rot: 0.0, tx: 0.0, ty: -1.0, period: 4.9, phase: 1.1 },        // дыхание
+    ] },
+  { n: 3, h: 866,
+    blob: { src: 'assets/step3-blob.png', x: 344, y: 57, w: 1393, h: 756 },
+    char: { src: 'assets/step3-char.png', x: 33, y: 134, w: 432, h: 679 },
+    ellipse: { cx: 906.4, cy: 451.1, rx: 395.2, ry: 842.9, angle: 90.0,
+               front: [[4.0254, 4.0862], [4.9449, 5.3679]] },
+    num: { x: 429, y: 82, size: 340 },
+    text: { x: 604, y: 262,
+      html: '<h2 style="font-size:77.6px;line-height:88px">Подготовься к донации</h2>' +
+            '<p style="font-size:56.3px;line-height:69.5px;margin-top:6px">соблюдай <b>диету донора</b>,<br>возьми с собой паспорт<br>приезжай за 10-15 минут<br>до назначенного времени<br>в выбранное отделение</p>' },
+    rig: [
+      { c: [240, 260], r: 165, pivot: [240, 425], rot: 1.6, tx: 0.8, ty: 0.4, period: 7.0, phase: 0.2 },          // голова к часам
+      { c: [398, 440], r: 55, pivot: [330, 470], rot: 1.5, tx: 2.6, ty: 2.0, period: 5.4, phase: 1.5 },           // рука с часами
+      { c: [88, 572], r: 70, pivot: [150, 520], rot: 1.5, tx: 2.4, ty: 1.6, period: 6.2, phase: 3.0 },            // вторая рука
+      { c: [235, 470], r: 135, pivot: [235, 800], rot: 0.3, tx: 1.2, ty: -0.8, period: 7.6, phase: 0.9 },         // перенос веса
+    ] },
+];
+
+/* Сценарий деморежима (секунды) */
+const DEMO = [
+  { at: 0, hold: 3.0 },                 // первый экран
+  { to: 1, start: 3.1, dur: 1.8 },      // → шаг 1
+  { to: 2, start: 8.1, dur: 1.8 },      // → шаг 2
+  { to: 3, start: 13.1, dur: 1.8 },     // → шаг 3, затем пауза до 0:19
+];
+const DEMO_END = 19;
+
+/* =====================================================================
+   ВРЕМЯ, ДВИЖЕНИЕ, УТИЛИТЫ
+   ===================================================================== */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const params = new URLSearchParams(location.search);
+// ?still=1 — нейтральная фаза (без микродвижений) для сверки со скриншотами
+const stillPose = reduceMotion || params.has('still');
+const T0 = performance.now();
+let clock = () => (performance.now() - T0) / 1000;   // можно подменить извне (window.__setClock)
+
+const TAU = Math.PI * 2;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+const el = (tag, cls, parent, attrs = {}) => {
+  const e = tag === 'svg' ? document.createElementNS('http://www.w3.org/2000/svg', 'svg') : document.createElement(tag);
+  if (cls) e.setAttribute('class', cls);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e); return e;
+};
+const place = (node, x, y, w, h) => {
+  node.style.left = x + 'px'; node.style.top = y + 'px';
+  if (w != null) node.style.width = w + 'px'; if (h != null) node.style.height = h + 'px';
+};
+// мягкая «органическая» волна: сумма двух синусов с некратными периодами, |v| ≤ 1
+const wave = (t, period, phase) => 0.72 * Math.sin(TAU * t / period + phase) + 0.28 * Math.sin(TAU * t / (period * 1.618) + phase * 1.7);
+
+/* =====================================================================
+   КОМПОНЕНТЫ
+   ===================================================================== */
+const page = document.getElementById('page');
+
+function Section(h) {
+  const s = el('section', 'section', page); s.style.setProperty('--h', h);
+  const f = el('div', 'frame', s);
+  return { section: s, frame: f };
+}
+
+function Header(frame) {
+  const logo = el('img', 'abs logo', frame, { src: HERO.logo.src, alt: 'Центр крови О.К. Гаврилова' });
+  el('div', 'abs nav-pill', frame);
+  HERO.nav.forEach(i => { const a = el('a', 'abs nav-item', frame); a.textContent = i.text; a.style.left = i.x + 'px'; });
+  return logo;
+}
+
+function Hero() {
+  const { section, frame } = Section(HERO.h);
+  // линия — под клетками
+  const svg = el('svg', 'abs hero-line', frame, { viewBox: '0 0 1750 890' });
+  const L = HERO.line;
+  svg.innerHTML = `<line x1="${L.x1}" y1="${L.y1}" x2="${L.x2}" y2="${L.y2}" stroke="#000" stroke-width="${L.w}"/>`;
+  const cells = HERO.cells.map(c => {
+    const img = el('img', 'layer cell', frame, { src: `assets/cell-${c.id}.png`, alt: '', draggable: 'false' });
+    place(img, c.x, c.y, c.w, c.h);
+    img.style.transformOrigin = '50% 50%'; img.style.willChange = 'transform';
+    return { cfg: c, img };
+  });
+  // заголовок — поверх клеток
+  const h1 = el('h1', 'abs hero-title', frame); h1.innerHTML = 'Как происходит<br><span style="letter-spacing:3.5px">донация?</span>';
+  Header(frame);
+  el('div', 'abs hero-border', frame);
+  return { section, cells };
+}
+
+function StepSection(cfg) {
+  const { section, frame } = Section(cfg.h);
+  const E = cfg.ellipse;
+  const ellipseSvg = (extra = '') =>
+    `<ellipse cx="${E.cx}" cy="${E.cy}" rx="${E.rx}" ry="${E.ry}" transform="rotate(${E.angle} ${E.cx} ${E.cy})" fill="none" stroke="#000" stroke-width="2.8" ${extra}/>`;
+
+  // слои: контур → плашка → дуги контура поверх плашки → номер → персонаж → текст
+  const outline = el('svg', 'abs outline reveal', frame, { viewBox: `0 0 1750 ${cfg.h}`, width: 1750, height: cfg.h });
+  outline.innerHTML = ellipseSvg();
+  const blob = el('img', 'layer reveal', frame, { src: cfg.blob.src, alt: '' });
+  place(blob, cfg.blob.x, cfg.blob.y, cfg.blob.w, cfg.blob.h);
+  let front = null;
+  if (E.front.length) {
+    front = el('svg', 'abs outline reveal', frame, { viewBox: `0 0 1750 ${cfg.h}`, width: 1750, height: cfg.h });
+    const a = E.rx, b = E.ry, ang = E.angle * Math.PI / 180;
+    const pt = t => [E.cx + a * Math.cos(t) * Math.cos(ang) - b * Math.sin(t) * Math.sin(ang),
+                     E.cy + a * Math.cos(t) * Math.sin(ang) + b * Math.sin(t) * Math.cos(ang)];
+    front.innerHTML = E.front.map(([t0, t1]) => {
+      const pts = []; for (let i = 0; i <= 40; i++) pts.push(pt(t0 + (t1 - t0) * i / 40).map(v => v.toFixed(1)).join(','));
+      return `<polyline points="${pts.join(' ')}" fill="none" stroke="#000" stroke-opacity="0.72" stroke-width="2.8" stroke-linecap="round"/>`;
+    }).join('');
+  }
+  const num = el('div', 'abs step-num reveal', frame);
+  num.textContent = cfg.n; num.style.left = cfg.num.x + 'px'; num.style.top = cfg.num.y + 'px';
+  num.style.fontSize = cfg.num.size + 'px'; num.style.lineHeight = cfg.num.size + 'px';
+  const ch = Character(frame, cfg.char, cfg.rig);
+  const text = el('div', 'abs step-text reveal', frame); text.innerHTML = cfg.text.html;
+  text.style.left = cfg.text.x + 'px'; text.style.top = cfg.text.y + 'px';
+
+  // порядок проявления: плашка → номер → персонаж → текст (шаг 120 мс)
+  const reveal = [[outline, 0], [blob, 0], [front, 0], [num, 0.12], [ch, 0.24], [text, 0.36]].filter(r => r[0]);
+  return { section, character: ch, reveal, revealedAt: null };
+}
+
+/* ---------- Персонаж: исходная иллюстрация + мягкая деформация (WebGL) ---------- */
+const MARGIN = 18;   // запас по краям холста, чтобы микродвижение не обрезалось
+function Character(frame, img, rig) {
+  const canvas = el('canvas', 'char-canvas reveal', frame);
+  place(canvas, img.x - MARGIN, img.y - MARGIN, img.w + 2 * MARGIN, img.h + 2 * MARGIN);
+  const handles = rig.map(h => ({ ...h, c: [h.c[0] - img.x, h.c[1] - img.y], pivot: [h.pivot[0] - img.x, h.pivot[1] - img.y] }));
+  const state = { canvas, handles, img, gl: null, ready: false, fallback: null };
+
+  const gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
+  const image = new Image();
+  image.src = img.src;
+  if (!gl) {   // без WebGL — статичная исходная картинка
+    canvas.replaceWith(image); image.className = 'layer reveal'; place(image, img.x, img.y, img.w, img.h);
+    state.canvas = image; state.fallback = true; return state;
+  }
+  const vs = `attribute vec2 p; varying vec2 v; uniform vec2 S; void main(){ v=(p*0.5+0.5)*S; v.y=S.y-v.y; gl_Position=vec4(p,0.,1.); }`;
+  const fs = `precision highp float; varying vec2 v; uniform sampler2D tex; uniform vec2 S; uniform vec2 I; uniform float M;
+    uniform vec2 C[6]; uniform float R[6]; uniform vec2 P[6]; uniform vec2 Tr[6]; uniform float A[6]; uniform int N;
+    void main(){
+      vec2 p=v-vec2(M); vec2 d=vec2(0.);
+      for(int i=0;i<6;i++){ if(i>=N) break;
+        vec2 q=p-C[i]; float w=exp(-dot(q,q)/(2.*R[i]*R[i]));
+        float c=cos(A[i]), s=sin(A[i]); vec2 r=p-P[i];
+        vec2 moved=vec2(c*r.x-s*r.y, s*r.x+c*r.y)+P[i]+Tr[i];
+        d+=w*(moved-p); }
+      vec2 src=(p-d)/I;
+      if(src.x<0.||src.y<0.||src.x>1.||src.y>1.){ gl_FragColor=vec4(0.); return; }
+      gl_FragColor=texture2D(tex,src); }`;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = n => gl.getUniformLocation(prog, n);
+  state.gl = gl; state.U = { S: U('S'), I: U('I'), M: U('M'), C: U('C'), R: U('R'), P: U('P'), Tr: U('Tr'), A: U('A'), N: U('N') };
+  image.onload = () => {
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image); }
+    catch (e) {   // страница открыта как file:// — показываем исходную картинку без деформации
+      const still = image.cloneNode(); still.className = canvas.className.replace('char-canvas', 'layer');
+      place(still, img.x, img.y, img.w, img.h); canvas.replaceWith(still); state.canvas = still;
+      state.gl = null; return;
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    state.ready = true; resizeCharacter(state); drawCharacter(state, 0, true);
+  };
+  return state;
+}
+function resizeCharacter(st) {
+  if (!st.gl) return;
+  const k = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--k')) || 1;
+  const s = Math.min(2.5, (devicePixelRatio || 1) * k);
+  const W = st.img.w + 2 * MARGIN, H = st.img.h + 2 * MARGIN;
+  st.canvas.width = Math.round(W * s); st.canvas.height = Math.round(H * s);
+  st.gl.viewport(0, 0, st.canvas.width, st.canvas.height);
+}
+function drawCharacter(st, t, still) {
+  if (!st.ready || !st.gl) return;
+  const gl = st.gl, U = st.U, n = st.handles.length;
+  const C = [], R = [], P = [], Tr = [], A = [];
+  st.handles.forEach(h => {
+    let k = still ? 0 : 1, ph = h.phase;
+    let wx = wave(t, h.period, ph), wy = wave(t, h.period * 1.13, ph + 1.1), wr = wave(t, h.period * 0.94, ph + 2.3);
+    if (h.write) {  // «пишет»: короткие штрихи, перемежающиеся мягкими паузами
+      const env = Math.pow(Math.max(0, Math.sin(TAU * t / h.write + ph)), 2);
+      k *= env; wx = Math.sin(TAU * t / h.period); wy = Math.sin(TAU * t / (h.period * 0.5)) * 0.6;
+      wr = Math.sin(TAU * t / h.period + 0.8);
+    }
+    C.push(...h.c); R.push(h.r); P.push(...h.pivot);
+    Tr.push(k * h.tx * wx, k * h.ty * wy); A.push(k * h.rot * wr * Math.PI / 180);
+  });
+  while (C.length < 12) { C.push(0, 0); P.push(0, 0); Tr.push(0, 0); R.push(1); A.push(0); }
+  gl.uniform2f(U.S, st.img.w + 2 * MARGIN, st.img.h + 2 * MARGIN);
+  gl.uniform2f(U.I, st.img.w, st.img.h); gl.uniform1f(U.M, MARGIN);
+  gl.uniform2fv(U.C, C); gl.uniform1fv(U.R, R); gl.uniform2fv(U.P, P); gl.uniform2fv(U.Tr, Tr); gl.uniform1fv(U.A, A);
+  gl.uniform1i(U.N, n);
+  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/* =====================================================================
+   СБОРКА СТРАНИЦЫ
+   ===================================================================== */
+const hero = Hero();
+const steps = STEPS.map(StepSection);
+
+function layout() {
+  const k = document.documentElement.clientWidth / DESIGN_W;
+  document.documentElement.style.setProperty('--k', k);
+  steps.forEach(s => resizeCharacter(s.character));
+  // запас внизу, чтобы шаг 3 можно было выставить верхним краем к окну, как на скриншоте 4
+  const last = steps[steps.length - 1].section;
+  page.style.paddingBottom = Math.max(0, innerHeight - last.offsetHeight) + 'px';
+}
+addEventListener('resize', layout); layout();
+
+/* ---------- Появление секций при прокрутке ---------- */
+const REVEAL_DUR = 0.9, REVEAL_DY = 14;
+function updateReveal(t) {
+  const vh = innerHeight;
+  steps.forEach(s => {
+    if (s.revealedAt == null) {
+      const r = s.section.getBoundingClientRect();
+      if (r.top < vh * 0.72 && r.bottom > 0) s.revealedAt = t;
+    }
+    s.reveal.forEach(([item, delay]) => {
+      const node = item.canvas || item;
+      let p = reduceMotion ? 1 : s.revealedAt == null ? 0 : easeOutCubic(clamp01((t - s.revealedAt - delay) / REVEAL_DUR));
+      node.style.opacity = p.toFixed(4);
+      node.style.transform = p >= 1 ? '' : `translate3d(0, ${((1 - p) * REVEAL_DY).toFixed(2)}px, 0)`;
+    });
+  });
+}
+
+/* ---------- Эритроциты: невесомое плавание ---------- */
+function updateCells(t) {
+  hero.cells.forEach(({ cfg, img }) => {
+    if (stillPose) { img.style.transform = ''; return; }
+    const f = cfg.float;
+    const x = f.ax * Math.sin(TAU * t / f.px + f.ph);
+    const y = f.ay * Math.sin(TAU * t / f.py + f.ph * 1.3);
+    const r = f.rot * Math.sin(TAU * t / f.pr + f.ph * 0.7);
+    const s = 1 + f.sc * Math.sin(TAU * t / (f.py * 1.21) + f.ph);
+    img.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${r.toFixed(3)}deg) scale(${s.toFixed(4)})`;
+  });
+}
+
+/* ---------- Деморежим: последовательная прокрутка экранов ---------- */
+const demo = { on: false, start: 0 };
+function startDemo() {
+  if (reduceMotion) return;
+  demo.on = true; demo.start = clock(); scrollTo(0, 0);
+}
+function stopDemo() { demo.on = false; }
+['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(ev => addEventListener(ev, e => { if (e.isTrusted) stopDemo(); }, { passive: true }));
+function updateDemo(t) {
+  if (!demo.on) return;
+  const d = t - demo.start;
+  let y = 0;
+  for (const s of DEMO) {
+    if (s.to == null) continue;
+    const from = s.to === 1 ? 0 : steps[s.to - 2].section.offsetTop;
+    const to = Math.min(steps[s.to - 1].section.offsetTop, document.documentElement.scrollHeight - innerHeight);
+    if (d >= s.start + s.dur) y = to;
+    else if (d > s.start) { y = from + (to - from) * easeInOutCubic((d - s.start) / s.dur); break; }
+    else break;
+  }
+  scrollTo(0, y);
+  if (d >= DEMO_END) demo.on = false;   // остаёмся на шаге 3, без возврата
+}
+
+/* ---------- Главный цикл ---------- */
+function frame(t) {
+  updateDemo(t);
+  updateCells(t);
+  updateReveal(t);
+  steps.forEach(s => {
+    const r = s.section.getBoundingClientRect();
+    if (r.bottom > -50 && r.top < innerHeight + 50) drawCharacter(s.character, t, stillPose);
+  });
+}
+let external = false;
+function loop() { if (!external) frame(clock()); requestAnimationFrame(loop); }
+
+window.startDemo = startDemo;
+window.stopDemo = stopDemo;
+// служебный доступ для покадровой проверки: зафиксировать время и отрисовать кадр
+window.__renderAt = t => { external = true; frame(t); };
+
+document.fonts.ready.then(() => {
+  requestAnimationFrame(loop);
+  if (params.get('demo') === '1') startDemo();
+});
+</script>
+</body>
+</html>
